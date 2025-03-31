@@ -1,15 +1,17 @@
-
 import React, { useState } from 'react';
+import { Link } from 'react-router-dom';
 import UrlShortenerForm from '@/components/UrlShortenerForm';
 import ShortenedUrlResult from '@/components/ShortenedUrlResult';
 import FeatureShowcase from '@/components/FeatureShowcase';
 import { UrlData } from '@/utils/urlUtils';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Link2 } from "lucide-react";
+import { useAuthState } from '@/hooks/useAuthState';
 
 const Index = () => {
   const [shortenedUrlData, setShortenedUrlData] = useState<UrlData | null>(null);
   const [fullShortenedUrl, setFullShortenedUrl] = useState<string>('');
+  const { user } = useAuthState();
 
   const handleUrlShortened = (urlData: UrlData, fullUrl: string) => {
     setShortenedUrlData(urlData);
@@ -30,13 +32,25 @@ const Index = () => {
               </h1>
             </div>
             <div className="flex items-center space-x-4">
-              <a href="#" className="text-gray-600 hover:text-gray-900">Sign In</a>
-              <a 
-                href="#" 
-                className="px-4 py-2 bg-gradient-to-r from-brand-purple to-brand-blue text-white rounded-md hover:opacity-90"
-              >
-                Sign Up
-              </a>
+              {user ? (
+                <>
+                  <Link to="/dashboard" className="text-gray-600 hover:text-gray-900">
+                    Dashboard
+                  </Link>
+                </>
+              ) : (
+                <>
+                  <Link to="/auth" className="text-gray-600 hover:text-gray-900">
+                    Sign In
+                  </Link>
+                  <Link 
+                    to="/auth" 
+                    className="px-4 py-2 bg-gradient-to-r from-brand-purple to-brand-blue text-white rounded-md hover:opacity-90"
+                  >
+                    Sign Up
+                  </Link>
+                </>
+              )}
             </div>
           </div>
         </div>
@@ -91,7 +105,6 @@ const Index = () => {
           </div>
         </div>
         
-        {/* Add Feature Showcase Component */}
         <FeatureShowcase />
       </main>
 
