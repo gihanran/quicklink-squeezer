@@ -6,6 +6,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Index from "./pages/Index";
 import Redirect from "./pages/Redirect";
 import NotFound from "./pages/NotFound";
+import Dashboard from "./pages/Dashboard";
 import * as TooltipPrimitive from "@radix-ui/react-tooltip";
 
 const queryClient = new QueryClient();
@@ -19,6 +20,7 @@ const App = () => (
         <Routes>
           <Route path="/" element={<Index />} />
           <Route path="/s/:shortCode" element={<Redirect />} />
+          <Route path="/dashboard" element={<Dashboard />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>

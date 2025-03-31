@@ -18,6 +18,8 @@ export interface UrlData {
   shortCode: string;
   createdAt: number;
   visits: number;
+  // Added expiresAt property (3 months after creation)
+  expiresAt?: number;
 }
 
 // Store a URL in localStorage
@@ -36,10 +38,14 @@ export const storeUrl = (originalUrl: string): UrlData => {
     
     // If not, create a new short URL
     const shortCode = generateShortCode();
+    const now = Date.now();
+    const threeMonthsInMs = 90 * 24 * 60 * 60 * 1000; // 90 days in milliseconds
+    
     const newUrlData: UrlData = {
       originalUrl,
       shortCode,
-      createdAt: Date.now(),
+      createdAt: now,
+      expiresAt: now + threeMonthsInMs, // Set expiration to 3 months from now
       visits: 0
     };
     
@@ -61,7 +67,20 @@ export const getUrlByShortCode = (shortCode: string): UrlData | null => {
     if (!storedUrls) return null;
     
     const urls: Record<string, UrlData> = JSON.parse(storedUrls);
-    return urls[shortCode] || null;
+    
+    // Get the URL data
+    const urlData = urls[shortCode];
+    if (!urlData) return null;
+    
+    // Check if the URL has expired
+    if (urlData.expiresAt && urlData.expiresAt < Date.now()) {
+      // URL has expired, remove it and return null
+      delete urls[shortCode];
+      localStorage.setItem('shortenedUrls', JSON.stringify(urls));
+      return null;
+    }
+    
+    return urlData;
   } catch (error) {
     console.error('Error retrieving URL:', error);
     return null;
@@ -87,4 +106,27 @@ export const trackVisit = (shortCode: string): void => {
 // Get the complete shortened URL
 export const getFullShortenedUrl = (shortCode: string): string => {
   return `${window.location.origin}/s/${shortCode}`;
+};
+
+// Get stats about total links and clicks
+export const getUrlStats = (): { totalLinks: number, totalClicks: number } => {
+  try {
+    const storedUrls = localStorage.getItem('shortenedUrls');
+    if (!storedUrls) return { totalLinks: 0, totalClicks: 0 };
+    
+    const urls: Record<string, UrlData> = JSON.parse(storedUrls);
+    const validUrls = Object.values(urls).filter(
+      url => !url.expiresAt || url.expiresAt > Date.now()
+    );
+    
+    const totalClicks = validUrls.reduce((sum, url) => sum + url.visits, 0);
+    
+    return {
+      totalLinks: validUrls.length,
+      totalClicks
+    };
+  } catch (error) {
+    console.error('Error getting URL stats:', error);
+    return { totalLinks: 0, totalClicks: 0 };
+  }
 };
