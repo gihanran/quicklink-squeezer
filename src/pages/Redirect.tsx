@@ -16,7 +16,7 @@ const Redirect: React.FC = () => {
 
     const handleRedirect = async () => {
       try {
-        const urlData = getUrlByShortCode(shortCode);
+        const urlData = await getUrlByShortCode(shortCode);
         
         if (!urlData) {
           setError('Sorry, this link does not exist or has expired.');
@@ -24,7 +24,7 @@ const Redirect: React.FC = () => {
         }
 
         // Track the visit
-        trackVisit(shortCode);
+        await trackVisit(shortCode);
         
         // Redirect to the original URL
         window.location.href = urlData.originalUrl;
@@ -34,9 +34,8 @@ const Redirect: React.FC = () => {
       }
     };
 
-    // Short delay to handle tracking
-    const timeoutId = setTimeout(handleRedirect, 200);
-    return () => clearTimeout(timeoutId);
+    // Execute the redirect
+    handleRedirect();
   }, [shortCode, navigate]);
 
   return (

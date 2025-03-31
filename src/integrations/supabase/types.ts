@@ -9,7 +9,95 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
-      [_ in never]: never
+      profiles: {
+        Row: {
+          created_at: string
+          email: string | null
+          full_name: string | null
+          id: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          email?: string | null
+          full_name?: string | null
+          id: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          email?: string | null
+          full_name?: string | null
+          id?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      short_urls: {
+        Row: {
+          created_at: string
+          expires_at: string | null
+          id: string
+          original_url: string
+          short_code: string
+          user_id: string | null
+          visits: number
+        }
+        Insert: {
+          created_at?: string
+          expires_at?: string | null
+          id?: string
+          original_url: string
+          short_code: string
+          user_id?: string | null
+          visits?: number
+        }
+        Update: {
+          created_at?: string
+          expires_at?: string | null
+          id?: string
+          original_url?: string
+          short_code?: string
+          user_id?: string | null
+          visits?: number
+        }
+        Relationships: []
+      }
+      url_visits: {
+        Row: {
+          id: string
+          ip_address: string | null
+          referrer: string | null
+          short_url_id: string
+          user_agent: string | null
+          visited_at: string
+        }
+        Insert: {
+          id?: string
+          ip_address?: string | null
+          referrer?: string | null
+          short_url_id: string
+          user_agent?: string | null
+          visited_at?: string
+        }
+        Update: {
+          id?: string
+          ip_address?: string | null
+          referrer?: string | null
+          short_url_id?: string
+          user_agent?: string | null
+          visited_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "url_visits_short_url_id_fkey"
+            columns: ["short_url_id"]
+            isOneToOne: false
+            referencedRelation: "short_urls"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never

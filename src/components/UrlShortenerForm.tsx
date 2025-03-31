@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { storeUrl, getFullShortenedUrl, UrlData } from '@/utils/urlUtils';
-import { useToast } from "@/components/ui/use-toast";
+import { useToast } from "@/hooks/use-toast";
 import { ArrowRight } from "lucide-react";
 
 interface UrlShortenerFormProps {
@@ -53,7 +53,7 @@ const UrlShortenerForm: React.FC<UrlShortenerFormProps> = ({ onUrlShortened }) =
     
     try {
       setIsLoading(true);
-      const urlData = storeUrl(urlToShorten);
+      const urlData = await storeUrl(urlToShorten);
       const fullShortenedUrl = getFullShortenedUrl(urlData.shortCode);
       
       // Callback to parent component with the shortened URL
