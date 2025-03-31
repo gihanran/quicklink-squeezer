@@ -4,19 +4,31 @@ import { Card, CardContent } from "@/components/ui/card";
 import { CheckCircle, Clock, Globe, Users, ChartBar, Infinity, ShieldCheck } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
 import { getUrlStats } from '@/utils/urlUtils';
+import { Skeleton } from "@/components/ui/skeleton";
 
 const FeatureShowcase: React.FC = () => {
   const [stats, setStats] = useState({
     linksCreated: 0,
     totalClicks: 0,
   });
+  const [loading, setLoading] = useState(true);
   
   useEffect(() => {
-    const { totalLinks, totalClicks } = getUrlStats();
-    setStats({
-      linksCreated: totalLinks,
-      totalClicks,
-    });
+    const fetchStats = async () => {
+      try {
+        const { totalLinks, totalClicks } = await getUrlStats();
+        setStats({
+          linksCreated: totalLinks,
+          totalClicks,
+        });
+      } catch (error) {
+        console.error('Error fetching URL stats:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    
+    fetchStats();
   }, []);
   
   return (
@@ -82,11 +94,19 @@ const FeatureShowcase: React.FC = () => {
         <div className="flex flex-col md:flex-row justify-center gap-6 mb-12">
           <div className="bg-white p-8 rounded-lg shadow-md text-center flex-1">
             <h3 className="text-lg font-medium text-gray-700">Total Links Created</h3>
-            <p className="text-4xl font-bold text-brand-purple mt-2">{stats.linksCreated.toLocaleString()}</p>
+            {loading ? (
+              <Skeleton className="h-10 w-20 mx-auto mt-2" />
+            ) : (
+              <p className="text-4xl font-bold text-brand-purple mt-2">{stats.linksCreated.toLocaleString()}</p>
+            )}
           </div>
           <div className="bg-white p-8 rounded-lg shadow-md text-center flex-1">
             <h3 className="text-lg font-medium text-gray-700">Total Link Clicks</h3>
-            <p className="text-4xl font-bold text-brand-blue mt-2">{stats.totalClicks.toLocaleString()}</p>
+            {loading ? (
+              <Skeleton className="h-10 w-20 mx-auto mt-2" />
+            ) : (
+              <p className="text-4xl font-bold text-brand-blue mt-2">{stats.totalClicks.toLocaleString()}</p>
+            )}
           </div>
         </div>
         

@@ -27,11 +27,13 @@ export interface UrlData {
 export const storeUrl = async (originalUrl: string): Promise<UrlData> => {
   try {
     // Check if URL already exists
-    const { data: existingUrls } = await supabase
+    const { data: existingUrls, error: existingError } = await supabase
       .from('short_urls')
       .select('*')
       .eq('original_url', originalUrl)
       .limit(1);
+    
+    if (existingError) throw existingError;
     
     if (existingUrls && existingUrls.length > 0) {
       // Return existing URL data
@@ -71,12 +73,14 @@ export const storeUrl = async (originalUrl: string): Promise<UrlData> => {
     
     if (error) throw error;
     
+    if (!data) throw new Error('No data returned from insert');
+    
     return {
       id: data.id,
       originalUrl: data.original_url,
       shortCode: data.short_code,
       createdAt: new Date(data.created_at).getTime(),
-      expiresAt: new Date(data.expires_at).getTime(),
+      expiresAt: data.expires_at ? new Date(data.expires_at).getTime() : undefined,
       visits: data.visits,
       userId: data.user_id
     };
@@ -123,26 +127,33 @@ export const getUrlByShortCode = async (shortCode: string): Promise<UrlData | nu
 export const trackVisit = async (shortCode: string): Promise<void> => {
   try {
     // Get the URL ID first
-    const { data: urlData } = await supabase
+    const { data: urlData, error: urlError } = await supabase
       .from('short_urls')
       .select('id')
       .eq('short_code', shortCode)
       .maybeSingle();
     
-    if (!urlData) return;
+    if (urlError || !urlData) {
+      console.error('Error retrieving URL for visit tracking:', urlError);
+      return;
+    }
     
     // Get referrer and user agent info
     const referrer = document.referrer || null;
     const userAgent = navigator.userAgent || null;
     
     // Record the visit
-    await supabase
+    const { error: visitError } = await supabase
       .from('url_visits')
       .insert({
         short_url_id: urlData.id,
         referrer,
         user_agent: userAgent
       });
+    
+    if (visitError) {
+      console.error('Error recording visit:', visitError);
+    }
     
     // The increment_url_visits trigger will automatically update the visit count
   } catch (error) {
