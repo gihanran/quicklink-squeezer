@@ -87,6 +87,11 @@ const Dashboard: React.FC = () => {
     });
   };
 
+  // Dummy function to pass as onUrlShortened prop (required by UrlShortenerForm)
+  const handleUrlShortened = () => {
+    // The actual functionality is handled in handleLinkCreated via onSuccess
+  };
+
   return (
     <div className="min-h-screen flex flex-col bg-gray-50">
       <header className="w-full py-6 px-4 bg-white shadow-sm">
@@ -162,7 +167,10 @@ const Dashboard: React.FC = () => {
                   <CardDescription>Enter a URL to shorten</CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <UrlShortenerForm onSuccess={handleLinkCreated} />
+                  <UrlShortenerForm 
+                    onUrlShortened={handleUrlShortened} 
+                    onSuccess={handleLinkCreated} 
+                  />
                 </CardContent>
               </Card>
             )}

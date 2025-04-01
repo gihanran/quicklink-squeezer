@@ -63,7 +63,7 @@ const ProfileSection = () => {
           id: user.id,
           full_name: fullName,
           email: email,
-          updated_at: new Date()
+          updated_at: new Date().toISOString() // Convert Date to ISO string format
         });
 
       if (error) throw error;

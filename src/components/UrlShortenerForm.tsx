@@ -8,9 +8,10 @@ import { ArrowRight } from "lucide-react";
 
 interface UrlShortenerFormProps {
   onUrlShortened: (urlData: UrlData, fullUrl: string) => void;
+  onSuccess?: () => void; // Add this optional prop for Dashboard
 }
 
-const UrlShortenerForm: React.FC<UrlShortenerFormProps> = ({ onUrlShortened }) => {
+const UrlShortenerForm: React.FC<UrlShortenerFormProps> = ({ onUrlShortened, onSuccess }) => {
   const [url, setUrl] = useState<string>('');
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const { toast } = useToast();
@@ -58,6 +59,11 @@ const UrlShortenerForm: React.FC<UrlShortenerFormProps> = ({ onUrlShortened }) =
       
       // Callback to parent component with the shortened URL
       onUrlShortened(urlData, fullShortenedUrl);
+      
+      // Call onSuccess if provided (for Dashboard)
+      if (onSuccess) {
+        onSuccess();
+      }
       
       // Reset form
       setUrl('');
