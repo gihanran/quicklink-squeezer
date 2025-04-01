@@ -8,9 +8,9 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
-import { AtSign, Key, Loader2 } from 'lucide-react';
+import { AtSign, Key, Loader2, RefreshCw } from 'lucide-react';
 
-type AuthMode = 'signin' | 'signup';
+type AuthMode = 'signin' | 'signup' | 'reset';
 
 const AuthForm = () => {
   const [email, setEmail] = useState('');
@@ -21,6 +21,45 @@ const AuthForm = () => {
 
   const handleAuth = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    if (mode === 'reset') {
+      if (!email) {
+        toast({
+          title: "Missing information",
+          description: "Please enter your email address",
+          variant: "destructive"
+        });
+        return;
+      }
+      
+      setLoading(true);
+      
+      try {
+        const { error } = await supabase.auth.resetPasswordForEmail(email, {
+          redirectTo: `${window.location.origin}/auth?reset=true`,
+        });
+        
+        if (error) throw error;
+        
+        toast({
+          title: "Password reset email sent",
+          description: "Check your email for a link to reset your password"
+        });
+        
+        setMode('signin');
+      } catch (error: any) {
+        console.error('Password reset error:', error);
+        toast({
+          title: "Password reset failed",
+          description: error.message || "Something went wrong",
+          variant: "destructive"
+        });
+      } finally {
+        setLoading(false);
+      }
+      
+      return;
+    }
     
     if (!email || !password) {
       toast({
@@ -75,19 +114,30 @@ const AuthForm = () => {
   };
 
   const toggleMode = () => {
-    setMode(mode === 'signin' ? 'signup' : 'signin');
+    if (mode === 'reset') {
+      setMode('signin');
+    } else {
+      setMode(mode === 'signin' ? 'signup' : 'signin');
+    }
+  };
+
+  const switchToResetMode = () => {
+    setMode('reset');
+    setPassword('');
   };
 
   return (
     <Card className="w-full max-w-md mx-auto shadow-lg">
       <CardHeader className="text-center">
         <CardTitle className="text-2xl font-bold">
-          {mode === 'signin' ? 'Sign In' : 'Create Account'}
+          {mode === 'signin' ? 'Sign In' : mode === 'signup' ? 'Create Account' : 'Reset Password'}
         </CardTitle>
         <CardDescription>
           {mode === 'signin' 
             ? 'Enter your credentials to access your account' 
-            : 'Sign up to create and manage your own short links'}
+            : mode === 'signup'
+            ? 'Sign up to create and manage your own short links'
+            : 'Enter your email to receive a password reset link'}
         </CardDescription>
       </CardHeader>
       <CardContent>
@@ -107,29 +157,53 @@ const AuthForm = () => {
               />
             </div>
           </div>
-          <div className="space-y-2">
-            <Label htmlFor="password">Password</Label>
-            <div className="relative">
-              <Key className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-              <Input
-                id="password"
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                placeholder="••••••••"
-                className="pl-10"
-                disabled={loading}
-              />
+          
+          {mode !== 'reset' && (
+            <div className="space-y-2">
+              <div className="flex justify-between items-center">
+                <Label htmlFor="password">Password</Label>
+                {mode === 'signin' && (
+                  <Button 
+                    type="button" 
+                    variant="link" 
+                    className="px-0 h-auto font-normal text-xs"
+                    onClick={switchToResetMode}
+                  >
+                    Forgot password?
+                  </Button>
+                )}
+              </div>
+              <div className="relative">
+                <Key className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                <Input
+                  id="password"
+                  type="password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  placeholder="••••••••"
+                  className="pl-10"
+                  disabled={loading}
+                />
+              </div>
             </div>
-          </div>
+          )}
+          
           <Button type="submit" className="w-full" disabled={loading}>
             {loading ? (
               <>
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                {mode === 'signin' ? 'Signing in...' : 'Creating account...'}
+                {mode === 'signin' 
+                  ? 'Signing in...' 
+                  : mode === 'signup' 
+                    ? 'Creating account...' 
+                    : 'Sending reset link...'}
               </>
             ) : (
-              mode === 'signin' ? 'Sign In' : 'Create Account'
+              mode === 'signin' 
+                ? 'Sign In' 
+                : mode === 'signup' 
+                  ? 'Create Account' 
+                  : 'Send Reset Link'
             )}
           </Button>
         </form>
@@ -137,9 +211,17 @@ const AuthForm = () => {
       <CardFooter className="flex flex-col space-y-4">
         <Separator />
         <div className="text-center text-sm">
-          {mode === 'signin' ? "Don't have an account?" : "Already have an account?"}
+          {mode === 'reset' ? (
+            "Remember your password?"
+          ) : (
+            mode === 'signin' ? "Don't have an account?" : "Already have an account?"
+          )}
           <Button variant="link" onClick={toggleMode} className="px-2 py-0">
-            {mode === 'signin' ? 'Sign up' : 'Sign in'}
+            {mode === 'reset' 
+              ? 'Back to Sign In' 
+              : mode === 'signin' 
+                ? 'Sign up' 
+                : 'Sign in'}
           </Button>
         </div>
       </CardFooter>
