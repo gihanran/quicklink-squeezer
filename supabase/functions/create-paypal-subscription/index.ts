@@ -17,11 +17,14 @@ serve(async (req) => {
     const PAYPAL_SECRET_KEY = Deno.env.get('PAYPAL_SECRET_KEY');
     
     if (!PAYPAL_CLIENT_ID || !PAYPAL_SECRET_KEY) {
+      console.error('PayPal credentials not configured');
       throw new Error('PayPal credentials not configured');
     }
 
+    console.log('Authenticating with PayPal...');
+    
     // Get access token from PayPal
-    const authResponse = await fetch('https://api-m.paypal.com/v1/oauth2/token', {
+    const authResponse = await fetch('https://api-m.sandbox.paypal.com/v1/oauth2/token', {
       method: 'POST',
       headers: {
         'Accept': 'application/json',
@@ -34,49 +37,74 @@ serve(async (req) => {
     if (!authResponse.ok) {
       const errorData = await authResponse.text();
       console.error('PayPal auth error:', errorData);
-      throw new Error('Failed to authenticate with PayPal');
+      throw new Error(`Failed to authenticate with PayPal: ${errorData}`);
     }
 
     const authData = await authResponse.json();
     const accessToken = authData.access_token;
 
+    console.log('Successfully authenticated with PayPal');
+    
+    // Parse request body
     const { planId } = await req.json();
+    const defaultPlanId = 'P-5ML4271244454362WXNWU5NQ'; // Default plan ID as fallback
+    
+    console.log(`Creating subscription with plan ID: ${planId || defaultPlanId}`);
     
     // Create a subscription
-    // Note: In a real-world app, you'd create a proper subscription plan in the PayPal dashboard
-    // and use its ID here. For simplicity, we'll create a basic subscription.
     const subscriptionData = {
-      plan_id: planId || 'P-5ML4271244454362WXNWU5NQ',
+      plan_id: planId || defaultPlanId,
       application_context: {
-        return_url: `${req.headers.get('origin')}/dashboard?success=true`,
-        cancel_url: `${req.headers.get('origin')}/dashboard?success=false`
+        return_url: `${req.headers.get('origin') || 'https://localhost:3000'}/dashboard?success=true`,
+        cancel_url: `${req.headers.get('origin') || 'https://localhost:3000'}/dashboard?success=false`,
+        brand_name: "QuickLink Squeezer",
+        shipping_preference: "NO_SHIPPING",
+        user_action: "SUBSCRIBE_NOW"
       }
     };
 
-    const subscriptionResponse = await fetch('https://api-m.paypal.com/v1/billing/subscriptions', {
+    // Use sandbox URL for testing, switch to api-m.paypal.com for production
+    const subscriptionResponse = await fetch('https://api-m.sandbox.paypal.com/v1/billing/subscriptions', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${accessToken}`
+        'Authorization': `Bearer ${accessToken}`,
+        'PayPal-Request-Id': crypto.randomUUID() // Prevent duplicate requests
       },
       body: JSON.stringify(subscriptionData)
     });
 
+    const responseText = await subscriptionResponse.text();
+    console.log('PayPal API response:', responseText);
+    
     if (!subscriptionResponse.ok) {
-      const errorData = await subscriptionResponse.text();
-      console.error('PayPal subscription error:', errorData);
-      throw new Error('Failed to create PayPal subscription');
+      console.error('PayPal subscription error:', responseText);
+      throw new Error(`Failed to create PayPal subscription: ${responseText}`);
     }
 
-    const subscription = await subscriptionResponse.json();
+    let subscription;
+    try {
+      subscription = JSON.parse(responseText);
+    } catch (e) {
+      console.error('Error parsing PayPal response:', e);
+      throw new Error('Invalid response from PayPal');
+    }
     
-    console.log('Subscription created:', subscription);
+    console.log('Subscription created successfully');
+    
+    // Find the approval URL
+    const approvalUrl = subscription.links?.find(link => link.rel === 'approve')?.href;
+    
+    if (!approvalUrl) {
+      console.error('No approval URL found in PayPal response');
+      throw new Error('No approval URL found in PayPal response');
+    }
     
     return new Response(
       JSON.stringify({
         success: true,
         subscription: subscription,
-        approvalUrl: subscription.links.find(link => link.rel === 'approve').href
+        approvalUrl: approvalUrl
       }),
       { 
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
@@ -88,7 +116,7 @@ serve(async (req) => {
     return new Response(
       JSON.stringify({ 
         success: false, 
-        error: error.message 
+        error: error.message || 'Unknown error occurred'
       }),
       { 
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },

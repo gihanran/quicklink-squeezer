@@ -23,25 +23,46 @@ const PayPalSubscription: React.FC<PayPalSubscriptionProps> = ({
     setIsLoading(true);
     
     try {
+      toast({
+        description: "Preparing your subscription...",
+      });
+      
       const { data, error } = await supabase.functions.invoke('create-paypal-subscription', {
         body: { planId },
       });
 
       if (error) {
-        throw error;
+        console.error('Supabase function error:', error);
+        throw new Error(`Error invoking subscription service: ${error.message}`);
       }
+
+      if (!data) {
+        throw new Error('No response from subscription service');
+      }
+
+      console.log('Subscription response:', data);
 
       if (data.success && data.approvalUrl) {
         // Redirect to PayPal approval URL
-        window.location.href = data.approvalUrl;
+        toast({
+          title: "Redirecting to PayPal",
+          description: "You'll be redirected to complete your subscription.",
+        });
+        
+        // Small delay to show the toast before redirecting
+        setTimeout(() => {
+          window.location.href = data.approvalUrl;
+        }, 1000);
       } else {
-        throw new Error('Failed to create subscription');
+        throw new Error(data.error || 'Failed to create subscription');
       }
     } catch (error) {
       console.error('Subscription error:', error);
       toast({
         title: "Subscription Error",
-        description: "There was a problem starting your subscription. Please try again.",
+        description: typeof error === 'object' && error !== null && 'message' in error 
+          ? String(error.message) 
+          : "There was a problem starting your subscription. Please try again.",
         variant: "destructive"
       });
     } finally {
