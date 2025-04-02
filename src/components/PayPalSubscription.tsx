@@ -26,34 +26,33 @@ const PayPalSubscription: React.FC<PayPalSubscriptionProps> = ({
     
     try {
       toast({
-        description: "Preparing your subscription...",
+        description: "Preparing your payment...",
       });
       
-      console.log('Invoking create-paypal-subscription function with planId:', planId);
+      console.log('Invoking create-paypal-subscription function');
       
       const { data, error } = await supabase.functions.invoke('create-paypal-subscription', {
         body: { planId },
       });
 
       console.log('Function response data:', data);
-      console.log('Function response error:', error);
-
+      
       if (error) {
         console.error('Supabase function error:', error);
-        throw new Error(`Error invoking subscription service: ${error.message}`);
+        throw new Error(`Error invoking payment service: ${error.message}`);
       }
 
       if (!data) {
-        throw new Error('No response from subscription service');
+        throw new Error('No response from payment service');
       }
 
-      console.log('Subscription response:', data);
+      console.log('Payment response:', data);
 
       if (data.success && data.approvalUrl) {
         // Redirect to PayPal approval URL
         toast({
           title: "Redirecting to PayPal",
-          description: "You'll be redirected to complete your subscription.",
+          description: "You'll be redirected to complete your payment.",
         });
         
         // Small delay to show the toast before redirecting
@@ -64,15 +63,15 @@ const PayPalSubscription: React.FC<PayPalSubscriptionProps> = ({
         // Handle error from the function that was returned with 200 status
         throw new Error(data.error);
       } else {
-        throw new Error('Failed to create subscription');
+        throw new Error('Failed to create payment');
       }
     } catch (error) {
-      console.error('Subscription error:', error);
+      console.error('Payment error:', error);
       toast({
-        title: "Subscription Error",
+        title: "Payment Error",
         description: typeof error === 'object' && error !== null && 'message' in error 
           ? String(error.message) 
-          : "There was a problem starting your subscription. Please try again.",
+          : "There was a problem processing your payment. Please try again.",
         variant: "destructive"
       });
     } finally {
