@@ -26,7 +26,7 @@ const BillingSection = () => {
               Current
             </Badge>
           </div>
-          <p className="text-3xl font-bold mb-4">$9.99<span className="text-sm font-normal text-gray-500">/month</span></p>
+          <p className="text-3xl font-bold mb-4">$2.99<span className="text-sm font-normal text-gray-500">/month</span></p>
           <div className="space-y-2">
             <div className="flex items-center">
               <CheckCircle className="h-4 w-4 text-green-600 mr-2" />
@@ -63,7 +63,7 @@ const BillingSection = () => {
           
           <div className="p-4 border rounded-lg bg-gray-50">
             <p className="font-medium">Next billing date: May 15, 2023</p>
-            <p className="text-sm text-gray-500">You will be charged $9.99</p>
+            <p className="text-sm text-gray-500">You will be charged $2.99</p>
           </div>
         </div>
       </CardContent>

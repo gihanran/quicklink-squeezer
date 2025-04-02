@@ -84,7 +84,7 @@ serve(async (req) => {
       purchase_units: [{
         amount: {
           currency_code: "USD",
-          value: "9.99"
+          value: "2.99"
         },
         description: "QuickLink Squeezer Premium Subscription"
       }],
