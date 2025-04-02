@@ -5,6 +5,7 @@ import { CheckCircle, Clock, Globe, Users, ChartBar, Infinity, ShieldCheck } fro
 import { Progress } from "@/components/ui/progress";
 import { getUrlStats } from '@/utils/urlUtils';
 import { Skeleton } from "@/components/ui/skeleton";
+import PayPalSubscription from './PayPalSubscription';
 
 const FeatureShowcase: React.FC = () => {
   const [stats, setStats] = useState({
@@ -134,9 +135,9 @@ const FeatureShowcase: React.FC = () => {
                   <p className="text-gray-600 mb-6 text-center">
                     Sign up for our premium plan and unlock all features
                   </p>
-                  <button className="px-6 py-3 bg-gradient-to-r from-brand-purple to-brand-blue text-white rounded-md hover:opacity-90 transition-all">
-                    Subscribe Now
-                  </button>
+                  <PayPalSubscription 
+                    className="px-6 py-3 bg-gradient-to-r from-brand-purple to-brand-blue text-white rounded-md hover:opacity-90 transition-all"
+                  />
                   <p className="mt-4 text-sm text-gray-500">
                     Secure payment with PayPal
                   </p>

@@ -4,6 +4,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Button } from "@/components/ui/button";
 import { CreditCard, CheckCircle } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import PayPalSubscription from './PayPalSubscription';
 
 const BillingSection = () => {
   return (
@@ -68,7 +69,10 @@ const BillingSection = () => {
       </CardContent>
       <CardFooter className="flex justify-between">
         <Button variant="outline" className="w-1/2">Cancel Plan</Button>
-        <Button className="w-1/2 ml-2">Upgrade Plan</Button>
+        <PayPalSubscription 
+          buttonText="Upgrade Plan" 
+          className="w-1/2 ml-2"
+        />
       </CardFooter>
     </Card>
   );
