@@ -34,34 +34,63 @@ serve(async (req) => {
       body: 'grant_type=client_credentials'
     });
 
+    const authResponseText = await authResponse.text();
+    console.log('PayPal auth response:', authResponseText);
+
     if (!authResponse.ok) {
-      const errorData = await authResponse.text();
-      console.error('PayPal auth error:', errorData);
-      throw new Error(`Failed to authenticate with PayPal: ${errorData}`);
+      console.error('PayPal auth error status:', authResponse.status);
+      console.error('PayPal auth error text:', authResponseText);
+      throw new Error(`Failed to authenticate with PayPal: Status ${authResponse.status}`);
     }
 
-    const authData = await authResponse.json();
+    let authData;
+    try {
+      authData = JSON.parse(authResponseText);
+    } catch (e) {
+      console.error('Error parsing PayPal auth response:', e);
+      throw new Error('Invalid auth response from PayPal');
+    }
+
     const accessToken = authData.access_token;
+    if (!accessToken) {
+      console.error('No access token in PayPal response');
+      throw new Error('No access token in PayPal response');
+    }
 
     console.log('Successfully authenticated with PayPal');
     
     // Parse request body
-    const { planId } = await req.json();
+    let requestBody;
+    try {
+      requestBody = await req.json();
+    } catch (e) {
+      console.error('Error parsing request body:', e);
+      throw new Error('Invalid request body');
+    }
+    
+    const { planId } = requestBody || {};
     const defaultPlanId = 'P-5ML4271244454362WXNWU5NQ'; // Default plan ID as fallback
     
     console.log(`Creating subscription with plan ID: ${planId || defaultPlanId}`);
+    
+    const origin = req.headers.get('origin') || 'https://localhost:3000';
+    console.log('Origin for return URLs:', origin);
     
     // Create a subscription
     const subscriptionData = {
       plan_id: planId || defaultPlanId,
       application_context: {
-        return_url: `${req.headers.get('origin') || 'https://localhost:3000'}/dashboard?success=true`,
-        cancel_url: `${req.headers.get('origin') || 'https://localhost:3000'}/dashboard?success=false`,
+        return_url: `${origin}/dashboard?success=true`,
+        cancel_url: `${origin}/dashboard?success=false`,
         brand_name: "QuickLink Squeezer",
         shipping_preference: "NO_SHIPPING",
         user_action: "SUBSCRIBE_NOW"
       }
     };
+
+    const requestId = crypto.randomUUID();
+    console.log('PayPal subscription request ID:', requestId);
+    console.log('PayPal subscription request payload:', JSON.stringify(subscriptionData));
 
     // Use sandbox URL for testing, switch to api-m.paypal.com for production
     const subscriptionResponse = await fetch('https://api-m.sandbox.paypal.com/v1/billing/subscriptions', {
@@ -69,17 +98,18 @@ serve(async (req) => {
       headers: {
         'Content-Type': 'application/json',
         'Authorization': `Bearer ${accessToken}`,
-        'PayPal-Request-Id': crypto.randomUUID() // Prevent duplicate requests
+        'PayPal-Request-Id': requestId
       },
       body: JSON.stringify(subscriptionData)
     });
 
     const responseText = await subscriptionResponse.text();
+    console.log('PayPal subscription API status code:', subscriptionResponse.status);
     console.log('PayPal API response:', responseText);
     
     if (!subscriptionResponse.ok) {
       console.error('PayPal subscription error:', responseText);
-      throw new Error(`Failed to create PayPal subscription: ${responseText}`);
+      throw new Error(`Failed to create PayPal subscription: Status ${subscriptionResponse.status}`);
     }
 
     let subscription;
@@ -120,7 +150,7 @@ serve(async (req) => {
       }),
       { 
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-        status: 500 
+        status: 200  // Return 200 status with error in response body instead of 500
       }
     );
   }

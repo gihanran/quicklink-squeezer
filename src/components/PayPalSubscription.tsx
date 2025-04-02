@@ -20,6 +20,8 @@ const PayPalSubscription: React.FC<PayPalSubscriptionProps> = ({
   const { toast } = useToast();
 
   const handleSubscribe = async () => {
+    if (isLoading) return; // Prevent multiple clicks
+    
     setIsLoading(true);
     
     try {
@@ -27,9 +29,14 @@ const PayPalSubscription: React.FC<PayPalSubscriptionProps> = ({
         description: "Preparing your subscription...",
       });
       
+      console.log('Invoking create-paypal-subscription function with planId:', planId);
+      
       const { data, error } = await supabase.functions.invoke('create-paypal-subscription', {
         body: { planId },
       });
+
+      console.log('Function response data:', data);
+      console.log('Function response error:', error);
 
       if (error) {
         console.error('Supabase function error:', error);
@@ -52,9 +59,12 @@ const PayPalSubscription: React.FC<PayPalSubscriptionProps> = ({
         // Small delay to show the toast before redirecting
         setTimeout(() => {
           window.location.href = data.approvalUrl;
-        }, 1000);
+        }, 2000);
+      } else if (data.error) {
+        // Handle error from the function that was returned with 200 status
+        throw new Error(data.error);
       } else {
-        throw new Error(data.error || 'Failed to create subscription');
+        throw new Error('Failed to create subscription');
       }
     } catch (error) {
       console.error('Subscription error:', error);
