@@ -4,11 +4,6 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { supabase } from "@/integrations/supabase/client";
 import { Users, Link2, MousePointer, Globe } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import { 
-  ChartContainer as Chart,
-  ChartTooltipContent as ChartTitle,
-  ChartLegendContent as ChartBar,
-} from "@/components/ui/chart";
 import * as RechartsPrimitive from "recharts";
 
 const AdminDashboard = () => {

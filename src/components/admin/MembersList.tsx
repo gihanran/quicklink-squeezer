@@ -10,7 +10,7 @@ import {
   TableRow, TableCell
 } from "@/components/ui/table";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
-import { ToggleLeft, ToggleRight, Edit, Eye, Pencil } from "lucide-react";
+import { ToggleLeft, ToggleRight, Pencil } from "lucide-react";
 
 interface Member {
   id: string;

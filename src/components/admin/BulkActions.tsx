@@ -6,7 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Users, Link2 } from "lucide-react";
+import { Users } from "lucide-react";
 
 const BulkActions = () => {
   const [linkLimit, setLinkLimit] = useState<number>(10);
