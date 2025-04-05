@@ -24,48 +24,45 @@ const Auth = () => {
         if (user) {
           console.log("✅ Auth page: User already signed in", user.email);
           
-          // Get admin status from the useAuthState hook, but also verify it directly
-          let adminStatus = isAdmin;
+          // Make sure we have the latest admin status
+          console.log("🔍 Auth page: Checking admin status");
           
-          // Extra verification directly from database
-          if (!adminStatus) {
+          // First, directly verify from database
+          try {
             console.log("🔍 Auth page: Verifying admin status directly from database");
-            try {
-              const { data, error } = await supabase
-                .from('profiles')
-                .select('is_admin, email')
-                .eq('id', user.id)
-                .maybeSingle();
-                
-              console.log("🔍 Auth page: Direct admin check result:", data);
+            const { data, error } = await supabase
+              .from('profiles')
+              .select('is_admin, email')
+              .eq('id', user.id)
+              .maybeSingle();
               
-              if (error) {
-                console.error("❌ Auth page: Error fetching profile:", error);
-              } else if (data) {
-                adminStatus = data.is_admin === true;
-                console.log("🔍 Auth page: Direct admin check status:", adminStatus);
-              }
-            } catch (err) {
-              console.error("❌ Auth page: Exception during direct admin check:", err);
+            console.log("🔍 Auth page: Direct admin check result:", data);
+            
+            if (error) {
+              console.error("❌ Auth page: Error fetching profile:", error);
             }
+            
+            if (data && data.is_admin === true) {
+              console.log("✅ Auth page: User is admin according to database, redirecting to admin panel");
+              toast({
+                title: "Admin Session Detected",
+                description: "Redirecting to admin panel"
+              });
+              navigate('/admin');
+              return;
+            } else {
+              console.log("🔍 Auth page: User is not admin according to database");
+            }
+          } catch (err) {
+            console.error("❌ Auth page: Exception during direct admin check:", err);
           }
           
-          // Redirect based on admin status
-          if (adminStatus) {
-            console.log("✅ Auth page: User is admin, redirecting to admin panel");
-            toast({
-              title: "Admin Session Detected",
-              description: "Redirecting to admin panel"
-            });
-            navigate('/admin');
-          } else {
-            // Check if there's a redirect path in the location state
-            const state = location.state as { redirectTo?: string } | null;
-            const redirectPath = state?.redirectTo || '/dashboard';
-            
-            console.log("✅ Auth page: User is not admin, redirecting to:", redirectPath);
-            navigate(redirectPath);
-          }
+          // If we got here, user is not admin, check if there's a redirect path
+          const state = location.state as { redirectTo?: string } | null;
+          const redirectPath = state?.redirectTo || '/dashboard';
+          
+          console.log("✅ Auth page: User is not admin, redirecting to:", redirectPath);
+          navigate(redirectPath);
         } else {
           console.log("🔍 Auth page: No active session found");
         }

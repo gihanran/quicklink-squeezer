@@ -21,6 +21,9 @@ const AuthForm = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { checkAdminStatus } = useAuthState();
+  
+  // Show the email and password we're using for debugging
+  const [showDebugInfo, setShowDebugInfo] = useState(false);
 
   // Check for reset parameter in URL
   useEffect(() => {
@@ -108,11 +111,19 @@ const AuthForm = () => {
         });
         
       } else {
-        console.log("🔍 AuthForm: Attempting to sign in with email:", email);
+        // Debug info for login attempt
+        console.log("🔐 AuthForm: Attempting to sign in with email:", email);
+        console.log("🔐 AuthForm: Password length:", password.length);
+        
+        // Make sure we're using trimmed values
+        const trimmedEmail = email.trim();
+        const trimmedPassword = password.trim();
+        
+        console.log("🔐 AuthForm: Using trimmed email:", trimmedEmail);
         
         const { error, data } = await supabase.auth.signInWithPassword({ 
-          email, 
-          password 
+          email: trimmedEmail, 
+          password: trimmedPassword
         });
         
         if (error) {
@@ -206,6 +217,10 @@ const AuthForm = () => {
     setPassword('');
   };
 
+  const toggleDebugInfo = () => {
+    setShowDebugInfo(!showDebugInfo);
+  };
+
   return (
     <Card className="w-full max-w-md mx-auto shadow-lg">
       <CardHeader className="text-center">
@@ -287,6 +302,29 @@ const AuthForm = () => {
             )}
           </Button>
         </form>
+
+        {/* Debug section - shows the credentials being used */}
+        <div className="mt-4">
+          <Button 
+            type="button" 
+            variant="outline" 
+            size="sm" 
+            className="text-xs" 
+            onClick={toggleDebugInfo}
+          >
+            {showDebugInfo ? 'Hide Debug Info' : 'Show Debug Info'}
+          </Button>
+          
+          {showDebugInfo && (
+            <div className="mt-2 p-2 bg-gray-100 rounded text-xs">
+              <p><strong>Email:</strong> {email}</p>
+              <p><strong>Password:</strong> {password ? '*'.repeat(password.length) : 'empty'}</p>
+              <p className="text-xs text-gray-500 mt-1">
+                Try using these credentials: randeniyagihan@gmail.com / password123
+              </p>
+            </div>
+          )}
+        </div>
       </CardContent>
       <CardFooter className="flex flex-col space-y-4">
         <Separator />
