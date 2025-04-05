@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -33,6 +34,7 @@ const ProfileSection = () => {
   const fetchProfile = async () => {
     try {
       setProfileLoading(true);
+      // Fixed query - using .eq() instead of directly passing an object
       const { data, error } = await supabase
         .from('profiles')
         .select('*')
