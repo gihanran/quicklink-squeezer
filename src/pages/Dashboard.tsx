@@ -3,15 +3,19 @@ import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { ChartBar, Clock, Globe, Smartphone, Link2, UserCircle, CreditCard, Settings } from "lucide-react";
+import { ChartBar, Clock, Globe, Smartphone, Link2, UserCircle, Bell, Settings } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { getUserUrls, getUrlStats } from "@/utils/urlUtils";
 import { useToast } from "@/hooks/use-toast";
 import { useAuthState } from "@/hooks/useAuthState";
 import { useNavigate } from "react-router-dom";
+import { supabase } from "@/integrations/supabase/client";
 import UrlShortenerForm from "@/components/UrlShortenerForm";
 import ProfileSection from "@/components/ProfileSection";
-import BillingSection from "@/components/BillingSection";
+import NotificationsSection from "@/components/NotificationsSection";
 import SettingsSection from "@/components/SettingsSection";
 import LinkAnalytics from "@/components/LinkAnalytics";
 
@@ -20,6 +24,12 @@ const Dashboard: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [stats, setStats] = useState({ totalLinks: 0, totalClicks: 0 });
   const [showCreateForm, setShowCreateForm] = useState(false);
+  const [showProfileCompletion, setShowProfileCompletion] = useState(false);
+  const [profileCompleted, setProfileCompleted] = useState(true);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [renameDialogOpen, setRenameDialogOpen] = useState(false);
+  const [selectedLink, setSelectedLink] = useState<any>(null);
+  const [newShortCode, setNewShortCode] = useState('');
   const { toast } = useToast();
   const { user, loading: authLoading, signOut } = useAuthState();
   const navigate = useNavigate();
@@ -29,6 +39,28 @@ const Dashboard: React.FC = () => {
       navigate('/auth');
       return;
     }
+
+    const checkProfileCompletion = async () => {
+      if (!user) return;
+
+      try {
+        const { data, error } = await supabase
+          .from('profiles')
+          .select('has_completed_profile, first_name, last_name, whatsapp_number, country')
+          .eq('id', user.id)
+          .single();
+
+        if (error) throw error;
+
+        const isComplete = data?.has_completed_profile || 
+          (data?.first_name && data?.last_name && data?.whatsapp_number && data?.country);
+        
+        setProfileCompleted(isComplete);
+        setShowProfileCompletion(!isComplete);
+      } catch (error) {
+        console.error('Error checking profile completion:', error);
+      }
+    };
 
     const fetchLinks = async () => {
       try {
@@ -51,6 +83,7 @@ const Dashboard: React.FC = () => {
     };
 
     if (user) {
+      checkProfileCompletion();
       fetchLinks();
     }
   }, [user, authLoading, navigate, toast]);
@@ -73,6 +106,15 @@ const Dashboard: React.FC = () => {
   };
 
   const handleCreateNewLink = () => {
+    if (!profileCompleted) {
+      setShowProfileCompletion(true);
+      toast({
+        title: "Complete your profile",
+        description: "Please complete your profile information before creating links",
+        variant: "destructive"
+      });
+      return;
+    }
     setShowCreateForm(true);
   };
 
@@ -87,9 +129,94 @@ const Dashboard: React.FC = () => {
     });
   };
 
+  const handleDeleteLink = (link: any) => {
+    setSelectedLink(link);
+    setDeleteDialogOpen(true);
+  };
+
+  const handleRenameLink = (link: any) => {
+    setSelectedLink(link);
+    setNewShortCode(link.shortCode);
+    setRenameDialogOpen(true);
+  };
+
+  const confirmDeleteLink = async () => {
+    if (!selectedLink) return;
+
+    try {
+      const { error } = await supabase
+        .from('short_urls')
+        .delete()
+        .eq('id', selectedLink.id);
+
+      if (error) throw error;
+
+      setLinks(links.filter(l => l.id !== selectedLink.id));
+      setDeleteDialogOpen(false);
+      setSelectedLink(null);
+      
+      // Update stats
+      getUrlStats().then(setStats).catch(console.error);
+      
+      toast({
+        title: "Link deleted",
+        description: "The link has been permanently deleted"
+      });
+    } catch (error) {
+      console.error('Error deleting link:', error);
+      toast({
+        title: "Error deleting link",
+        description: "Could not delete the link",
+        variant: "destructive"
+      });
+    }
+  };
+
+  const confirmRenameLink = async () => {
+    if (!selectedLink || !newShortCode) return;
+
+    try {
+      const { error } = await supabase
+        .from('short_urls')
+        .update({ custom_short_code: newShortCode })
+        .eq('id', selectedLink.id);
+
+      if (error) throw error;
+
+      // Update local state
+      setLinks(links.map(link => 
+        link.id === selectedLink.id
+          ? { ...link, shortCode: newShortCode }
+          : link
+      ));
+      
+      setRenameDialogOpen(false);
+      setSelectedLink(null);
+      setNewShortCode('');
+      
+      toast({
+        title: "Link renamed",
+        description: "The link has been successfully renamed"
+      });
+    } catch (error) {
+      console.error('Error renaming link:', error);
+      toast({
+        title: "Error renaming link",
+        description: "Could not rename the link. The code might already be in use.",
+        variant: "destructive"
+      });
+    }
+  };
+
   // Dummy function to pass as onUrlShortened prop (required by UrlShortenerForm)
   const handleUrlShortened = () => {
     // The actual functionality is handled in handleLinkCreated via onSuccess
+  };
+
+  const redirectToProfile = () => {
+    setShowProfileCompletion(false);
+    navigate('/dashboard');
+    document.getElementById('profile-trigger')?.click();
   };
 
   return (
@@ -114,6 +241,14 @@ const Dashboard: React.FC = () => {
               >
                 Home
               </a>
+              {user?.id && (
+                <a 
+                  href="/admin" 
+                  className="px-4 py-2 text-gray-600 hover:text-gray-900"
+                >
+                  Admin
+                </a>
+              )}
               <button 
                 onClick={handleLogout}
                 className="px-4 py-2 border border-gray-300 rounded-md hover:bg-gray-50"
@@ -126,6 +261,22 @@ const Dashboard: React.FC = () => {
       </header>
 
       <main className="flex-grow container max-w-6xl mx-auto px-4 py-8">
+        {showProfileCompletion && (
+          <div className="mb-8 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+            <div className="flex items-start">
+              <div className="flex-grow">
+                <h2 className="text-lg font-semibold text-yellow-800">Complete Your Profile</h2>
+                <p className="text-yellow-700">
+                  Please complete your profile information before you can create links.
+                </p>
+              </div>
+              <Button variant="secondary" onClick={redirectToProfile}>
+                Go to Profile
+              </Button>
+            </div>
+          </div>
+        )}
+
         <Tabs defaultValue="links" className="w-full">
           <TabsList className="grid w-full md:w-auto grid-cols-4 mb-8">
             <TabsTrigger value="links" className="flex items-center gap-2">
@@ -136,13 +287,13 @@ const Dashboard: React.FC = () => {
               <ChartBar className="h-4 w-4" />
               <span className="hidden md:inline">Analytics</span>
             </TabsTrigger>
-            <TabsTrigger value="profile" className="flex items-center gap-2">
+            <TabsTrigger value="notifications" className="flex items-center gap-2">
+              <Bell className="h-4 w-4" />
+              <span className="hidden md:inline">Notifications</span>
+            </TabsTrigger>
+            <TabsTrigger id="profile-trigger" value="profile" className="flex items-center gap-2">
               <UserCircle className="h-4 w-4" />
               <span className="hidden md:inline">Profile</span>
-            </TabsTrigger>
-            <TabsTrigger value="settings" className="flex items-center gap-2">
-              <Settings className="h-4 w-4" />
-              <span className="hidden md:inline">Settings</span>
             </TabsTrigger>
           </TabsList>
 
@@ -194,11 +345,11 @@ const Dashboard: React.FC = () => {
               </Card>
               <Card>
                 <CardHeader className="pb-2">
-                  <CardTitle className="text-lg font-medium">Subscription Status</CardTitle>
+                  <CardTitle className="text-lg font-medium">User ID</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <p className="text-lg font-medium text-green-600">Premium</p>
-                  <p className="text-sm text-gray-500">Renews on May 15, 2023</p>
+                  <p className="text-lg font-medium">{user?.id ? user.id.slice(0, 8) + '...' : 'Loading...'}</p>
+                  <p className="text-sm text-gray-500">Joined: {user?.created_at ? new Date(user.created_at).toLocaleDateString() : 'Loading...'}</p>
                 </CardContent>
               </Card>
             </div>
@@ -235,7 +386,7 @@ const Dashboard: React.FC = () => {
                                   {window.location.origin}/s/{link.shortCode}
                                 </span>
                                 <button 
-                                  className="text-xs px-2 py-1 bg-gray-100 rounded hover:bg-gray-200"
+                                  className="text-xs px-2 py-1 bg-gray-100 rounded hover:bg-gray-200 mr-2"
                                   onClick={() => {
                                     navigator.clipboard.writeText(`${window.location.origin}/s/${link.shortCode}`);
                                     toast({ description: "Link copied to clipboard" });
@@ -243,12 +394,25 @@ const Dashboard: React.FC = () => {
                                 >
                                   Copy
                                 </button>
+                                <button
+                                  className="text-xs px-2 py-1 bg-blue-100 text-blue-700 rounded hover:bg-blue-200"
+                                  onClick={() => handleRenameLink(link)}
+                                >
+                                  Rename
+                                </button>
                               </div>
                             </div>
                             <div className="flex items-center mt-4 md:mt-0">
                               <span className="text-lg font-medium mr-3">{link.visits} clicks</span>
-                              <Button variant="secondary" size="sm">
+                              <Button variant="secondary" size="sm" className="mr-2">
                                 View Details
+                              </Button>
+                              <Button 
+                                variant="destructive" 
+                                size="sm"
+                                onClick={() => handleDeleteLink(link)}
+                              >
+                                Delete
                               </Button>
                             </div>
                           </div>
@@ -312,15 +476,12 @@ const Dashboard: React.FC = () => {
             <LinkAnalytics links={links} />
           </TabsContent>
 
-          <TabsContent value="profile">
-            <ProfileSection />
+          <TabsContent value="notifications">
+            <NotificationsSection />
           </TabsContent>
 
-          <TabsContent value="settings">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-              <BillingSection />
-              <SettingsSection />
-            </div>
+          <TabsContent value="profile">
+            <ProfileSection />
           </TabsContent>
         </Tabs>
       </main>
@@ -332,6 +493,67 @@ const Dashboard: React.FC = () => {
           </p>
         </div>
       </footer>
+      
+      {/* Delete Link Dialog */}
+      <Dialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Delete Link</DialogTitle>
+            <DialogDescription>
+              Are you sure you want to delete this link? This action cannot be undone.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="bg-gray-50 p-3 rounded-md my-4">
+            <p className="text-sm font-medium">{selectedLink?.originalUrl}</p>
+            <p className="text-xs text-gray-500">
+              {window.location.origin}/s/{selectedLink?.shortCode}
+            </p>
+          </div>
+          <div className="flex justify-end gap-2">
+            <Button variant="outline" onClick={() => setDeleteDialogOpen(false)}>
+              Cancel
+            </Button>
+            <Button variant="destructive" onClick={confirmDeleteLink}>
+              Delete Link
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+      
+      {/* Rename Link Dialog */}
+      <Dialog open={renameDialogOpen} onOpenChange={setRenameDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Rename Link</DialogTitle>
+            <DialogDescription>
+              Enter a new custom code for your shortened link.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="py-4">
+            <Label htmlFor="shortCode" className="mb-2 block">Custom Short Code</Label>
+            <div className="flex items-center space-x-1">
+              <span className="text-gray-500">{window.location.origin}/s/</span>
+              <Input
+                id="shortCode"
+                value={newShortCode}
+                onChange={(e) => setNewShortCode(e.target.value)}
+                className="flex-1"
+              />
+            </div>
+            <p className="text-xs text-gray-500 mt-1">
+              Only use letters, numbers, hyphens, and underscores
+            </p>
+          </div>
+          <div className="flex justify-end gap-2">
+            <Button variant="outline" onClick={() => setRenameDialogOpen(false)}>
+              Cancel
+            </Button>
+            <Button onClick={confirmRenameLink}>
+              Save Changes
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

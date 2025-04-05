@@ -4,6 +4,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
 import { useAuthState } from "@/hooks/useAuthState";
 import { supabase } from "@/integrations/supabase/client";
@@ -12,11 +13,16 @@ import { Loader2, UserCircle } from "lucide-react";
 
 const ProfileSection = () => {
   const { user } = useAuthState();
-  const [fullName, setFullName] = useState("");
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
   const [email, setEmail] = useState("");
+  const [whatsappNumber, setWhatsappNumber] = useState("");
+  const [country, setCountry] = useState("");
   const [loading, setLoading] = useState(false);
   const [profileLoading, setProfileLoading] = useState(true);
   const { toast } = useToast();
+
+  const mandatoryFieldsComplete = firstName && lastName && whatsappNumber && country;
 
   useEffect(() => {
     if (user) {
@@ -37,7 +43,10 @@ const ProfileSection = () => {
       if (error) throw error;
       
       if (data) {
-        setFullName(data.full_name || "");
+        setFirstName(data.first_name || "");
+        setLastName(data.last_name || "");
+        setWhatsappNumber(data.whatsapp_number || "");
+        setCountry(data.country || "");
       }
     } catch (error) {
       console.error('Error fetching profile:', error);
@@ -61,9 +70,14 @@ const ProfileSection = () => {
         .from('profiles')
         .upsert({
           id: user.id,
-          full_name: fullName,
+          first_name: firstName,
+          last_name: lastName,
           email: email,
-          updated_at: new Date().toISOString() // Convert Date to ISO string format
+          whatsapp_number: whatsappNumber,
+          country: country,
+          full_name: `${firstName} ${lastName}`.trim(),
+          has_completed_profile: mandatoryFieldsComplete,
+          updated_at: new Date().toISOString()
         });
 
       if (error) throw error;
@@ -84,14 +98,10 @@ const ProfileSection = () => {
     }
   };
 
-  const getInitials = (name: string) => {
-    if (!name) return "U";
-    return name
-      .split(' ')
-      .map(part => part[0])
-      .join('')
-      .toUpperCase()
-      .substring(0, 2);
+  const getInitials = (first: string, last: string) => {
+    const firstInitial = first ? first.charAt(0).toUpperCase() : '';
+    const lastInitial = last ? last.charAt(0).toUpperCase() : '';
+    return (firstInitial + lastInitial) || 'U';
   };
 
   if (profileLoading) {
@@ -120,21 +130,49 @@ const ProfileSection = () => {
           <CardContent className="space-y-4">
             <div className="flex justify-center mb-4">
               <Avatar className="h-24 w-24">
-                <AvatarImage src="" alt={fullName} />
+                <AvatarImage src="" alt={`${firstName} ${lastName}`} />
                 <AvatarFallback className="bg-brand-purple text-white text-xl">
-                  {getInitials(fullName)}
+                  {getInitials(firstName, lastName)}
                 </AvatarFallback>
               </Avatar>
             </div>
             
+            <div className="text-center mb-4">
+              <p className="text-sm text-gray-500">User ID</p>
+              <p className="font-mono text-xs">{user?.id}</p>
+              <p className="text-xs text-gray-500 mt-1">
+                Joined: {user?.created_at ? new Date(user.created_at).toLocaleDateString() : 'N/A'}
+              </p>
+            </div>
+            
             <div className="space-y-2">
-              <Label htmlFor="fullName">Full Name</Label>
+              <Label htmlFor="firstName">First Name <span className="text-red-500">*</span></Label>
               <Input
-                id="fullName"
-                value={fullName}
-                onChange={(e) => setFullName(e.target.value)}
-                placeholder="Your full name"
+                id="firstName"
+                value={firstName}
+                onChange={(e) => setFirstName(e.target.value)}
+                placeholder="Your first name"
+                className={!firstName ? "border-red-300" : ""}
+                required
               />
+              {!firstName && (
+                <p className="text-xs text-red-500">First name is required</p>
+              )}
+            </div>
+            
+            <div className="space-y-2">
+              <Label htmlFor="lastName">Last Name <span className="text-red-500">*</span></Label>
+              <Input
+                id="lastName"
+                value={lastName}
+                onChange={(e) => setLastName(e.target.value)}
+                placeholder="Your last name"
+                className={!lastName ? "border-red-300" : ""}
+                required
+              />
+              {!lastName && (
+                <p className="text-xs text-red-500">Last name is required</p>
+              )}
             </div>
             
             <div className="space-y-2">
@@ -148,6 +186,61 @@ const ProfileSection = () => {
               />
               <p className="text-xs text-gray-500">To change your email, please contact support</p>
             </div>
+            
+            <div className="space-y-2">
+              <Label htmlFor="whatsappNumber">WhatsApp Number <span className="text-red-500">*</span></Label>
+              <Input
+                id="whatsappNumber"
+                value={whatsappNumber}
+                onChange={(e) => setWhatsappNumber(e.target.value)}
+                placeholder="Your WhatsApp number"
+                className={!whatsappNumber ? "border-red-300" : ""}
+                required
+              />
+              {!whatsappNumber && (
+                <p className="text-xs text-red-500">WhatsApp number is required</p>
+              )}
+            </div>
+            
+            <div className="space-y-2">
+              <Label htmlFor="country">Country <span className="text-red-500">*</span></Label>
+              <Select value={country} onValueChange={setCountry}>
+                <SelectTrigger 
+                  id="country" 
+                  className={!country ? "border-red-300" : ""}
+                >
+                  <SelectValue placeholder="Select your country" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="United States">United States</SelectItem>
+                  <SelectItem value="Canada">Canada</SelectItem>
+                  <SelectItem value="United Kingdom">United Kingdom</SelectItem>
+                  <SelectItem value="Australia">Australia</SelectItem>
+                  <SelectItem value="Germany">Germany</SelectItem>
+                  <SelectItem value="France">France</SelectItem>
+                  <SelectItem value="Spain">Spain</SelectItem>
+                  <SelectItem value="Italy">Italy</SelectItem>
+                  <SelectItem value="Japan">Japan</SelectItem>
+                  <SelectItem value="China">China</SelectItem>
+                  <SelectItem value="India">India</SelectItem>
+                  <SelectItem value="Brazil">Brazil</SelectItem>
+                  <SelectItem value="Mexico">Mexico</SelectItem>
+                  <SelectItem value="South Africa">South Africa</SelectItem>
+                  <SelectItem value="Nigeria">Nigeria</SelectItem>
+                  <SelectItem value="Other">Other</SelectItem>
+                </SelectContent>
+              </Select>
+              {!country && (
+                <p className="text-xs text-red-500">Country is required</p>
+              )}
+            </div>
+
+            {!mandatoryFieldsComplete && (
+              <div className="p-3 bg-yellow-50 border border-yellow-200 rounded-md text-yellow-800 text-sm">
+                <p className="font-medium">Complete your profile</p>
+                <p className="text-xs mt-1">Please complete all required fields to enable link creation.</p>
+              </div>
+            )}
           </CardContent>
           <CardFooter>
             <Button 

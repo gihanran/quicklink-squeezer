@@ -9,33 +9,85 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
-      profiles: {
+      notifications: {
         Row: {
-          created_at: string
-          email: string | null
-          full_name: string | null
+          created_at: string | null
           id: string
-          updated_at: string
+          is_global: boolean | null
+          message: string
+          sender_id: string | null
+          title: string
         }
         Insert: {
-          created_at?: string
-          email?: string | null
-          full_name?: string | null
-          id: string
-          updated_at?: string
+          created_at?: string | null
+          id?: string
+          is_global?: boolean | null
+          message: string
+          sender_id?: string | null
+          title: string
         }
         Update: {
+          created_at?: string | null
+          id?: string
+          is_global?: boolean | null
+          message?: string
+          sender_id?: string | null
+          title?: string
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          country: string | null
+          created_at: string
+          email: string | null
+          first_name: string | null
+          full_name: string | null
+          has_completed_profile: boolean | null
+          id: string
+          is_active: boolean | null
+          is_admin: boolean | null
+          last_name: string | null
+          link_limit: number | null
+          updated_at: string
+          whatsapp_number: string | null
+        }
+        Insert: {
+          country?: string | null
           created_at?: string
           email?: string | null
+          first_name?: string | null
           full_name?: string | null
-          id?: string
+          has_completed_profile?: boolean | null
+          id: string
+          is_active?: boolean | null
+          is_admin?: boolean | null
+          last_name?: string | null
+          link_limit?: number | null
           updated_at?: string
+          whatsapp_number?: string | null
+        }
+        Update: {
+          country?: string | null
+          created_at?: string
+          email?: string | null
+          first_name?: string | null
+          full_name?: string | null
+          has_completed_profile?: boolean | null
+          id?: string
+          is_active?: boolean | null
+          is_admin?: boolean | null
+          last_name?: string | null
+          link_limit?: number | null
+          updated_at?: string
+          whatsapp_number?: string | null
         }
         Relationships: []
       }
       short_urls: {
         Row: {
           created_at: string
+          custom_short_code: string | null
           expires_at: string | null
           id: string
           original_url: string
@@ -45,6 +97,7 @@ export type Database = {
         }
         Insert: {
           created_at?: string
+          custom_short_code?: string | null
           expires_at?: string | null
           id?: string
           original_url: string
@@ -54,6 +107,7 @@ export type Database = {
         }
         Update: {
           created_at?: string
+          custom_short_code?: string | null
           expires_at?: string | null
           id?: string
           original_url?: string
@@ -98,12 +152,44 @@ export type Database = {
           },
         ]
       }
+      user_notifications: {
+        Row: {
+          id: string
+          is_read: boolean | null
+          notification_id: string
+          user_id: string
+        }
+        Insert: {
+          id?: string
+          is_read?: boolean | null
+          notification_id: string
+          user_id: string
+        }
+        Update: {
+          id?: string
+          is_read?: boolean | null
+          notification_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_notifications_notification_id_fkey"
+            columns: ["notification_id"]
+            isOneToOne: false
+            referencedRelation: "notifications"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      is_admin: {
+        Args: Record<PropertyKey, never>
+        Returns: boolean
+      }
     }
     Enums: {
       [_ in never]: never
