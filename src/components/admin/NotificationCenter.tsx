@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
@@ -10,7 +10,7 @@ import {
   Card, CardContent, CardHeader, CardTitle, CardDescription 
 } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
-import { User, Users, Send } from "lucide-react";
+import { User, Users, Send, RefreshCw } from "lucide-react";
 import { useAuthState } from "@/hooks/auth";
 
 interface Member {
@@ -29,6 +29,7 @@ interface NotificationFormData {
 const NotificationCenter = () => {
   const [members, setMembers] = useState<Member[]>([]);
   const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
   const [sendingNotification, setSendingNotification] = useState(false);
   const [selectedMember, setSelectedMember] = useState<Member | null>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -41,11 +42,7 @@ const NotificationCenter = () => {
   const { user } = useAuthState();
   const { toast } = useToast();
 
-  useEffect(() => {
-    fetchMembers();
-  }, []);
-
-  const fetchMembers = async () => {
+  const fetchMembers = useCallback(async () => {
     try {
       setLoading(true);
       const { data, error } = await supabase
@@ -56,6 +53,7 @@ const NotificationCenter = () => {
       if (error) throw error;
 
       if (data) {
+        console.log("Fetched members for notifications:", data.length);
         setMembers(data as Member[]);
       }
     } catch (error) {
@@ -68,6 +66,19 @@ const NotificationCenter = () => {
     } finally {
       setLoading(false);
     }
+  }, [toast]);
+
+  useEffect(() => {
+    fetchMembers();
+  }, [fetchMembers]);
+
+  const refreshData = async () => {
+    setRefreshing(true);
+    await fetchMembers();
+    setRefreshing(false);
+    toast({
+      description: "Member data refreshed"
+    });
   };
 
   const openSendNotification = (member?: Member) => {
@@ -233,6 +244,16 @@ const NotificationCenter = () => {
         >
           <Users className="h-4 w-4" />
           Send to All Users
+        </Button>
+        
+        <Button 
+          variant="outline" 
+          onClick={refreshData} 
+          disabled={refreshing}
+          className="flex items-center gap-2"
+        >
+          <RefreshCw className={`h-4 w-4 ${refreshing ? 'animate-spin' : ''}`} />
+          Refresh Members
         </Button>
       </div>
 

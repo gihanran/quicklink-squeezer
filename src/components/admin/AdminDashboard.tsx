@@ -1,10 +1,11 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { supabase } from "@/integrations/supabase/client";
-import { Users, Link2, MousePointer, Globe } from "lucide-react";
+import { Users, Link2, MousePointer, Globe, RefreshCw } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import * as RechartsPrimitive from "recharts";
+import { Button } from '@/components/ui/button';
 
 const AdminDashboard = () => {
   const [stats, setStats] = useState({
@@ -14,74 +15,105 @@ const AdminDashboard = () => {
     countriesData: [] as { country: string; count: number }[],
   });
   const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
   const { toast } = useToast();
 
-  useEffect(() => {
-    const fetchStats = async () => {
-      try {
-        // Fetch total users
-        const { count: userCount, error: userError } = await supabase
-          .from('profiles')
-          .select('*', { count: 'exact', head: true });
+  const fetchStats = useCallback(async () => {
+    try {
+      setLoading(true);
+      console.log("Fetching admin dashboard stats...");
+      
+      // Fetch total users
+      const { count: userCount, error: userError } = await supabase
+        .from('profiles')
+        .select('*', { count: 'exact', head: true });
 
-        if (userError) throw userError;
-
-        // Fetch total links
-        const { count: linkCount, error: linkError } = await supabase
-          .from('short_urls')
-          .select('*', { count: 'exact', head: true });
-
-        if (linkError) throw linkError;
-
-        // Fetch total clicks
-        const { data: clickData, error: clickError } = await supabase
-          .from('short_urls')
-          .select('visits');
-
-        if (clickError) throw clickError;
-
-        const totalClicks = clickData.reduce((sum, item) => sum + (item.visits || 0), 0);
-
-        // Fetch countries data
-        const { data: countryData, error: countryError } = await supabase
-          .from('profiles')
-          .select('country')
-          .not('country', 'is', null);
-
-        if (countryError) throw countryError;
-
-        // Process country data
-        const countryCounts = countryData.reduce((acc, profile) => {
-          if (!profile.country) return acc;
-          acc[profile.country] = (acc[profile.country] || 0) + 1;
-          return acc;
-        }, {} as Record<string, number>);
-
-        const countriesData = Object.entries(countryCounts)
-          .map(([country, count]) => ({ country, count }))
-          .sort((a, b) => b.count - a.count)
-          .slice(0, 5); // Top 5 countries
-
-        setStats({
-          totalUsers: userCount || 0,
-          totalLinks: linkCount || 0,
-          totalClicks,
-          countriesData,
-        });
-      } catch (error) {
-        console.error('Error fetching admin stats:', error);
-        toast({
-          title: "Error loading statistics",
-          description: "Could not load admin dashboard statistics",
-          variant: "destructive"
-        });
-      } finally {
-        setLoading(false);
+      if (userError) {
+        console.error("Error fetching user count:", userError);
+        throw userError;
       }
-    };
+      
+      console.log("Total users:", userCount);
 
-    fetchStats();
+      // Fetch total links
+      const { count: linkCount, error: linkError } = await supabase
+        .from('short_urls')
+        .select('*', { count: 'exact', head: true });
+
+      if (linkError) {
+        console.error("Error fetching link count:", linkError);
+        throw linkError;
+      }
+      
+      console.log("Total links:", linkCount);
+
+      // Fetch total clicks using the function
+      const { data: clickData, error: clickError } = await supabase
+        .rpc('get_total_clicks');
+
+      if (clickError) {
+        console.error("Error fetching total clicks:", clickError);
+        throw clickError;
+      }
+      
+      const totalClicks = clickData[0]?.total_clicks || 0;
+      console.log("Total clicks:", totalClicks);
+
+      // Fetch countries data
+      const { data: countryData, error: countryError } = await supabase
+        .from('profiles')
+        .select('country')
+        .not('country', 'is', null);
+
+      if (countryError) {
+        console.error("Error fetching country data:", countryError);
+        throw countryError;
+      }
+
+      // Process country data
+      const countryCounts = countryData.reduce((acc, profile) => {
+        if (!profile.country) return acc;
+        acc[profile.country] = (acc[profile.country] || 0) + 1;
+        return acc;
+      }, {} as Record<string, number>);
+
+      const countriesData = Object.entries(countryCounts)
+        .map(([country, count]) => ({ country, count }))
+        .sort((a, b) => b.count - a.count)
+        .slice(0, 5); // Top 5 countries
+      
+      console.log("Countries data:", countriesData);
+
+      setStats({
+        totalUsers: userCount || 0,
+        totalLinks: linkCount || 0,
+        totalClicks,
+        countriesData,
+      });
+    } catch (error) {
+      console.error('Error fetching admin stats:', error);
+      toast({
+        title: "Error loading statistics",
+        description: "Could not load admin dashboard statistics",
+        variant: "destructive"
+      });
+    } finally {
+      setLoading(false);
+    }
   }, [toast]);
+
+  useEffect(() => {
+    fetchStats();
+  }, [fetchStats]);
+
+  const refreshData = async () => {
+    setRefreshing(true);
+    await fetchStats();
+    setRefreshing(false);
+    toast({
+      description: "Dashboard data refreshed"
+    });
+  };
 
   if (loading) {
     return (
@@ -93,7 +125,18 @@ const AdminDashboard = () => {
 
   return (
     <div>
-      <h2 className="text-2xl font-bold mb-6">Analytics Dashboard</h2>
+      <div className="flex justify-between items-center mb-6">
+        <h2 className="text-2xl font-bold">Analytics Dashboard</h2>
+        <Button 
+          variant="outline" 
+          onClick={refreshData} 
+          disabled={refreshing}
+          className="flex items-center gap-2"
+        >
+          <RefreshCw className={`h-4 w-4 ${refreshing ? 'animate-spin' : ''}`} />
+          Refresh Data
+        </Button>
+      </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
         <Card>

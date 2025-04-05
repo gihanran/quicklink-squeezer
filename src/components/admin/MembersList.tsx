@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
@@ -10,7 +10,7 @@ import {
   TableRow, TableCell
 } from "@/components/ui/table";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
-import { ToggleLeft, ToggleRight, Pencil } from "lucide-react";
+import { ToggleLeft, ToggleRight, Pencil, RefreshCw } from "lucide-react";
 
 interface Member {
   id: string;
@@ -35,17 +35,14 @@ const MembersList = () => {
   const [members, setMembers] = useState<Member[]>([]);
   const [memberStats, setMemberStats] = useState<Record<string, MemberStats>>({});
   const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [editMember, setEditMember] = useState<Member | null>(null);
   const [editLimit, setEditLimit] = useState<number>(0);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const { toast } = useToast();
 
-  useEffect(() => {
-    fetchMembers();
-  }, []);
-
-  const fetchMembers = async () => {
+  const fetchMembers = useCallback(async () => {
     try {
       setLoading(true);
       const { data, error } = await supabase
@@ -55,6 +52,7 @@ const MembersList = () => {
       if (error) throw error;
 
       if (data) {
+        console.log("Fetched members:", data.length);
         setMembers(data as Member[]);
         fetchMemberStats(data as Member[]);
       }
@@ -68,7 +66,7 @@ const MembersList = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [toast]);
 
   const fetchMemberStats = async (members: Member[]) => {
     try {
@@ -115,6 +113,19 @@ const MembersList = () => {
       console.error('Error fetching member stats:', error);
     }
   };
+
+  const refreshData = async () => {
+    setRefreshing(true);
+    await fetchMembers();
+    setRefreshing(false);
+    toast({
+      description: "Member data refreshed"
+    });
+  };
+
+  useEffect(() => {
+    fetchMembers();
+  }, [fetchMembers]);
 
   const toggleMemberStatus = async (member: Member) => {
     try {
@@ -195,13 +206,22 @@ const MembersList = () => {
     <div>
       <h2 className="text-2xl font-bold mb-6">Registered Members</h2>
       
-      <div className="mb-6">
+      <div className="flex justify-between items-center mb-6">
         <Input
           placeholder="Search by name, email or country..."
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
           className="max-w-md"
         />
+        <Button 
+          variant="outline" 
+          onClick={refreshData}
+          disabled={refreshing}
+          className="flex items-center gap-2"
+        >
+          <RefreshCw className={`h-4 w-4 ${refreshing ? 'animate-spin' : ''}`} />
+          Refresh Data
+        </Button>
       </div>
 
       {loading ? (

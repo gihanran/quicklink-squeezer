@@ -1,10 +1,10 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuthState } from "@/hooks/auth";
 import { useToast } from "@/hooks/use-toast";
-import { Bell, Check } from "lucide-react";
+import { Bell, Check, RefreshCw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 interface Notification {
@@ -19,19 +19,16 @@ interface Notification {
 const NotificationsSection = () => {
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
   const { user } = useAuthState();
   const { toast } = useToast();
 
-  useEffect(() => {
-    if (user) {
-      fetchNotifications();
-    }
-  }, [user]);
-
-  const fetchNotifications = async () => {
+  const fetchNotifications = useCallback(async () => {
+    if (!user) return;
+    
     try {
       setLoading(true);
-      console.log("Fetching notifications for user:", user?.id);
+      console.log("Fetching notifications for user:", user.id);
       
       // Fixed query to properly join notification table data
       const { data, error } = await supabase
@@ -46,7 +43,7 @@ const NotificationsSection = () => {
             created_at
           )
         `)
-        .eq('user_id', user?.id)
+        .eq('user_id', user.id)
         .order('is_read', { ascending: true })
         .order('notifications(created_at)', { ascending: false });
 
@@ -61,9 +58,9 @@ const NotificationsSection = () => {
         const formattedNotifications = data.map(item => ({
           id: item.id,
           notificationId: item.notification_id,
-          title: item.notifications.title,
-          message: item.notifications.message,
-          created_at: item.notifications.created_at,
+          title: item.notifications?.title || 'Notification',
+          message: item.notifications?.message || 'No message content',
+          created_at: item.notifications?.created_at || new Date().toISOString(),
           is_read: item.is_read
         }));
         
@@ -80,6 +77,21 @@ const NotificationsSection = () => {
     } finally {
       setLoading(false);
     }
+  }, [user, toast]);
+
+  useEffect(() => {
+    if (user) {
+      fetchNotifications();
+    }
+  }, [user, fetchNotifications]);
+
+  const refreshData = async () => {
+    setRefreshing(true);
+    await fetchNotifications();
+    setRefreshing(false);
+    toast({
+      description: "Notifications refreshed"
+    });
   };
 
   const markAsRead = async (notificationId: string) => {
@@ -162,15 +174,24 @@ const NotificationsSection = () => {
           <h1 className="text-3xl font-bold">Notifications</h1>
           <p className="text-gray-600">Notifications and messages from the system</p>
         </div>
-        <Button 
-          variant="outline" 
-          onClick={markAllAsRead}
-          className="mt-4 md:mt-0"
-          disabled={!notifications.some(n => !n.is_read)}
-        >
-          <Check className="h-4 w-4 mr-2" />
-          Mark All as Read
-        </Button>
+        <div className="flex mt-4 md:mt-0 space-x-3">
+          <Button 
+            variant="outline" 
+            onClick={markAllAsRead}
+            disabled={!notifications.some(n => !n.is_read)}
+          >
+            <Check className="h-4 w-4 mr-2" />
+            Mark All as Read
+          </Button>
+          <Button 
+            variant="outline" 
+            onClick={refreshData}
+            disabled={refreshing}
+          >
+            <RefreshCw className={`h-4 w-4 mr-2 ${refreshing ? 'animate-spin' : ''}`} />
+            Refresh
+          </Button>
+        </div>
       </div>
 
       {loading ? (
