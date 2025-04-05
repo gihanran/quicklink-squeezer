@@ -19,6 +19,7 @@ const CreateLinkCard: React.FC<CreateLinkCardProps> = ({ handleLinkCreated, hand
         <UrlShortenerForm 
           onUrlShortened={handleUrlShortened} 
           onSuccess={handleLinkCreated} 
+          showTitleField={true} // Explicitly show the title field in the dashboard
         />
       </CardContent>
     </Card>

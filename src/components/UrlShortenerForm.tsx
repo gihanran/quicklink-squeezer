@@ -11,9 +11,14 @@ import { Label } from "@/components/ui/label";
 interface UrlShortenerFormProps {
   onUrlShortened: (urlData: UrlData, fullUrl: string) => void;
   onSuccess?: () => void; // Add this optional prop for Dashboard
+  showTitleField?: boolean; // New prop to control visibility of title field
 }
 
-const UrlShortenerForm: React.FC<UrlShortenerFormProps> = ({ onUrlShortened, onSuccess }) => {
+const UrlShortenerForm: React.FC<UrlShortenerFormProps> = ({ 
+  onUrlShortened, 
+  onSuccess,
+  showTitleField = true // Default to true to maintain backward compatibility
+}) => {
   const [url, setUrl] = useState<string>('');
   const [title, setTitle] = useState<string>('');
   const [isLoading, setIsLoading] = useState<boolean>(false);
@@ -57,8 +62,8 @@ const UrlShortenerForm: React.FC<UrlShortenerFormProps> = ({ onUrlShortened, onS
     
     try {
       setIsLoading(true);
-      // Include the title in the URL data
-      const urlData = await storeUrl(urlToShorten, title);
+      // Include the title in the URL data only if showTitleField is true
+      const urlData = await storeUrl(urlToShorten, showTitleField ? title : undefined);
       const fullShortenedUrl = getFullShortenedUrl(urlData.shortCode);
       
       // Callback to parent component with the shortened URL
@@ -116,18 +121,20 @@ const UrlShortenerForm: React.FC<UrlShortenerFormProps> = ({ onUrlShortened, onS
           </div>
         </div>
         
-        <div>
-          <Label htmlFor="title" className="mb-1 block">Link Title (Optional)</Label>
-          <Input
-            id="title"
-            type="text"
-            value={title}
-            onChange={(e) => setTitle(e.target.value)}
-            placeholder="Enter a title for your link"
-            className="w-full h-12 text-base"
-            disabled={isLoading}
-          />
-        </div>
+        {showTitleField && (
+          <div>
+            <Label htmlFor="title" className="mb-1 block">Link Title (Optional)</Label>
+            <Input
+              id="title"
+              type="text"
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+              placeholder="Enter a title for your link"
+              className="w-full h-12 text-base"
+              disabled={isLoading}
+            />
+          </div>
+        )}
       </div>
     </form>
   );

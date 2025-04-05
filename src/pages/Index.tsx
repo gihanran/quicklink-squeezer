@@ -68,7 +68,10 @@ const Index = () => {
               </CardDescription>
             </CardHeader>
             <CardContent className="px-6 pb-8">
-              <UrlShortenerForm onUrlShortened={handleUrlShortened} />
+              <UrlShortenerForm 
+                onUrlShortened={handleUrlShortened} 
+                showTitleField={false} // Hide the title field on the home page
+              />
               
               {shortenedUrlData && (
                 <ShortenedUrlResult 

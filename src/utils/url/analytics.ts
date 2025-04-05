@@ -1,127 +1,88 @@
 
 import { supabase } from "@/integrations/supabase/client";
-import { UrlStats } from "./types";
 
-// Track a visit to a short URL
-export const trackVisit = async (shortCode: string): Promise<void> => {
+export const getUrlStats = async () => {
   try {
-    // Get the URL ID first
-    const { data: urlData, error: urlError } = await supabase
-      .from('short_urls')
-      .select('id')
-      .eq('short_code', shortCode)
-      .maybeSingle();
-    
-    if (urlError || !urlData) {
-      console.error('Error retrieving URL for visit tracking:', urlError);
-      return;
-    }
-    
-    // Get referrer and user agent info
-    const referrer = document.referrer || null;
-    const userAgent = navigator.userAgent || null;
-    
-    // Record the visit
-    const { error: visitError } = await supabase
-      .from('url_visits')
-      .insert({
-        short_url_id: urlData.id,
-        referrer,
-        user_agent: userAgent
-      });
-    
-    if (visitError) {
-      console.error('Error recording visit:', visitError);
-    }
-    
-    // The increment_url_visits trigger will automatically update the visit count
-  } catch (error) {
-    console.error('Error tracking visit:', error);
-  }
-};
-
-// Get stats about total links and clicks
-export const getUrlStats = async (): Promise<UrlStats> => {
-  try {
-    // Count total links (including deleted ones)
-    // We'll use the database function to get a count of all links ever created
-    const { data: totalLinksData, error: linksError } = await supabase
-      .rpc('get_total_links_created') as { 
-        data: { count: number }[] | null, 
-        error: Error | null 
-      };
-    
-    if (linksError) {
-      console.error('Error counting total links:', linksError);
-      // Fallback to counting current links
-      const { count: currentLinks, error: currentLinksError } = await supabase
-        .from('short_urls')
-        .select('*', { count: 'exact', head: true });
-      
-      if (currentLinksError) throw currentLinksError;
-      return { totalLinks: currentLinks || 0, totalClicks: 0 };
-    }
-    
-    const totalLinks = totalLinksData && totalLinksData[0] ? Number(totalLinksData[0].count) : 0;
-    
-    // Get total clicks (including for deleted links)
-    const { data: totalClicksData, error: clicksError } = await supabase
-      .rpc('get_total_clicks') as { 
-        data: { total_clicks: number }[] | null, 
-        error: Error | null 
-      };
-    
-    if (clicksError) {
-      console.error('Error getting total clicks:', clicksError);
-      // Fallback to summing clicks from existing links
-      const { data: clicksData, error: currentClicksError } = await supabase
-        .from('short_urls')
-        .select('visits');
-      
-      if (currentClicksError) throw currentClicksError;
-      const totalClicks = clicksData.reduce((sum, url) => sum + (url.visits || 0), 0);
-      return { totalLinks, totalClicks };
-    }
-
-    const totalClicks = totalClicksData && totalClicksData[0] ? Number(totalClicksData[0].total_clicks) : 0;
-    
-    // Get remaining link balance if user is logged in
-    let remainingLinks;
-    let linkLimit;
-    
+    // Get session for the current user
     const { data: { session } } = await supabase.auth.getSession();
+    
+    // Initialize the default stats
+    const stats = {
+      totalLinks: 0,
+      totalClicks: 0,
+      remainingLinks: undefined,
+      linkLimit: undefined
+    };
+    
+    // If user is logged in, fetch user-specific stats
     if (session?.user) {
-      const { data: profile } = await supabase
+      // Fetch total links for the user
+      const { data: userLinks, error: userLinksError } = await supabase
+        .from('short_urls')
+        .select('id, visits')
+        .eq('user_id', session.user.id);
+      
+      if (userLinksError) throw userLinksError;
+      
+      // Compute user stats
+      stats.totalLinks = userLinks?.length || 0;
+      stats.totalClicks = userLinks?.reduce((sum, link) => sum + (link.visits || 0), 0) || 0;
+      
+      // Get user link limit from profile
+      const { data: profile, error: profileError } = await supabase
         .from('profiles')
         .select('link_limit')
         .eq('id', session.user.id)
         .single();
       
-      linkLimit = profile?.link_limit || 100;
+      if (!profileError && profile) {
+        const linkLimit = profile.link_limit || 100; // Default to 100 if not set
+        stats.linkLimit = linkLimit;
+        
+        // Calculate remaining links
+        const { count, error: countError } = await supabase
+          .from('short_urls')
+          .select('id', { count: 'exact', head: false })
+          .eq('user_id', session.user.id)
+          .gte('created_at', new Date(new Date().setDate(1)).toISOString()); // From 1st of current month
+        
+        if (!countError) {
+          stats.remainingLinks = linkLimit - (count || 0);
+        }
+      }
+    } else {
+      // For public facing stats (total links and clicks across the platform)
+      // These should not decrease when users delete their links
       
-      // Count links created this month
-      const startOfMonth = new Date();
-      startOfMonth.setDate(1);
-      startOfMonth.setHours(0, 0, 0, 0);
+      // For total links, use the DB function that returns the total count
+      const { data: totalLinks, error: totalLinksError } = await supabase
+        .rpc('get_total_links_created');
       
-      const { count } = await supabase
-        .from('short_urls')
-        .select('*', { count: 'exact', head: true })
-        .eq('user_id', session.user.id)
-        .gte('created_at', startOfMonth.toISOString());
+      if (totalLinksError) {
+        console.error('Error fetching total links:', totalLinksError);
+      } else {
+        stats.totalLinks = totalLinks?.[0]?.count || 0;
+      }
       
-      const linksCreatedThisMonth = count || 0;
-      remainingLinks = linkLimit - linksCreatedThisMonth;
+      // For total clicks, use the DB function that returns the total clicks
+      const { data: totalClicks, error: totalClicksError } = await supabase
+        .rpc('get_total_clicks');
+      
+      if (totalClicksError) {
+        console.error('Error fetching total clicks:', totalClicksError);
+      } else {
+        stats.totalClicks = totalClicks?.[0]?.total_clicks || 0;
+      }
     }
     
-    return {
-      totalLinks,
-      totalClicks,
-      remainingLinks,
-      linkLimit
-    };
+    return stats;
   } catch (error) {
     console.error('Error getting URL stats:', error);
-    return { totalLinks: 0, totalClicks: 0 };
+    return {
+      totalLinks: 0,
+      totalClicks: 0,
+      remainingLinks: undefined,
+      linkLimit: undefined
+    };
   }
 };
