@@ -31,13 +31,14 @@ const NotificationsSection = () => {
   const fetchNotifications = async () => {
     try {
       setLoading(true);
+      // Fixed query to properly join notification table data
       const { data, error } = await supabase
         .from('user_notifications')
         .select(`
           id,
-          notification_id as notificationId,
+          notification_id,
           is_read,
-          notifications (
+          notifications:notification_id (
             title,
             message,
             created_at
@@ -52,7 +53,7 @@ const NotificationsSection = () => {
       if (data) {
         const formattedNotifications = data.map(item => ({
           id: item.id,
-          notificationId: item.notificationId,
+          notificationId: item.notification_id,
           title: item.notifications.title,
           message: item.notifications.message,
           created_at: item.notifications.created_at,

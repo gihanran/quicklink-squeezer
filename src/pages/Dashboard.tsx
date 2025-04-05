@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -53,7 +52,7 @@ const Dashboard: React.FC = () => {
         if (error) throw error;
 
         const isComplete = data?.has_completed_profile || 
-          (data?.first_name && data?.last_name && data?.whatsapp_number && data?.country);
+          Boolean(data?.first_name && data?.last_name && data?.whatsapp_number && data?.country);
         
         setProfileCompleted(isComplete);
         setShowProfileCompletion(!isComplete);
@@ -88,7 +87,6 @@ const Dashboard: React.FC = () => {
     }
   }, [user, authLoading, navigate, toast]);
 
-  // Calculate days remaining and percentage for expiration
   const calculateExpiration = (createdAt: number, expiresAt?: number) => {
     if (!expiresAt) return { percentage: 0, daysLeft: 0 };
     
@@ -120,7 +118,6 @@ const Dashboard: React.FC = () => {
 
   const handleLinkCreated = () => {
     setShowCreateForm(false);
-    // Refresh links after creating a new one
     getUserUrls().then(setLinks).catch(console.error);
     getUrlStats().then(setStats).catch(console.error);
     toast({
@@ -155,7 +152,6 @@ const Dashboard: React.FC = () => {
       setDeleteDialogOpen(false);
       setSelectedLink(null);
       
-      // Update stats
       getUrlStats().then(setStats).catch(console.error);
       
       toast({
@@ -183,7 +179,6 @@ const Dashboard: React.FC = () => {
 
       if (error) throw error;
 
-      // Update local state
       setLinks(links.map(link => 
         link.id === selectedLink.id
           ? { ...link, shortCode: newShortCode }
@@ -208,9 +203,7 @@ const Dashboard: React.FC = () => {
     }
   };
 
-  // Dummy function to pass as onUrlShortened prop (required by UrlShortenerForm)
   const handleUrlShortened = () => {
-    // The actual functionality is handled in handleLinkCreated via onSuccess
   };
 
   const redirectToProfile = () => {
@@ -494,7 +487,6 @@ const Dashboard: React.FC = () => {
         </div>
       </footer>
       
-      {/* Delete Link Dialog */}
       <Dialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
         <DialogContent>
           <DialogHeader>
@@ -520,7 +512,6 @@ const Dashboard: React.FC = () => {
         </DialogContent>
       </Dialog>
       
-      {/* Rename Link Dialog */}
       <Dialog open={renameDialogOpen} onOpenChange={setRenameDialogOpen}>
         <DialogContent>
           <DialogHeader>
