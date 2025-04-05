@@ -6,7 +6,7 @@ import FeatureShowcase from '@/components/FeatureShowcase';
 import { UrlData } from '@/utils/urlUtils';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Link2 } from "lucide-react";
-import { useAuthState } from '@/hooks/useAuthState';
+import { useAuthState } from '@/hooks/auth';
 
 const Index = () => {
   const [shortenedUrlData, setShortenedUrlData] = useState<UrlData | null>(null);

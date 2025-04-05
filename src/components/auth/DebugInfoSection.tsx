@@ -1,6 +1,6 @@
 
 import { Button } from '@/components/ui/button';
-import { ADMIN_EMAIL, ADMIN_PASSWORD } from '@/hooks/useAuthForm';
+import { ADMIN_EMAIL, ADMIN_PASSWORD } from '@/hooks/auth/adminUtils';
 
 type DebugInfoSectionProps = {
   email: string;

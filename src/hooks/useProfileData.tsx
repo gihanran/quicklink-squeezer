@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
-import { useAuthState } from "@/hooks/useAuthState";
+import { useAuthState } from "@/hooks/auth";
 
 export const useProfileData = () => {
   const { user } = useAuthState();

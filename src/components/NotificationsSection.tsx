@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { supabase } from "@/integrations/supabase/client";
-import { useAuthState } from "@/hooks/useAuthState";
+import { useAuthState } from "@/hooks/auth";
 import { useToast } from "@/hooks/use-toast";
 import { Bell, Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
