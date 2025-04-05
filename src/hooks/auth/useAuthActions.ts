@@ -1,4 +1,3 @@
-
 import { FormEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
@@ -15,15 +14,7 @@ export const useAuthActions = (
   const { checkAdminStatus } = useAuthState();
   
   const toggleShowPassword = () => {
-    // Fix: Directly use the provided setShowPassword function
-    return () => {
-      setLoading((prev) => {
-        // Toggle loading state to force a re-render (dummy operation)
-        setTimeout(() => setLoading(prev), 0);
-        return !prev;
-      });
-      return !state.showPassword;
-    };
+    return !state.showPassword;
   };
 
   const toggleMode = () => {
@@ -166,12 +157,6 @@ export const useAuthActions = (
     } finally {
       setLoading(false);
     }
-  };
-
-  // Implement the missing setShowPassword function
-  const setShowPassword = (showPassword: boolean) => {
-    // This function is implemented but not used directly in this file
-    // It's provided by the parent hook
   };
 
   return {

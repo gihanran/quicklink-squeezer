@@ -36,6 +36,12 @@ export const useAuthForm = () => {
     setMode
   );
 
+  // Fix: Create a proper toggleShowPassword handler that uses the return value
+  // from the useAuthActions hook's toggleShowPassword function
+  const handleToggleShowPassword = () => {
+    setShowPassword(toggleShowPassword());
+  };
+
   return {
     email,
     setEmail,
@@ -52,7 +58,7 @@ export const useAuthForm = () => {
     mode,
     loading,
     showPassword,
-    toggleShowPassword,
+    toggleShowPassword: handleToggleShowPassword, // Use the new handler
     handleAuth,
     toggleMode,
     switchToResetMode
