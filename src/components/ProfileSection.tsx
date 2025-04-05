@@ -77,7 +77,7 @@ const ProfileSection = () => {
           whatsapp_number: whatsappNumber,
           country: country,
           full_name: `${firstName} ${lastName}`.trim(),
-          has_completed_profile: mandatoryFieldsComplete,
+          has_completed_profile: Boolean(mandatoryFieldsComplete), // Fixed: Convert to boolean explicitly
           updated_at: new Date().toISOString()
         });
 
