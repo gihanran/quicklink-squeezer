@@ -43,22 +43,39 @@ export const trackVisit = async (shortCode: string): Promise<void> => {
 // Get stats about total links and clicks
 export const getUrlStats = async (): Promise<UrlStats> => {
   try {
-    // Count total valid links (not expired)
+    // Count total links (including deleted ones)
+    // We'll use a separate query to get a count of all links ever created
     const { count: totalLinks, error: linksError } = await supabase
-      .from('short_urls')
-      .select('*', { count: 'exact', head: true })
-      .gte('expires_at', new Date().toISOString());
+      .rpc('get_total_links_created');
     
-    if (linksError) throw linksError;
+    if (linksError) {
+      console.error('Error counting total links:', linksError);
+      // Fallback to counting current links
+      const { count: currentLinks, error: currentLinksError } = await supabase
+        .from('short_urls')
+        .select('*', { count: 'exact', head: true });
+      
+      if (currentLinksError) throw currentLinksError;
+      return { totalLinks: currentLinks || 0, totalClicks: 0 };
+    }
     
-    // Sum total clicks
-    const { data: clicksData, error: clicksError } = await supabase
-      .from('short_urls')
-      .select('visits');
+    // Get total clicks (including for deleted links)
+    const { data: totalClicksData, error: clicksError } = await supabase
+      .rpc('get_total_clicks');
     
-    if (clicksError) throw clicksError;
-    
-    const totalClicks = clicksData.reduce((sum, url) => sum + (url.visits || 0), 0);
+    if (clicksError) {
+      console.error('Error getting total clicks:', clicksError);
+      // Fallback to summing clicks from existing links
+      const { data: clicksData, error: currentClicksError } = await supabase
+        .from('short_urls')
+        .select('visits');
+      
+      if (currentClicksError) throw currentClicksError;
+      const totalClicks = clicksData.reduce((sum, url) => sum + (url.visits || 0), 0);
+      return { totalLinks: totalLinks || 0, totalClicks };
+    }
+
+    const totalClicks = totalClicksData?.total_clicks || 0;
     
     // Get remaining link balance if user is logged in
     let remainingLinks;
