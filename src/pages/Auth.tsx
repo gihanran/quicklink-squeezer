@@ -1,72 +1,96 @@
 
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import AuthForm from '@/components/AuthForm';
 import { Link2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { useAuthState } from '@/hooks/useAuthState';
 
 const Auth = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { toast } = useToast();
+  const { user, isAdmin, checkAdminStatus } = useAuthState();
+  const [checking, setChecking] = useState(true);
 
   useEffect(() => {
     // Check if user is already signed in
     const checkUser = async () => {
       try {
-        const { data, error } = await supabase.auth.getSession();
+        console.log("🔍 Auth page: Checking user session");
+        setChecking(true);
         
-        if (error) {
-          console.error("Session retrieval error:", error);
-          return;
-        }
-        
-        if (data.session) {
-          console.log("User already signed in, redirecting");
-          console.log("Session user:", data.session.user);
+        if (user) {
+          console.log("✅ Auth page: User already signed in", user.email);
           
-          // Get admin status directly
-          const userId = data.session.user.id;
-          const { data: profileData, error: profileError } = await supabase
-            .from('profiles')
-            .select('is_admin')
-            .eq('id', userId)
-            .maybeSingle();
-            
-          if (profileError) {
-            console.error("Error fetching profile:", profileError);
+          // Get admin status from the useAuthState hook, but also verify it directly
+          let adminStatus = isAdmin;
+          
+          // Extra verification directly from database
+          if (!adminStatus) {
+            console.log("🔍 Auth page: Verifying admin status directly from database");
+            try {
+              const { data, error } = await supabase
+                .from('profiles')
+                .select('is_admin, email')
+                .eq('id', user.id)
+                .maybeSingle();
+                
+              console.log("🔍 Auth page: Direct admin check result:", data);
+              
+              if (error) {
+                console.error("❌ Auth page: Error fetching profile:", error);
+              } else if (data) {
+                adminStatus = data.is_admin === true;
+                console.log("🔍 Auth page: Direct admin check status:", adminStatus);
+              }
+            } catch (err) {
+              console.error("❌ Auth page: Exception during direct admin check:", err);
+            }
           }
           
-          console.log("Profile data:", profileData);
-          
           // Redirect based on admin status
-          if (profileData?.is_admin === true) {
-            console.log("User is admin, redirecting to admin panel");
+          if (adminStatus) {
+            console.log("✅ Auth page: User is admin, redirecting to admin panel");
+            toast({
+              title: "Admin Session Detected",
+              description: "Redirecting to admin panel"
+            });
             navigate('/admin');
           } else {
             // Check if there's a redirect path in the location state
             const state = location.state as { redirectTo?: string } | null;
             const redirectPath = state?.redirectTo || '/dashboard';
             
-            console.log("User is not admin, redirecting to:", redirectPath);
+            console.log("✅ Auth page: User is not admin, redirecting to:", redirectPath);
             navigate(redirectPath);
           }
         } else {
-          console.log("No active session found");
+          console.log("🔍 Auth page: No active session found");
         }
       } catch (err) {
-        console.error("Error checking user session:", err);
+        console.error("❌ Auth page: Error checking user session:", err);
         toast({
           title: "Error",
           description: "There was a problem checking your session",
           variant: "destructive"
         });
+      } finally {
+        setChecking(false);
       }
     };
     
     checkUser();
-  }, [navigate, location, toast]);
+  }, [user, navigate, location, toast, isAdmin, checkAdminStatus]);
+
+  if (checking) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-white to-gray-100">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-brand-purple"></div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen flex flex-col bg-gradient-to-b from-white to-gray-100">

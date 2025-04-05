@@ -108,7 +108,7 @@ const AuthForm = () => {
         });
         
       } else {
-        console.log("Attempting to sign in with:", { email });
+        console.log("🔍 AuthForm: Attempting to sign in with email:", email);
         
         const { error, data } = await supabase.auth.signInWithPassword({ 
           email, 
@@ -116,61 +116,73 @@ const AuthForm = () => {
         });
         
         if (error) {
-          console.error("Login error:", error);
+          console.error("❌ AuthForm: Login error:", error);
           throw error;
         }
         
-        console.log("Login successful, user data:", data.user);
+        console.log("✅ AuthForm: Login successful, user data:", data.user);
         
         toast({
           title: "Welcome back!",
           description: "You've successfully signed in."
         });
         
-        // Get user information from Supabase directly after login
+        // Explicitly get user information from Supabase right after login
+        console.log("🔍 AuthForm: Retrieving user data after login");
         const { data: userData, error: userError } = await supabase.auth.getUser();
         
         if (userError) {
-          console.error("Error getting user data:", userError);
+          console.error("❌ AuthForm: Error getting user data:", userError);
         } else {
-          console.log("User data after login:", userData);
+          console.log("🔍 AuthForm: User data after login:", userData);
         }
         
         // Get session information
+        console.log("🔍 AuthForm: Retrieving session data after login");
         const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
         
         if (sessionError) {
-          console.error("Error getting session data:", sessionError);
+          console.error("❌ AuthForm: Error getting session data:", sessionError);
         } else {
-          console.log("Session data after login:", sessionData);
+          console.log("🔍 AuthForm: Session data after login:", sessionData);
         }
         
         if (userData?.user) {
-          // Directly query the profiles table for admin status
+          // Directly query the profiles table for admin status with explicit logging
+          console.log("🔍 AuthForm: Checking admin status for user:", userData.user.id);
           const { data: profileData, error: profileError } = await supabase
             .from('profiles')
             .select('is_admin, email')
             .eq('id', userData.user.id)
             .maybeSingle();
             
-          console.log("Profile query result:", profileData, profileError);
+          console.log("🔍 AuthForm: Profile query result:", profileData, profileError);
           
+          if (profileError) {
+            console.error("❌ AuthForm: Error querying profile:", profileError);
+          }
+          
+          // Explicitly check for true boolean value
           const isAdmin = profileData?.is_admin === true;
-          console.log("Is admin from direct query:", isAdmin);
+          console.log("🔍 AuthForm: Is admin from direct query:", isAdmin);
+          
+          // Update the auth context admin status
+          await checkAdminStatus();
           
           if (isAdmin) {
-            console.log("User is admin, redirecting to admin panel");
+            console.log("✅ AuthForm: User is admin, redirecting to admin panel");
             navigate('/admin');
           } else {
-            console.log("User is not admin, redirecting to dashboard");
+            console.log("🔍 AuthForm: User is not admin, redirecting to dashboard");
             navigate('/dashboard');
           }
         } else {
+          console.log("🔍 AuthForm: No user data available, redirecting to dashboard");
           navigate('/dashboard');
         }
       }
     } catch (error: any) {
-      console.error('Authentication error:', error);
+      console.error('❌ AuthForm: Authentication error:', error);
       toast({
         title: "Authentication failed",
         description: error.message || "Invalid email or password",

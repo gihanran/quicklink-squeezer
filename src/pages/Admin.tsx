@@ -9,6 +9,7 @@ import MembersList from "@/components/admin/MembersList";
 import NotificationCenter from "@/components/admin/NotificationCenter";
 import BulkActions from "@/components/admin/BulkActions";
 import AdminSettings from "@/components/admin/AdminSettings";
+import { supabase } from '@/integrations/supabase/client';
 
 const Admin = () => {
   const [activeTab, setActiveTab] = useState('dashboard');
@@ -19,7 +20,10 @@ const Admin = () => {
 
   useEffect(() => {
     const verifyAdminAccess = async () => {
+      console.log("🔍 Admin page: Verifying admin access");
+      
       if (!user) {
+        console.log("❌ Admin page: No user found");
         toast({
           title: "Authentication required",
           description: "Please log in to access this page",
@@ -30,23 +34,48 @@ const Admin = () => {
       }
 
       try {
-        console.log("Verifying admin access for user ID:", user.id);
-        // Use the checkAdminStatus function from our hook
-        const hasAdminAccess = await checkAdminStatus();
+        console.log("🔍 Admin page: Checking admin status for user ID:", user.id);
+        console.log("🔍 Admin page: User email:", user.email);
         
-        if (!hasAdminAccess) {
-          toast({
-            title: "Access Denied",
-            description: "You don't have permission to access the admin panel",
-            variant: "destructive"
-          });
-          navigate('/dashboard');
-          return;
+        // First check from context
+        if (!isAdmin) {
+          console.log("🔍 Admin page: Not admin according to context, verifying from database");
+          
+          // Double check directly from database
+          const { data, error } = await supabase
+            .from('profiles')
+            .select('is_admin, email')
+            .eq('id', user.id)
+            .maybeSingle();
+            
+          console.log("🔍 Admin page: Database check result:", data);
+          
+          if (error) {
+            console.error("❌ Admin page: Error fetching profile:", error);
+            throw error;
+          }
+          
+          if (!data || data.is_admin !== true) {
+            console.log("❌ Admin page: User is not admin according to database");
+            toast({
+              title: "Access Denied",
+              description: "You don't have permission to access the admin panel",
+              variant: "destructive"
+            });
+            navigate('/dashboard');
+            return;
+          }
+          
+          // If we got here, user is admin but context didn't know
+          console.log("✅ Admin page: Database confirms user is admin, updating context");
+          await checkAdminStatus(); // Update the context
+        } else {
+          console.log("✅ Admin page: User is admin according to context");
         }
         
-        console.log("Admin access verified successfully");
+        console.log("✅ Admin page: Admin access verified successfully");
       } catch (error) {
-        console.error("Error verifying admin status:", error);
+        console.error("❌ Admin page: Error verifying admin status:", error);
         toast({
           title: "Error",
           description: "Something went wrong while verifying admin access",
@@ -59,7 +88,7 @@ const Admin = () => {
     };
 
     verifyAdminAccess();
-  }, [user, navigate, toast, checkAdminStatus]);
+  }, [user, navigate, toast, checkAdminStatus, isAdmin]);
 
   if (loading) {
     return (
