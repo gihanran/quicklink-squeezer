@@ -3,6 +3,9 @@ import { useState, useEffect, createContext, useContext, ReactNode } from 'react
 import { Session, User } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
 
+// Predefined admin email for direct checks
+const ADMIN_EMAIL = "admin@quicklink.com";
+
 type AuthState = {
   session: Session | null;
   user: User | null;
@@ -31,6 +34,13 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       console.log("🔍 Checking admin status for user:", user.id);
       console.log("🔍 User email:", user.email);
       
+      // Special case for predefined admin
+      if (user.email === ADMIN_EMAIL) {
+        console.log("✅ Predefined admin account detected");
+        setIsAdmin(true);
+        return true;
+      }
+      
       // First, make sure we have the most up-to-date user data
       const { data: { user: currentUser }, error: userError } = await supabase.auth.getUser();
       
@@ -45,6 +55,13 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       }
       
       console.log("✅ Current user from getUser:", currentUser);
+      
+      // Special case for predefined admin (double-check with current user)
+      if (currentUser.email === ADMIN_EMAIL) {
+        console.log("✅ Current user is predefined admin");
+        setIsAdmin(true);
+        return true;
+      }
       
       // Direct query to profiles table with more detailed logging
       console.log("🔍 Querying profiles table for admin status with userId:", currentUser.id);
@@ -109,8 +126,14 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         
         // Check admin status when user changes
         if (newSession?.user) {
-          console.log("🔍 User found in session, checking admin status");
-          await checkAdminStatus();
+          // Special case for predefined admin
+          if (newSession.user.email === ADMIN_EMAIL) {
+            console.log("✅ Predefined admin detected in auth state change");
+            setIsAdmin(true);
+          } else {
+            console.log("🔍 User found in session, checking admin status");
+            await checkAdminStatus();
+          }
         } else {
           console.log("❌ No user in session, setting isAdmin to false");
           setIsAdmin(false);
@@ -131,8 +154,14 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       
       // Check admin status on initial load
       if (existingSession?.user) {
-        console.log("🔍 User found in initial session, checking admin status");
-        await checkAdminStatus();
+        // Special case for predefined admin
+        if (existingSession.user.email === ADMIN_EMAIL) {
+          console.log("✅ Predefined admin detected in initial session");
+          setIsAdmin(true);
+        } else {
+          console.log("🔍 User found in initial session, checking admin status");
+          await checkAdminStatus();
+        }
       } else {
         console.log("❌ No user in initial session");
       }

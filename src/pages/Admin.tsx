@@ -11,6 +11,9 @@ import BulkActions from "@/components/admin/BulkActions";
 import AdminSettings from "@/components/admin/AdminSettings";
 import { supabase } from '@/integrations/supabase/client';
 
+// Predefined admin email for direct checks
+const ADMIN_EMAIL = "admin@quicklink.com";
+
 const Admin = () => {
   const [activeTab, setActiveTab] = useState('dashboard');
   const [loading, setLoading] = useState(true);
@@ -36,6 +39,14 @@ const Admin = () => {
       try {
         console.log("🔍 Admin page: Checking admin status for user ID:", user.id);
         console.log("🔍 Admin page: User email:", user.email);
+        
+        // Quick check for predefined admin account
+        if (user.email === ADMIN_EMAIL) {
+          console.log("✅ Admin page: Predefined admin account detected");
+          await checkAdminStatus(); // Update context state
+          setLoading(false);
+          return;
+        }
         
         // First check from context
         if (!isAdmin) {
@@ -96,10 +107,6 @@ const Admin = () => {
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-brand-purple"></div>
       </div>
     );
-  }
-
-  if (!isAdmin) {
-    return null; // Will redirect via useEffect
   }
 
   return (

@@ -7,6 +7,9 @@ import { Link2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useAuthState } from '@/hooks/useAuthState';
 
+// Predefined admin email for direct checks
+const ADMIN_EMAIL = "admin@quicklink.com";
+
 const Auth = () => {
   const navigate = useNavigate();
   const location = useLocation();
@@ -23,6 +26,13 @@ const Auth = () => {
         
         if (user) {
           console.log("✅ Auth page: User already signed in", user.email);
+          
+          // Special case for predefined admin
+          if (user.email === ADMIN_EMAIL) {
+            console.log("✅ Auth page: Predefined admin account detected, redirecting to admin panel");
+            navigate('/admin');
+            return;
+          }
           
           // Make sure we have the latest admin status
           console.log("🔍 Auth page: Checking admin status");

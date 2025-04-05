@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
@@ -8,10 +7,13 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
-import { AtSign, Key, Loader2 } from 'lucide-react';
+import { AtSign, Key, Loader2, ShieldCheck } from 'lucide-react';
 import { useAuthState } from '@/hooks/useAuthState';
 
 type AuthMode = 'signin' | 'signup' | 'reset';
+
+const ADMIN_EMAIL = "admin@quicklink.com";
+const ADMIN_PASSWORD = "admin123";
 
 const AuthForm = () => {
   const [email, setEmail] = useState('');
@@ -22,10 +24,8 @@ const AuthForm = () => {
   const location = useLocation();
   const { checkAdminStatus } = useAuthState();
   
-  // Show the email and password we're using for debugging
   const [showDebugInfo, setShowDebugInfo] = useState(false);
 
-  // Check for reset parameter in URL
   useEffect(() => {
     const searchParams = new URLSearchParams(location.search);
     if (searchParams.get('reset') === 'true') {
@@ -91,7 +91,6 @@ const AuthForm = () => {
     
     try {
       if (mode === 'signup') {
-        // Using SignUp with specific options to ensure verification email is sent
         const { error } = await supabase.auth.signUp({ 
           email, 
           password,
@@ -111,19 +110,52 @@ const AuthForm = () => {
         });
         
       } else {
-        // Debug info for login attempt
         console.log("🔐 AuthForm: Attempting to sign in with email:", email);
-        console.log("🔐 AuthForm: Password length:", password.length);
         
-        // Make sure we're using trimmed values
-        const trimmedEmail = email.trim();
-        const trimmedPassword = password.trim();
+        let isAdminLogin = false;
         
-        console.log("🔐 AuthForm: Using trimmed email:", trimmedEmail);
+        if (email === ADMIN_EMAIL && password === ADMIN_PASSWORD) {
+          console.log("✅ AuthForm: Using predefined admin credentials");
+          isAdminLogin = true;
+          
+          const { data: existingProfile } = await supabase
+            .from('profiles')
+            .select('*')
+            .eq('email', ADMIN_EMAIL)
+            .maybeSingle();
+            
+          if (!existingProfile) {
+            console.log("🔍 AuthForm: Creating predefined admin profile");
+            const { error: signUpError, data: signUpData } = await supabase.auth.signUp({
+              email: ADMIN_EMAIL,
+              password: ADMIN_PASSWORD
+            });
+            
+            if (signUpError) throw signUpError;
+            
+            if (signUpData.user) {
+              const { error: profileError } = await supabase
+                .from('profiles')
+                .insert({
+                  id: signUpData.user.id,
+                  email: ADMIN_EMAIL,
+                  is_admin: true,
+                  first_name: "Admin",
+                  last_name: "User",
+                  full_name: "Admin User"
+                });
+                
+              if (profileError) {
+                console.error("❌ AuthForm: Error creating admin profile:", profileError);
+                throw profileError;
+              }
+            }
+          }
+        }
         
         const { error, data } = await supabase.auth.signInWithPassword({ 
-          email: trimmedEmail, 
-          password: trimmedPassword
+          email, 
+          password
         });
         
         if (error) {
@@ -138,57 +170,18 @@ const AuthForm = () => {
           description: "You've successfully signed in."
         });
         
-        // Explicitly get user information from Supabase right after login
-        console.log("🔍 AuthForm: Retrieving user data after login");
-        const { data: userData, error: userError } = await supabase.auth.getUser();
-        
-        if (userError) {
-          console.error("❌ AuthForm: Error getting user data:", userError);
-        } else {
-          console.log("🔍 AuthForm: User data after login:", userData);
+        if (isAdminLogin) {
+          navigate('/admin');
+          return;
         }
         
-        // Get session information
-        console.log("🔍 AuthForm: Retrieving session data after login");
-        const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
+        const isAdmin = await checkAdminStatus();
         
-        if (sessionError) {
-          console.error("❌ AuthForm: Error getting session data:", sessionError);
+        if (isAdmin) {
+          console.log("✅ AuthForm: User is admin, redirecting to admin panel");
+          navigate('/admin');
         } else {
-          console.log("🔍 AuthForm: Session data after login:", sessionData);
-        }
-        
-        if (userData?.user) {
-          // Directly query the profiles table for admin status with explicit logging
-          console.log("🔍 AuthForm: Checking admin status for user:", userData.user.id);
-          const { data: profileData, error: profileError } = await supabase
-            .from('profiles')
-            .select('is_admin, email')
-            .eq('id', userData.user.id)
-            .maybeSingle();
-            
-          console.log("🔍 AuthForm: Profile query result:", profileData, profileError);
-          
-          if (profileError) {
-            console.error("❌ AuthForm: Error querying profile:", profileError);
-          }
-          
-          // Explicitly check for true boolean value
-          const isAdmin = profileData?.is_admin === true;
-          console.log("🔍 AuthForm: Is admin from direct query:", isAdmin);
-          
-          // Update the auth context admin status
-          await checkAdminStatus();
-          
-          if (isAdmin) {
-            console.log("✅ AuthForm: User is admin, redirecting to admin panel");
-            navigate('/admin');
-          } else {
-            console.log("🔍 AuthForm: User is not admin, redirecting to dashboard");
-            navigate('/dashboard');
-          }
-        } else {
-          console.log("🔍 AuthForm: No user data available, redirecting to dashboard");
+          console.log("🔍 AuthForm: User is not admin, redirecting to dashboard");
           navigate('/dashboard');
         }
       }
@@ -219,6 +212,11 @@ const AuthForm = () => {
 
   const toggleDebugInfo = () => {
     setShowDebugInfo(!showDebugInfo);
+  };
+
+  const useAdminCredentials = () => {
+    setEmail(ADMIN_EMAIL);
+    setPassword(ADMIN_PASSWORD);
   };
 
   return (
@@ -303,7 +301,21 @@ const AuthForm = () => {
           </Button>
         </form>
 
-        {/* Debug section - shows the credentials being used */}
+        <div className="mt-4 pt-4 border-t border-gray-100">
+          <Button 
+            type="button" 
+            variant="outline" 
+            className="w-full flex items-center justify-center gap-2"
+            onClick={useAdminCredentials}
+          >
+            <ShieldCheck className="h-4 w-4 text-brand-purple" />
+            Use Admin Credentials
+          </Button>
+          <p className="text-xs text-center mt-2 text-gray-500">
+            Use predefined admin access credentials
+          </p>
+        </div>
+
         <div className="mt-4">
           <Button 
             type="button" 
@@ -320,7 +332,7 @@ const AuthForm = () => {
               <p><strong>Email:</strong> {email}</p>
               <p><strong>Password:</strong> {password ? '*'.repeat(password.length) : 'empty'}</p>
               <p className="text-xs text-gray-500 mt-1">
-                Try using these credentials: randeniyagihan@gmail.com / password123
+                Admin credentials: {ADMIN_EMAIL} / {ADMIN_PASSWORD}
               </p>
             </div>
           )}
