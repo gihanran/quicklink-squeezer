@@ -82,6 +82,7 @@ export const useProfileData = () => {
       setLoading(true);
       console.log("Saving profile for user:", user.id);
       console.log("Profile data to save:", {
+        id: user.id,
         first_name: firstName,
         last_name: lastName,
         whatsapp_number: whatsappNumber,
@@ -90,10 +91,11 @@ export const useProfileData = () => {
         avatar_url: avatarUrl
       });
       
+      // Make sure we're properly handling the row-level security by explicitly setting the id
       const { error } = await supabase
         .from('profiles')
         .upsert({
-          id: user.id,
+          id: user.id, // Make sure this matches the authenticated user's ID
           first_name: firstName,
           last_name: lastName,
           email: email,
