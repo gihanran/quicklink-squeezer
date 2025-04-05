@@ -6,7 +6,7 @@ import { generateShortCode } from "./codeGenerator";
 import { checkLinkBalance } from "./linkLimits";
 
 // Store a URL in Supabase
-export const storeUrl = async (originalUrl: string): Promise<UrlData> => {
+export const storeUrl = async (originalUrl: string, title?: string): Promise<UrlData> => {
   try {
     // Check if URL already exists
     const { data: existingUrls, error: existingError } = await supabase
@@ -27,7 +27,8 @@ export const storeUrl = async (originalUrl: string): Promise<UrlData> => {
         createdAt: new Date(existingUrl.created_at).getTime(),
         expiresAt: existingUrl.expires_at ? new Date(existingUrl.expires_at).getTime() : undefined,
         visits: existingUrl.visits,
-        userId: existingUrl.user_id
+        userId: existingUrl.user_id,
+        title: existingUrl.title
       };
     }
     
@@ -49,6 +50,9 @@ export const storeUrl = async (originalUrl: string): Promise<UrlData> => {
     const threeMonthsInMs = 90 * 24 * 60 * 60 * 1000; // 90 days in milliseconds
     const expiresAt = new Date(now.getTime() + threeMonthsInMs);
     
+    // Set the title to the URL if not provided
+    const linkTitle = title || originalUrl;
+    
     // Insert new URL
     const { data, error } = await supabase
       .from('short_urls')
@@ -56,7 +60,8 @@ export const storeUrl = async (originalUrl: string): Promise<UrlData> => {
         short_code: shortCode,
         original_url: originalUrl,
         expires_at: expiresAt.toISOString(),
-        user_id: userId
+        user_id: userId,
+        title: linkTitle
       })
       .select()
       .single();
@@ -72,7 +77,8 @@ export const storeUrl = async (originalUrl: string): Promise<UrlData> => {
       createdAt: new Date(data.created_at).getTime(),
       expiresAt: data.expires_at ? new Date(data.expires_at).getTime() : undefined,
       visits: data.visits,
-      userId: data.user_id
+      userId: data.user_id,
+      title: data.title
     };
   } catch (error: any) {
     console.error('Error storing URL:', error);

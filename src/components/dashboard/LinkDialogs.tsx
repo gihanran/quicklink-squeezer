@@ -10,11 +10,11 @@ interface LinkDialogsProps {
   setDeleteDialogOpen: (open: boolean) => void;
   selectedLink: any;
   confirmDeleteLink: () => Promise<void>;
-  renameDialogOpen: boolean;
-  setRenameDialogOpen: (open: boolean) => void;
-  newShortCode: string;
-  setNewShortCode: (code: string) => void;
-  confirmRenameLink: () => Promise<void>;
+  titleDialogOpen: boolean;
+  setTitleDialogOpen: (open: boolean) => void;
+  newTitle: string;
+  setNewTitle: (title: string) => void;
+  confirmUpdateTitle: () => Promise<void>;
 }
 
 const LinkDialogs: React.FC<LinkDialogsProps> = ({
@@ -22,11 +22,11 @@ const LinkDialogs: React.FC<LinkDialogsProps> = ({
   setDeleteDialogOpen,
   selectedLink,
   confirmDeleteLink,
-  renameDialogOpen,
-  setRenameDialogOpen,
-  newShortCode,
-  setNewShortCode,
-  confirmRenameLink
+  titleDialogOpen,
+  setTitleDialogOpen,
+  newTitle,
+  setNewTitle,
+  confirmUpdateTitle
 }) => {
   return (
     <>
@@ -55,34 +55,29 @@ const LinkDialogs: React.FC<LinkDialogsProps> = ({
         </DialogContent>
       </Dialog>
       
-      <Dialog open={renameDialogOpen} onOpenChange={setRenameDialogOpen}>
+      <Dialog open={titleDialogOpen} onOpenChange={setTitleDialogOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Rename Link</DialogTitle>
+            <DialogTitle>Edit Link Title</DialogTitle>
             <DialogDescription>
-              Enter a new custom code for your shortened link.
+              Enter a title for your shortened link to make it easier to recognize.
             </DialogDescription>
           </DialogHeader>
           <div className="py-4">
-            <Label htmlFor="shortCode" className="mb-2 block">Custom Short Code</Label>
-            <div className="flex items-center space-x-1">
-              <span className="text-gray-500">{window.location.origin}/s/</span>
-              <Input
-                id="shortCode"
-                value={newShortCode}
-                onChange={(e) => setNewShortCode(e.target.value)}
-                className="flex-1"
-              />
-            </div>
-            <p className="text-xs text-gray-500 mt-1">
-              Only use letters, numbers, hyphens, and underscores
-            </p>
+            <Label htmlFor="linkTitle" className="mb-2 block">Link Title</Label>
+            <Input
+              id="linkTitle"
+              value={newTitle}
+              onChange={(e) => setNewTitle(e.target.value)}
+              className="flex-1"
+              placeholder="Enter a descriptive title"
+            />
           </div>
           <div className="flex justify-end gap-2">
-            <Button variant="outline" onClick={() => setRenameDialogOpen(false)}>
+            <Button variant="outline" onClick={() => setTitleDialogOpen(false)}>
               Cancel
             </Button>
-            <Button onClick={confirmRenameLink}>
+            <Button onClick={confirmUpdateTitle}>
               Save Changes
             </Button>
           </div>

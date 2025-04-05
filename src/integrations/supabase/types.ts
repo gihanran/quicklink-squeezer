@@ -95,6 +95,7 @@ export type Database = {
           id: string
           original_url: string
           short_code: string
+          title: string | null
           user_id: string | null
           visits: number
         }
@@ -105,6 +106,7 @@ export type Database = {
           id?: string
           original_url: string
           short_code: string
+          title?: string | null
           user_id?: string | null
           visits?: number
         }
@@ -115,6 +117,7 @@ export type Database = {
           id?: string
           original_url?: string
           short_code?: string
+          title?: string | null
           user_id?: string | null
           visits?: number
         }

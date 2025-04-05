@@ -3,21 +3,21 @@ import React from 'react';
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
-import { Clock, Globe, Smartphone } from "lucide-react";
+import { Clock, Globe, Smartphone, Pencil } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
 interface LinkCardProps {
   link: any;
   calculateExpiration: (createdAt: number, expiresAt?: number) => { percentage: number, daysLeft: number };
   handleDeleteLink: (link: any) => void;
-  handleRenameLink: (link: any) => void;
+  handleEditTitle: (link: any) => void;
 }
 
 const LinkCard: React.FC<LinkCardProps> = ({ 
   link, 
   calculateExpiration,
   handleDeleteLink,
-  handleRenameLink
+  handleEditTitle
 }) => {
   const { toast } = useToast();
   const { percentage, daysLeft } = calculateExpiration(link.createdAt, link.expiresAt);
@@ -28,8 +28,14 @@ const LinkCard: React.FC<LinkCardProps> = ({
         <div className="p-6">
           <div className="flex flex-col md:flex-row justify-between md:items-center mb-4">
             <div>
-              <h3 className="text-lg font-semibold mb-1 truncate max-w-md">
-                {link.originalUrl}
+              <h3 className="text-lg font-semibold mb-1 truncate max-w-md flex items-center">
+                {link.title || link.originalUrl}
+                <button 
+                  className="ml-2 p-1 hover:bg-gray-100 rounded-full"
+                  onClick={() => handleEditTitle(link)}
+                >
+                  <Pencil className="h-4 w-4 text-gray-500" />
+                </button>
               </h3>
               <div className="flex items-center">
                 <span className="text-brand-purple font-medium mr-2">
@@ -44,12 +50,9 @@ const LinkCard: React.FC<LinkCardProps> = ({
                 >
                   Copy
                 </button>
-                <button
-                  className="text-xs px-2 py-1 bg-blue-100 text-blue-700 rounded hover:bg-blue-200"
-                  onClick={() => handleRenameLink(link)}
-                >
-                  Rename
-                </button>
+              </div>
+              <div className="text-xs text-gray-500 mt-1 truncate max-w-md">
+                {link.originalUrl}
               </div>
             </div>
             <div className="flex items-center mt-4 md:mt-0">

@@ -10,7 +10,7 @@ interface LinksListProps {
   calculateExpiration: (createdAt: number, expiresAt?: number) => { percentage: number, daysLeft: number };
   handleCreateNewLink: () => void;
   handleDeleteLink: (link: any) => void;
-  handleRenameLink: (link: any) => void;
+  handleEditTitle: (link: any) => void;
 }
 
 const LinksList: React.FC<LinksListProps> = ({ 
@@ -19,7 +19,7 @@ const LinksList: React.FC<LinksListProps> = ({
   calculateExpiration, 
   handleCreateNewLink,
   handleDeleteLink,
-  handleRenameLink
+  handleEditTitle
 }) => {
   if (loading) {
     return (
@@ -48,7 +48,7 @@ const LinksList: React.FC<LinksListProps> = ({
           link={link}
           calculateExpiration={calculateExpiration}
           handleDeleteLink={handleDeleteLink}
-          handleRenameLink={handleRenameLink}
+          handleEditTitle={handleEditTitle}
         />
       ))}
     </div>

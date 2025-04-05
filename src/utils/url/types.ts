@@ -10,6 +10,7 @@ export interface UrlData {
   expiresAt?: number;
   visits: number;
   userId?: string | null;
+  title?: string;
 }
 
 export interface UrlStats {

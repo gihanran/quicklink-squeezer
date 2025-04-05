@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
@@ -23,9 +24,9 @@ const Dashboard: React.FC = () => {
   const [showProfileCompletion, setShowProfileCompletion] = useState(false);
   const [profileCompleted, setProfileCompleted] = useState(true);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
-  const [renameDialogOpen, setRenameDialogOpen] = useState(false);
+  const [titleDialogOpen, setTitleDialogOpen] = useState(false);
   const [selectedLink, setSelectedLink] = useState<any>(null);
-  const [newShortCode, setNewShortCode] = useState('');
+  const [newTitle, setNewTitle] = useState('');
   const { toast } = useToast();
   const { user, loading: authLoading, signOut } = useAuthState();
   const navigate = useNavigate();
@@ -119,10 +120,10 @@ const Dashboard: React.FC = () => {
     setDeleteDialogOpen(true);
   };
 
-  const handleRenameLink = (link: any) => {
+  const handleEditTitle = (link: any) => {
     setSelectedLink(link);
-    setNewShortCode(link.shortCode);
-    setRenameDialogOpen(true);
+    setNewTitle(link.title || '');
+    setTitleDialogOpen(true);
   };
 
   const confirmDeleteLink = async () => {
@@ -156,36 +157,36 @@ const Dashboard: React.FC = () => {
     }
   };
 
-  const confirmRenameLink = async () => {
-    if (!selectedLink || !newShortCode) return;
+  const confirmUpdateTitle = async () => {
+    if (!selectedLink) return;
 
     try {
       const { error } = await supabase
         .from('short_urls')
-        .update({ custom_short_code: newShortCode })
+        .update({ title: newTitle })
         .eq('id', selectedLink.id);
 
       if (error) throw error;
 
       setLinks(links.map(link => 
         link.id === selectedLink.id
-          ? { ...link, shortCode: newShortCode }
+          ? { ...link, title: newTitle }
           : link
       ));
       
-      setRenameDialogOpen(false);
+      setTitleDialogOpen(false);
       setSelectedLink(null);
-      setNewShortCode('');
+      setNewTitle('');
       
       toast({
-        title: "Link renamed",
-        description: "The link has been successfully renamed"
+        title: "Title updated",
+        description: "The link title has been successfully updated"
       });
     } catch (error) {
-      console.error('Error renaming link:', error);
+      console.error('Error updating title:', error);
       toast({
-        title: "Error renaming link",
-        description: "Could not rename the link. The code might already be in use.",
+        title: "Error updating title",
+        description: "Could not update the link title",
         variant: "destructive"
       });
     }
@@ -227,7 +228,7 @@ const Dashboard: React.FC = () => {
               calculateExpiration={calculateExpiration}
               handleCreateNewLink={handleCreateNewLink}
               handleDeleteLink={handleDeleteLink}
-              handleRenameLink={handleRenameLink}
+              handleEditTitle={handleEditTitle}
             />
           </>
         </DashboardTabNav>
@@ -240,11 +241,11 @@ const Dashboard: React.FC = () => {
         setDeleteDialogOpen={setDeleteDialogOpen}
         selectedLink={selectedLink}
         confirmDeleteLink={confirmDeleteLink}
-        renameDialogOpen={renameDialogOpen}
-        setRenameDialogOpen={setRenameDialogOpen}
-        newShortCode={newShortCode}
-        setNewShortCode={setNewShortCode}
-        confirmRenameLink={confirmRenameLink}
+        titleDialogOpen={titleDialogOpen}
+        setTitleDialogOpen={setTitleDialogOpen}
+        newTitle={newTitle}
+        setNewTitle={setNewTitle}
+        confirmUpdateTitle={confirmUpdateTitle}
       />
     </div>
   );

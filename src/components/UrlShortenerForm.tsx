@@ -5,6 +5,8 @@ import { Input } from "@/components/ui/input";
 import { storeUrl, getFullShortenedUrl, UrlData } from '@/utils/url';
 import { useToast } from "@/hooks/use-toast";
 import { ArrowRight } from "lucide-react";
+import { Textarea } from "@/components/ui/textarea";
+import { Label } from "@/components/ui/label";
 
 interface UrlShortenerFormProps {
   onUrlShortened: (urlData: UrlData, fullUrl: string) => void;
@@ -13,6 +15,7 @@ interface UrlShortenerFormProps {
 
 const UrlShortenerForm: React.FC<UrlShortenerFormProps> = ({ onUrlShortened, onSuccess }) => {
   const [url, setUrl] = useState<string>('');
+  const [title, setTitle] = useState<string>('');
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const { toast } = useToast();
 
@@ -54,7 +57,8 @@ const UrlShortenerForm: React.FC<UrlShortenerFormProps> = ({ onUrlShortened, onS
     
     try {
       setIsLoading(true);
-      const urlData = await storeUrl(urlToShorten);
+      // Include the title in the URL data
+      const urlData = await storeUrl(urlToShorten, title);
       const fullShortenedUrl = getFullShortenedUrl(urlData.shortCode);
       
       // Callback to parent component with the shortened URL
@@ -67,6 +71,7 @@ const UrlShortenerForm: React.FC<UrlShortenerFormProps> = ({ onUrlShortened, onS
       
       // Reset form
       setUrl('');
+      setTitle('');
       toast({
         title: "URL shortened successfully!",
         description: "Your short link is ready to share.",
@@ -87,23 +92,42 @@ const UrlShortenerForm: React.FC<UrlShortenerFormProps> = ({ onUrlShortened, onS
 
   return (
     <form onSubmit={handleSubmit} className="w-full space-y-4">
-      <div className="flex flex-col sm:flex-row gap-3">
-        <Input
-          type="text"
-          value={url}
-          onChange={(e) => setUrl(e.target.value)}
-          placeholder="Enter your long URL here"
-          className="flex-1 h-12 text-base"
-          disabled={isLoading}
-        />
-        <Button 
-          type="submit" 
-          className="bg-gradient-to-r from-brand-purple to-brand-blue hover:opacity-90 transition-opacity h-12 px-6"
-          disabled={isLoading}
-        >
-          Shorten URL
-          <ArrowRight className="ml-2 h-5 w-5" />
-        </Button>
+      <div className="space-y-3">
+        <div>
+          <Label htmlFor="url" className="mb-1 block">URL to Shorten</Label>
+          <div className="flex flex-col sm:flex-row gap-3">
+            <Input
+              id="url"
+              type="text"
+              value={url}
+              onChange={(e) => setUrl(e.target.value)}
+              placeholder="Enter your long URL here"
+              className="flex-1 h-12 text-base"
+              disabled={isLoading}
+            />
+            <Button 
+              type="submit" 
+              className="bg-gradient-to-r from-brand-purple to-brand-blue hover:opacity-90 transition-opacity h-12 px-6"
+              disabled={isLoading}
+            >
+              Shorten URL
+              <ArrowRight className="ml-2 h-5 w-5" />
+            </Button>
+          </div>
+        </div>
+        
+        <div>
+          <Label htmlFor="title" className="mb-1 block">Link Title (Optional)</Label>
+          <Input
+            id="title"
+            type="text"
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+            placeholder="Enter a title for your link"
+            className="w-full h-12 text-base"
+            disabled={isLoading}
+          />
+        </div>
       </div>
     </form>
   );
