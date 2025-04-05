@@ -1,10 +1,11 @@
 
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart";
 import { BarChart, Bar, PieChart, Pie, Cell, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import { Smartphone, Laptop, Tablet } from "lucide-react";
+import { getUrlWithAnalytics } from "@/utils/url";
 
 const COLORS = ['#8B5CF6', '#EC4899', '#F97316', '#22C55E', '#0EA5E9', '#6366F1', '#A855F7'];
 const DEVICE_COLORS = {
@@ -25,6 +26,41 @@ interface LinkAnalyticsProps {
 }
 
 const LinkAnalytics: React.FC<LinkAnalyticsProps> = ({ links }) => {
+  const [enhancedLinks, setEnhancedLinks] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const enhanceLinksWithAnalytics = async () => {
+      if (!links || links.length === 0) {
+        setEnhancedLinks([]);
+        setLoading(false);
+        return;
+      }
+
+      try {
+        setLoading(true);
+        const enhanced = await Promise.all(
+          links.map(async (link) => {
+            try {
+              const enhancedLink = await getUrlWithAnalytics(link.shortCode);
+              return enhancedLink || link;
+            } catch (error) {
+              console.error(`Error enhancing link ${link.shortCode}:`, error);
+              return link;
+            }
+          })
+        );
+        setEnhancedLinks(enhanced);
+      } catch (error) {
+        console.error('Error enhancing links with analytics:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    enhanceLinksWithAnalytics();
+  }, [links]);
+
   // Aggregate data from all links
   const aggregateData = () => {
     const devices: {[key: string]: number} = { desktop: 0, mobile: 0, tablet: 0 };
@@ -44,23 +80,30 @@ const LinkAnalytics: React.FC<LinkAnalyticsProps> = ({ links }) => {
       clicksOverTime[day] = 0;
     });
     
-    // Add 30 clicks randomly distributed over the last 7 days
-    for (let i = 0; i < 30; i++) {
-      const randomDay = last7Days[Math.floor(Math.random() * last7Days.length)];
-      clicksOverTime[randomDay] = (clicksOverTime[randomDay] || 0) + 1;
+    // Distribute total clicks across the last 7 days
+    const totalClicks = enhancedLinks.reduce((sum, link) => sum + (link.visits || 0), 0);
+    
+    // Distribute clicks with more recent days having more clicks (weighted distribution)
+    let remainingClicks = totalClicks;
+    const weights = [0.25, 0.2, 0.15, 0.15, 0.1, 0.1, 0.05]; // Weights for days, most recent first
+    
+    last7Days.forEach((day, index) => {
+      const dayClicks = Math.round(totalClicks * weights[index]);
+      clicksOverTime[day] = dayClicks;
+      remainingClicks -= dayClicks;
+    });
+    
+    // Add any remaining clicks to the most recent day
+    if (remainingClicks > 0) {
+      clicksOverTime[last7Days[last7Days.length - 1]] += remainingClicks;
     }
 
-    links.forEach(link => {
+    enhancedLinks.forEach(link => {
       // Aggregate device data
       if (link.devices) {
         Object.entries(link.devices).forEach(([device, count]) => {
           devices[device] = (devices[device] || 0) + (count as number);
         });
-      } else {
-        // Add sample data if none exists
-        devices.desktop += Math.floor(Math.random() * 20) + 5;
-        devices.mobile += Math.floor(Math.random() * 15) + 3;
-        devices.tablet += Math.floor(Math.random() * 5) + 1;
       }
       
       // Aggregate browser data
@@ -68,24 +111,12 @@ const LinkAnalytics: React.FC<LinkAnalyticsProps> = ({ links }) => {
         Object.entries(link.browsers).forEach(([browser, count]) => {
           browsers[browser] = (browsers[browser] || 0) + (count as number);
         });
-      } else {
-        // Add sample data if none exists
-        browsers.chrome += Math.floor(Math.random() * 15) + 10;
-        browsers.firefox += Math.floor(Math.random() * 8) + 5;
-        browsers.safari += Math.floor(Math.random() * 10) + 7;
-        browsers.other += Math.floor(Math.random() * 4) + 1;
       }
       
       // Aggregate location data
       if (link.locations) {
         Object.entries(link.locations).forEach(([location, count]) => {
           locations[location] = (locations[location] || 0) + (count as number);
-        });
-      } else {
-        // Add sample data
-        const sampleLocations = ["United States", "United Kingdom", "Germany", "Canada", "Australia", "France", "India", "Japan"];
-        sampleLocations.forEach(loc => {
-          locations[loc] = (locations[loc] || 0) + Math.floor(Math.random() * 5) + 1;
         });
       }
     });
@@ -122,6 +153,14 @@ const LinkAnalytics: React.FC<LinkAnalyticsProps> = ({ links }) => {
     }
   };
 
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-brand-purple"></div>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-6">
       <div className="flex flex-col md:flex-row justify-between items-start mb-8">
@@ -137,7 +176,7 @@ const LinkAnalytics: React.FC<LinkAnalyticsProps> = ({ links }) => {
             <CardTitle className="text-lg font-medium">Total Links</CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-4xl font-bold">{links.length}</p>
+            <p className="text-4xl font-bold">{enhancedLinks.length}</p>
           </CardContent>
         </Card>
         <Card>
@@ -145,7 +184,7 @@ const LinkAnalytics: React.FC<LinkAnalyticsProps> = ({ links }) => {
             <CardTitle className="text-lg font-medium">Total Clicks</CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-4xl font-bold">{links.reduce((total, link) => total + (link.visits || 0), 0)}</p>
+            <p className="text-4xl font-bold">{enhancedLinks.reduce((total, link) => total + (link.visits || 0), 0)}</p>
           </CardContent>
         </Card>
         <Card>
@@ -154,7 +193,7 @@ const LinkAnalytics: React.FC<LinkAnalyticsProps> = ({ links }) => {
           </CardHeader>
           <CardContent>
             <p className="text-4xl font-bold">
-              {links.length > 0 ? Math.round(links.reduce((total, link) => total + (link.visits || 0), 0) / links.length) : 0}
+              {enhancedLinks.length > 0 ? Math.round(enhancedLinks.reduce((total, link) => total + (link.visits || 0), 0) / enhancedLinks.length) : 0}
             </p>
           </CardContent>
         </Card>
@@ -310,7 +349,7 @@ const LinkAnalytics: React.FC<LinkAnalyticsProps> = ({ links }) => {
                     <h3 className="text-xl font-bold text-brand-purple">Desktop</h3>
                     <p className="text-2xl font-bold mt-2">{devices.desktop || 0}</p>
                     <p className="text-sm text-gray-500">
-                      {Math.round(((devices.desktop || 0) / (Object.values(devices).reduce((a, b) => a + b, 0))) * 100)}% of total
+                      {Math.round(((devices.desktop || 0) / (Object.values(devices).reduce((a, b) => a + b, 0) || 1)) * 100)}% of total
                     </p>
                   </div>
                   
@@ -319,7 +358,7 @@ const LinkAnalytics: React.FC<LinkAnalyticsProps> = ({ links }) => {
                     <h3 className="text-xl font-bold text-pink-500">Mobile</h3>
                     <p className="text-2xl font-bold mt-2">{devices.mobile || 0}</p>
                     <p className="text-sm text-gray-500">
-                      {Math.round(((devices.mobile || 0) / (Object.values(devices).reduce((a, b) => a + b, 0))) * 100)}% of total
+                      {Math.round(((devices.mobile || 0) / (Object.values(devices).reduce((a, b) => a + b, 0) || 1)) * 100)}% of total
                     </p>
                   </div>
                   
@@ -328,7 +367,7 @@ const LinkAnalytics: React.FC<LinkAnalyticsProps> = ({ links }) => {
                     <h3 className="text-xl font-bold text-orange-500">Tablet</h3>
                     <p className="text-2xl font-bold mt-2">{devices.tablet || 0}</p>
                     <p className="text-sm text-gray-500">
-                      {Math.round(((devices.tablet || 0) / (Object.values(devices).reduce((a, b) => a + b, 0))) * 100)}% of total
+                      {Math.round(((devices.tablet || 0) / (Object.values(devices).reduce((a, b) => a + b, 0) || 1)) * 100)}% of total
                     </p>
                   </div>
                 </div>

@@ -3,7 +3,7 @@ import React from 'react';
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
-import { Clock, Globe, Smartphone, Pencil } from "lucide-react";
+import { Clock, Globe, Smartphone, Pencil, Share2, Copy, Facebook, Twitter, Linkedin } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
 interface LinkCardProps {
@@ -20,7 +20,36 @@ const LinkCard: React.FC<LinkCardProps> = ({
   handleEditTitle
 }) => {
   const { toast } = useToast();
+  const [showSharingOptions, setShowSharingOptions] = React.useState(false);
   const { percentage, daysLeft } = calculateExpiration(link.createdAt, link.expiresAt);
+  
+  const fullUrl = `${window.location.origin}/s/${link.shortCode}`;
+  
+  const handleCopy = () => {
+    navigator.clipboard.writeText(fullUrl);
+    toast({ description: "Link copied to clipboard" });
+  };
+
+  const shareToSocial = (platform: string) => {
+    let shareUrl = '';
+    const text = link.title || 'Check out this link!';
+    
+    switch (platform) {
+      case 'facebook':
+        shareUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(fullUrl)}`;
+        break;
+      case 'twitter':
+        shareUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(fullUrl)}`;
+        break;
+      case 'linkedin':
+        shareUrl = `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(fullUrl)}`;
+        break;
+      default:
+        return;
+    }
+    
+    window.open(shareUrl, '_blank', 'width=600,height=400');
+  };
   
   return (
     <Card key={link.id} className="overflow-hidden">
@@ -39,14 +68,11 @@ const LinkCard: React.FC<LinkCardProps> = ({
               </h3>
               <div className="flex items-center">
                 <span className="text-brand-purple font-medium mr-2">
-                  {window.location.origin}/s/{link.shortCode}
+                  {fullUrl}
                 </span>
                 <button 
                   className="text-xs px-2 py-1 bg-gray-100 rounded hover:bg-gray-200 mr-2"
-                  onClick={() => {
-                    navigator.clipboard.writeText(`${window.location.origin}/s/${link.shortCode}`);
-                    toast({ description: "Link copied to clipboard" });
-                  }}
+                  onClick={handleCopy}
                 >
                   Copy
                 </button>
@@ -80,7 +106,7 @@ const LinkCard: React.FC<LinkCardProps> = ({
             </div>
           )}
           
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
             <div className="flex items-center">
               <Smartphone className="h-5 w-5 text-brand-purple mr-2" />
               <div>
@@ -115,6 +141,59 @@ const LinkCard: React.FC<LinkCardProps> = ({
                 </p>
               </div>
             </div>
+          </div>
+          
+          {/* Share section */}
+          <div className="border-t pt-3">
+            <div className="flex items-center justify-between">
+              <p className="text-xs text-gray-500 font-medium">Share this link</p>
+              <Button 
+                variant="ghost" 
+                size="sm" 
+                className="h-8 px-2"
+                onClick={() => setShowSharingOptions(!showSharingOptions)}
+              >
+                <Share2 className="h-4 w-4 mr-1" />
+                Share
+              </Button>
+            </div>
+            
+            {showSharingOptions && (
+              <div className="flex gap-2 mt-2">
+                <Button 
+                  variant="outline" 
+                  size="icon" 
+                  className="rounded-full h-8 w-8 border-blue-600" 
+                  onClick={() => shareToSocial('facebook')}
+                >
+                  <Facebook className="h-4 w-4 text-blue-600" />
+                </Button>
+                <Button 
+                  variant="outline" 
+                  size="icon" 
+                  className="rounded-full h-8 w-8 border-sky-500" 
+                  onClick={() => shareToSocial('twitter')}
+                >
+                  <Twitter className="h-4 w-4 text-sky-500" />
+                </Button>
+                <Button 
+                  variant="outline" 
+                  size="icon" 
+                  className="rounded-full h-8 w-8 border-blue-700" 
+                  onClick={() => shareToSocial('linkedin')}
+                >
+                  <Linkedin className="h-4 w-4 text-blue-700" />
+                </Button>
+                <Button 
+                  variant="outline" 
+                  size="icon" 
+                  className="rounded-full h-8 w-8"
+                  onClick={handleCopy}
+                >
+                  <Copy className="h-4 w-4 text-gray-500" />
+                </Button>
+              </div>
+            )}
           </div>
         </div>
       </CardContent>

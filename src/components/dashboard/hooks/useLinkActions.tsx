@@ -1,9 +1,9 @@
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { UrlData } from "@/utils/url/types";
-import { getUserUrls, getUrlStats } from "@/utils/url";
+import { getUserUrls, getUrlStats, getUrlWithAnalytics, updateUrlData } from "@/utils/url";
 
 export const useLinkActions = () => {
   const [selectedLink, setSelectedLink] = useState<UrlData | null>(null);
@@ -21,6 +21,15 @@ export const useLinkActions = () => {
     setSelectedLink(link);
     setNewTitle(link.title || '');
     setTitleDialogOpen(true);
+  };
+
+  const fetchLinkWithAnalytics = async (shortCode: string) => {
+    try {
+      return await getUrlWithAnalytics(shortCode);
+    } catch (error) {
+      console.error('Error fetching link analytics:', error);
+      return null;
+    }
   };
 
   const confirmDeleteLink = async (links: UrlData[], setLinks: React.Dispatch<React.SetStateAction<UrlData[]>>, updateStats: () => void) => {
@@ -58,12 +67,9 @@ export const useLinkActions = () => {
     if (!selectedLink) return;
 
     try {
-      const { error } = await supabase
-        .from('short_urls')
-        .update({ title: newTitle })
-        .eq('id', selectedLink.id);
+      const success = await updateUrlData(selectedLink.id, { title: newTitle });
 
-      if (error) throw error;
+      if (!success) throw new Error("Failed to update title");
 
       setLinks(links.map(link => 
         link.id === selectedLink.id
@@ -100,6 +106,7 @@ export const useLinkActions = () => {
     handleDeleteLink,
     handleEditTitle,
     confirmDeleteLink,
-    confirmUpdateTitle
+    confirmUpdateTitle,
+    fetchLinkWithAnalytics
   };
 };

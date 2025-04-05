@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 import { useAuthState } from "@/hooks/auth";
 import { supabase } from "@/integrations/supabase/client";
-import { getUserUrls, getUrlStats } from "@/utils/url";
+import { getUserUrls, getUrlStats, getUrlWithAnalytics } from "@/utils/url";
 import { UrlData } from "@/utils/url/types";
 
 export const useDashboardData = () => {
@@ -50,7 +50,19 @@ export const useDashboardData = () => {
       try {
         setLoading(true);
         const userLinks = await getUserUrls();
-        setLinks(userLinks);
+        
+        // Enhance links with analytics data
+        const enhancedLinks = await Promise.all(userLinks.map(async (link) => {
+          try {
+            const linkWithAnalytics = await getUrlWithAnalytics(link.shortCode);
+            return linkWithAnalytics || link;
+          } catch (e) {
+            console.error(`Error enhancing link ${link.shortCode}:`, e);
+            return link;
+          }
+        }));
+        
+        setLinks(enhancedLinks);
         
         const urlStats = await getUrlStats();
         setStats(urlStats);
@@ -87,7 +99,20 @@ export const useDashboardData = () => {
 
   const handleLinkCreated = () => {
     setShowCreateForm(false);
-    getUserUrls().then(setLinks).catch(console.error);
+    getUserUrls().then(async (newLinks) => {
+      // Enhance links with analytics data
+      const enhancedLinks = await Promise.all(newLinks.map(async (link) => {
+        try {
+          const linkWithAnalytics = await getUrlWithAnalytics(link.shortCode);
+          return linkWithAnalytics || link;
+        } catch (e) {
+          console.error(`Error enhancing link ${link.shortCode}:`, e);
+          return link;
+        }
+      }));
+      
+      setLinks(enhancedLinks);
+    }).catch(console.error);
     updateStats();
     toast({
       title: "Link created successfully",
