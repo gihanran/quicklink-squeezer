@@ -1,24 +1,50 @@
 
 import React, { useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import AuthForm from '@/components/AuthForm';
 import { Link2 } from 'lucide-react';
+import { useToast } from '@/hooks/use-toast';
 
 const Auth = () => {
   const navigate = useNavigate();
+  const location = useLocation();
+  const { toast } = useToast();
 
   useEffect(() => {
     // Check if user is already signed in
     const checkUser = async () => {
-      const { data } = await supabase.auth.getSession();
-      if (data.session) {
-        navigate('/dashboard');
+      try {
+        const { data, error } = await supabase.auth.getSession();
+        
+        if (error) {
+          console.error("Session retrieval error:", error);
+          return;
+        }
+        
+        if (data.session) {
+          console.log("User already signed in, redirecting");
+          
+          // Check if there's a redirect path in the location state
+          const state = location.state as { redirectTo?: string } | null;
+          const redirectPath = state?.redirectTo || '/dashboard';
+          
+          navigate(redirectPath);
+        } else {
+          console.log("No active session found");
+        }
+      } catch (err) {
+        console.error("Error checking user session:", err);
+        toast({
+          title: "Error",
+          description: "There was a problem checking your session",
+          variant: "destructive"
+        });
       }
     };
     
     checkUser();
-  }, [navigate]);
+  }, [navigate, location, toast]);
 
   return (
     <div className="min-h-screen flex flex-col bg-gradient-to-b from-white to-gray-100">

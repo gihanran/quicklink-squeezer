@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+
+import React, { useState, useEffect } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/hooks/use-toast';
 import { Button } from '@/components/ui/button';
@@ -18,7 +19,19 @@ const AuthForm = () => {
   const [mode, setMode] = useState<AuthMode>('signin');
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
+  const location = useLocation();
   const { checkAdminStatus } = useAuthState();
+
+  // Check for reset parameter in URL
+  useEffect(() => {
+    const searchParams = new URLSearchParams(location.search);
+    if (searchParams.get('reset') === 'true') {
+      toast({
+        title: "Password reset link detected",
+        description: "Please enter your new password"
+      });
+    }
+  }, [location]);
 
   const handleAuth = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -95,9 +108,15 @@ const AuthForm = () => {
         });
         
       } else {
+        console.log("Attempting to sign in with:", { email });
         const { error, data } = await supabase.auth.signInWithPassword({ email, password });
         
-        if (error) throw error;
+        if (error) {
+          console.error("Login error:", error);
+          throw error;
+        }
+        
+        console.log("Login successful, user data:", data.user);
         
         toast({
           title: "Welcome back!",
@@ -107,6 +126,7 @@ const AuthForm = () => {
         console.log("Login successful. Checking admin status...");
         // Use our improved admin status check
         const isAdmin = await checkAdminStatus();
+        console.log("Admin status check result:", isAdmin);
         
         // If admin, redirect to admin panel, otherwise to dashboard
         if (isAdmin) {
@@ -121,7 +141,7 @@ const AuthForm = () => {
       console.error('Authentication error:', error);
       toast({
         title: "Authentication failed",
-        description: error.message || "Something went wrong",
+        description: error.message || "Invalid email or password",
         variant: "destructive"
       });
     } finally {
