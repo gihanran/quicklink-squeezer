@@ -31,14 +31,19 @@ export const useProfileData = () => {
     
     try {
       setProfileLoading(true);
+      console.log("Fetching profile for user:", user.id);
       const { data, error } = await supabase
         .from('profiles')
         .select('*')
         .eq('id', user.id)
         .maybeSingle();
 
-      if (error) throw error;
+      if (error) {
+        console.error('Error fetching profile:', error);
+        throw error;
+      }
       
+      console.log("Profile data received:", data);
       if (data) {
         setFirstName(data.first_name || "");
         setLastName(data.last_name || "");
@@ -59,10 +64,31 @@ export const useProfileData = () => {
   };
 
   const saveProfile = async () => {
-    if (!user) return;
+    if (!user) {
+      console.error("Cannot save profile: No user logged in");
+      return;
+    }
+    
+    if (!firstName || !lastName || !country) {
+      toast({
+        title: "Missing information",
+        description: "Please fill in all required fields",
+        variant: "destructive"
+      });
+      return;
+    }
     
     try {
       setLoading(true);
+      console.log("Saving profile for user:", user.id);
+      console.log("Profile data to save:", {
+        first_name: firstName,
+        last_name: lastName,
+        whatsapp_number: whatsappNumber,
+        country: country,
+        full_name: `${firstName} ${lastName}`.trim(),
+        avatar_url: avatarUrl
+      });
       
       const { error } = await supabase
         .from('profiles')
@@ -74,13 +100,19 @@ export const useProfileData = () => {
           whatsapp_number: whatsappNumber,
           country: country,
           full_name: `${firstName} ${lastName}`.trim(),
-          has_completed_profile: Boolean(mandatoryFieldsComplete),
+          has_completed_profile: true,
           updated_at: new Date().toISOString(),
           avatar_url: avatarUrl
+        }, {
+          onConflict: 'id'
         });
 
-      if (error) throw error;
+      if (error) {
+        console.error('Error updating profile:', error);
+        throw error;
+      }
       
+      console.log("Profile updated successfully");
       toast({
         title: "Profile updated",
         description: "Your profile has been updated successfully"
@@ -89,7 +121,7 @@ export const useProfileData = () => {
       console.error('Error updating profile:', error);
       toast({
         title: "Update failed",
-        description: "There was an error updating your profile",
+        description: error.message || "There was an error updating your profile",
         variant: "destructive"
       });
     } finally {

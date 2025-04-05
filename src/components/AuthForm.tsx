@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
@@ -73,11 +74,15 @@ const AuthForm = () => {
     
     try {
       if (mode === 'signup') {
+        // Using SignUp with specific options to ensure verification email is sent
         const { error } = await supabase.auth.signUp({ 
           email, 
           password,
           options: {
-            emailRedirectTo: window.location.origin
+            emailRedirectTo: `${window.location.origin}/auth`,
+            data: {
+              email: email,
+            }
           }
         });
         
@@ -98,18 +103,27 @@ const AuthForm = () => {
           description: "You've successfully signed in."
         });
         
+        console.log("Login successful. Checking admin status...");
         // Check if the user is an admin
         try {
-          const { data: profileData } = await supabase
+          const { data: profileData, error: profileError } = await supabase
             .from('profiles')
             .select('is_admin')
             .eq('id', data.user?.id)
             .maybeSingle();
             
+          if (profileError) {
+            console.error("Error checking admin status:", profileError);
+            navigate('/dashboard');
+            return;
+          }
+            
           // If admin, redirect to admin panel, otherwise to dashboard
           if (profileData && profileData.is_admin === true) {
+            console.log("User is admin, redirecting to admin panel");
             navigate('/admin');
           } else {
+            console.log("User is not admin, redirecting to dashboard");
             navigate('/dashboard');
           }
         } catch (err) {
