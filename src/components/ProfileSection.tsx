@@ -16,12 +16,14 @@ const ProfileSection = () => {
     loading,
     profileLoading,
     mandatoryFieldsComplete,
+    whatsappError,
     setFirstName,
     setLastName,
     setWhatsappNumber,
     setCountry,
     setAvatarUrl,
     saveProfile,
+    validateWhatsappNumber,
     user
   } = useProfileData();
 
@@ -53,12 +55,14 @@ const ProfileSection = () => {
           mandatoryFieldsComplete={mandatoryFieldsComplete}
           user={user}
           avatarUrl={avatarUrl}
+          whatsappError={whatsappError}
           setFirstName={setFirstName}
           setLastName={setLastName}
           setWhatsappNumber={setWhatsappNumber}
           setCountry={setCountry}
           setAvatarUrl={setAvatarUrl}
           saveProfile={saveProfile}
+          validateWhatsappNumber={validateWhatsappNumber}
         />
         
         <SecurityCard />

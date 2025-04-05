@@ -18,12 +18,14 @@ interface PersonalInfoCardProps {
   mandatoryFieldsComplete: boolean;
   user: User | null;
   avatarUrl?: string;
+  whatsappError: string | null;
   setFirstName: (value: string) => void;
   setLastName: (value: string) => void;
   setWhatsappNumber: (value: string) => void;
   setCountry: (value: string) => void;
   setAvatarUrl: (value: string) => void;
   saveProfile: () => Promise<void>;
+  validateWhatsappNumber: (number: string) => boolean;
 }
 
 export const PersonalInfoCard = ({
@@ -36,12 +38,14 @@ export const PersonalInfoCard = ({
   mandatoryFieldsComplete,
   user,
   avatarUrl,
+  whatsappError,
   setFirstName,
   setLastName,
   setWhatsappNumber,
   setCountry,
   setAvatarUrl,
-  saveProfile
+  saveProfile,
+  validateWhatsappNumber
 }: PersonalInfoCardProps) => {
   return (
     <Card>
@@ -116,14 +120,21 @@ export const PersonalInfoCard = ({
           <Input
             id="whatsappNumber"
             value={whatsappNumber}
-            onChange={(e) => setWhatsappNumber(e.target.value)}
-            placeholder="Your WhatsApp number"
-            className={!whatsappNumber ? "border-red-300" : ""}
+            onChange={(e) => {
+              setWhatsappNumber(e.target.value);
+              validateWhatsappNumber(e.target.value);
+            }}
+            placeholder="Your WhatsApp number (e.g., +1 555-123-4567)"
+            className={!whatsappNumber || whatsappError ? "border-red-300" : ""}
             required
           />
           {!whatsappNumber && (
             <p className="text-xs text-red-500">WhatsApp number is required</p>
           )}
+          {whatsappNumber && whatsappError && (
+            <p className="text-xs text-red-500">{whatsappError}</p>
+          )}
+          <p className="text-xs text-gray-500">Include country code for international numbers (e.g., +1 for US)</p>
         </div>
         
         <div className="space-y-2">
@@ -169,7 +180,7 @@ export const PersonalInfoCard = ({
       <CardFooter>
         <Button 
           onClick={saveProfile} 
-          disabled={loading}
+          disabled={loading || !!whatsappError}
           className="w-full"
         >
           {loading ? (
