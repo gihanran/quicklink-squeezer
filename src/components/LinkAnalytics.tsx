@@ -75,7 +75,7 @@ const LinkAnalytics: React.FC<LinkAnalyticsProps> = ({ links }) => {
       <div className="flex flex-col md:flex-row justify-between items-start mb-8">
         <div>
           <h1 className="text-3xl font-bold">Analytics Dashboard</h1>
-          <p className="text-gray-600">Visualize your link performance</p>
+          <p className="text-gray-600">Visualize your link performance (Chrome only)</p>
         </div>
       </div>
       

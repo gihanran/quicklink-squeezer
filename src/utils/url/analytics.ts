@@ -24,7 +24,7 @@ export const getUrlStats = async () => {
       
       if (userLinksError) throw userLinksError;
       
-      // Compute user stats
+      // Compute user stats - visits are now Chrome-only
       stats.totalLinks = userLinks?.length || 0;
       stats.totalClicks = userLinks?.reduce((sum, link) => sum + (link.visits || 0), 0) || 0;
       
