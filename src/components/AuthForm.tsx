@@ -11,7 +11,7 @@ import {
   CardFooter 
 } from '@/components/ui/card';
 
-import { useAuthForm } from '@/hooks/useAuthForm';
+import { useAuthForm } from '@/hooks/auth';
 import EmailInput from './auth/EmailInput';
 import PasswordInput from './auth/PasswordInput';
 import FormSubmitButton from './auth/FormSubmitButton';

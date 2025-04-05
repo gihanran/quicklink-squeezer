@@ -1,7 +1,6 @@
-
 import { Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { AuthMode } from '@/hooks/useAuthForm';
+import { AuthMode } from '@/hooks/auth';
 
 type FormSubmitButtonProps = {
   loading: boolean;

@@ -1,7 +1,6 @@
-
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
-import { AuthMode } from '@/hooks/useAuthForm';
+import { AuthMode } from '@/hooks/auth';
 
 type ModeToggleProps = {
   mode: AuthMode;

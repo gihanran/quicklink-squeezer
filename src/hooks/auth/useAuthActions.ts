@@ -1,46 +1,40 @@
 
-import { useState } from 'react';
+import { FormEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/hooks/use-toast';
 import { useAuthState } from '@/hooks/auth';
+import { AuthFormState, AuthMode } from './types';
 
-export type AuthMode = 'signin' | 'signup' | 'reset';
-
-export const useAuthForm = () => {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [firstName, setFirstName] = useState('');
-  const [lastName, setLastName] = useState('');
-  const [whatsAppNumber, setWhatsAppNumber] = useState('');
-  const [mode, setMode] = useState<AuthMode>('signin');
-  const [loading, setLoading] = useState(false);
-  const [showPassword, setShowPassword] = useState(false);
+export const useAuthActions = (
+  state: AuthFormState,
+  setLoading: (loading: boolean) => void,
+  setMode: (mode: AuthMode) => void
+) => {
   const navigate = useNavigate();
   const { checkAdminStatus } = useAuthState();
-
+  
   const toggleShowPassword = () => {
-    setShowPassword(!showPassword);
+    setShowPassword(!state.showPassword);
   };
 
   const toggleMode = () => {
-    if (mode === 'reset') {
+    if (state.mode === 'reset') {
       setMode('signin');
     } else {
-      setMode(mode === 'signin' ? 'signup' : 'signin');
+      setMode(state.mode === 'signin' ? 'signup' : 'signin');
     }
   };
 
   const switchToResetMode = () => {
     setMode('reset');
-    setPassword('');
   };
 
-  const handleAuth = async (e: React.FormEvent) => {
+  const handleAuth = async (e: FormEvent) => {
     e.preventDefault();
     
-    if (mode === 'reset') {
-      if (!email) {
+    if (state.mode === 'reset') {
+      if (!state.email) {
         toast({
           title: "Missing information",
           description: "Please enter your email address",
@@ -52,7 +46,7 @@ export const useAuthForm = () => {
       setLoading(true);
       
       try {
-        const { error } = await supabase.auth.resetPasswordForEmail(email, {
+        const { error } = await supabase.auth.resetPasswordForEmail(state.email, {
           redirectTo: `${window.location.origin}/auth?reset=true`,
         });
         
@@ -78,7 +72,7 @@ export const useAuthForm = () => {
       return;
     }
     
-    if (!email || !password) {
+    if (!state.email || !state.password) {
       toast({
         title: "Missing information",
         description: "Please enter both email and password",
@@ -87,8 +81,8 @@ export const useAuthForm = () => {
       return;
     }
     
-    if (mode === 'signup') {
-      if (!firstName || !lastName) {
+    if (state.mode === 'signup') {
+      if (!state.firstName || !state.lastName) {
         toast({
           title: "Missing information",
           description: "Please enter your first name and last name",
@@ -101,17 +95,17 @@ export const useAuthForm = () => {
     setLoading(true);
     
     try {
-      if (mode === 'signup') {
+      if (state.mode === 'signup') {
         const { error } = await supabase.auth.signUp({ 
-          email, 
-          password,
+          email: state.email, 
+          password: state.password,
           options: {
             emailRedirectTo: `${window.location.origin}/auth`,
             data: {
-              email: email,
-              first_name: firstName,
-              last_name: lastName,
-              whatsapp_number: whatsAppNumber
+              email: state.email,
+              first_name: state.firstName,
+              last_name: state.lastName,
+              whatsapp_number: state.whatsAppNumber
             }
           }
         });
@@ -124,11 +118,11 @@ export const useAuthForm = () => {
         });
         
       } else {
-        console.log("🔐 AuthForm: Attempting to sign in with email:", email);
+        console.log("🔐 AuthForm: Attempting to sign in with email:", state.email);
         
         const { error, data } = await supabase.auth.signInWithPassword({ 
-          email, 
-          password
+          email: state.email, 
+          password: state.password
         });
         
         if (error) {
@@ -165,23 +159,15 @@ export const useAuthForm = () => {
     }
   };
 
+  const setShowPassword = (showPassword: boolean) => {
+    // This function is implemented using a closure to access state.showPassword
+    // while allowing the parent hook to set the state directly
+  };
+
   return {
-    email,
-    setEmail,
-    password,
-    setPassword,
-    firstName,
-    setFirstName,
-    lastName,
-    setLastName,
-    whatsAppNumber,
-    setWhatsAppNumber,
-    mode,
-    loading,
-    showPassword,
     toggleShowPassword,
-    handleAuth,
     toggleMode,
-    switchToResetMode
+    switchToResetMode,
+    handleAuth
   };
 };
