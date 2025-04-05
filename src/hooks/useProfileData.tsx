@@ -16,8 +16,8 @@ export const useProfileData = () => {
   const [profileLoading, setProfileLoading] = useState(true);
   const { toast } = useToast();
 
-  // Remove WhatsApp validation - making all fields mandatory except WhatsApp
-  const mandatoryFieldsComplete = firstName && lastName && country;
+  // Ensure mandatoryFieldsComplete returns a boolean value
+  const mandatoryFieldsComplete = Boolean(firstName && lastName && country);
 
   useEffect(() => {
     if (user) {

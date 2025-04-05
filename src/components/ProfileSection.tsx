@@ -50,7 +50,7 @@ const ProfileSection = () => {
           whatsappNumber={whatsappNumber}
           country={country}
           loading={loading}
-          mandatoryFieldsComplete={mandatoryFieldsComplete}
+          mandatoryFieldsComplete={mandatoryFieldsComplete === true}
           user={user}
           avatarUrl={avatarUrl}
           setFirstName={setFirstName}
