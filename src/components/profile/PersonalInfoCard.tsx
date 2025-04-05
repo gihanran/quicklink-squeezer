@@ -1,4 +1,3 @@
-
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -47,7 +46,7 @@ export const PersonalInfoCard = ({
     <Card>
       <CardHeader>
         <CardTitle>Personal Information</CardTitle>
-        <CardDescription>Update your personal details</CardDescription>
+        <CardDescription>Update your personal details (optional)</CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
         <div className="flex justify-center mb-4">
@@ -70,33 +69,23 @@ export const PersonalInfoCard = ({
         </div>
         
         <div className="space-y-2">
-          <Label htmlFor="firstName">First Name <span className="text-red-500">*</span></Label>
+          <Label htmlFor="firstName">First Name</Label>
           <Input
             id="firstName"
             value={firstName}
             onChange={(e) => setFirstName(e.target.value)}
             placeholder="Your first name"
-            className={!firstName ? "border-red-300" : ""}
-            required
           />
-          {!firstName && (
-            <p className="text-xs text-red-500">First name is required</p>
-          )}
         </div>
         
         <div className="space-y-2">
-          <Label htmlFor="lastName">Last Name <span className="text-red-500">*</span></Label>
+          <Label htmlFor="lastName">Last Name</Label>
           <Input
             id="lastName"
             value={lastName}
             onChange={(e) => setLastName(e.target.value)}
             placeholder="Your last name"
-            className={!lastName ? "border-red-300" : ""}
-            required
           />
-          {!lastName && (
-            <p className="text-xs text-red-500">Last name is required</p>
-          )}
         </div>
         
         <div className="space-y-2">
@@ -123,12 +112,9 @@ export const PersonalInfoCard = ({
         </div>
         
         <div className="space-y-2">
-          <Label htmlFor="country">Country <span className="text-red-500">*</span></Label>
+          <Label htmlFor="country">Country</Label>
           <Select value={country} onValueChange={setCountry}>
-            <SelectTrigger 
-              id="country" 
-              className={!country ? "border-red-300" : ""}
-            >
+            <SelectTrigger id="country">
               <SelectValue placeholder="Select your country" />
             </SelectTrigger>
             <SelectContent className="max-h-80">
@@ -329,17 +315,7 @@ export const PersonalInfoCard = ({
               <SelectItem value="Other">Other</SelectItem>
             </SelectContent>
           </Select>
-          {!country && (
-            <p className="text-xs text-red-500">Country is required</p>
-          )}
         </div>
-
-        {!mandatoryFieldsComplete && (
-          <div className="p-3 bg-yellow-50 border border-yellow-200 rounded-md text-yellow-800 text-sm">
-            <p className="font-medium">Complete your profile</p>
-            <p className="text-xs mt-1">Please complete all required fields to enable link creation.</p>
-          </div>
-        )}
       </CardContent>
       <CardFooter>
         <Button 

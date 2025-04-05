@@ -52,10 +52,10 @@ const Dashboard: React.FC = () => {
         if (error) throw error;
 
         const isComplete = data?.has_completed_profile || 
-          Boolean(data?.first_name && data?.last_name && data?.whatsapp_number && data?.country);
+          Boolean(data?.first_name && data?.last_name && data?.country);
         
         setProfileCompleted(isComplete);
-        setShowProfileCompletion(!isComplete);
+        setShowProfileCompletion(false);
       } catch (error) {
         console.error('Error checking profile completion:', error);
       }
@@ -104,15 +104,6 @@ const Dashboard: React.FC = () => {
   };
 
   const handleCreateNewLink = () => {
-    if (!profileCompleted) {
-      setShowProfileCompletion(true);
-      toast({
-        title: "Complete your profile",
-        description: "Please complete your profile information before creating links",
-        variant: "destructive"
-      });
-      return;
-    }
     setShowCreateForm(true);
   };
 
@@ -254,22 +245,6 @@ const Dashboard: React.FC = () => {
       </header>
 
       <main className="flex-grow container max-w-6xl mx-auto px-4 py-8">
-        {showProfileCompletion && (
-          <div className="mb-8 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
-            <div className="flex items-start">
-              <div className="flex-grow">
-                <h2 className="text-lg font-semibold text-yellow-800">Complete Your Profile</h2>
-                <p className="text-yellow-700">
-                  Please complete your profile information before you can create links.
-                </p>
-              </div>
-              <Button variant="secondary" onClick={redirectToProfile}>
-                Go to Profile
-              </Button>
-            </div>
-          </div>
-        )}
-
         <Tabs defaultValue="links" className="w-full">
           <TabsList className="grid w-full md:w-auto grid-cols-4 mb-8">
             <TabsTrigger value="links" className="flex items-center gap-2">
