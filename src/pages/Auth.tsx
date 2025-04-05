@@ -1,14 +1,10 @@
-
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import AuthForm from '@/components/AuthForm';
 import { Link2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import { useAuthState } from '@/hooks/useAuthState';
-
-// Predefined admin email for direct checks
-const ADMIN_EMAIL = "admin@quicklink.com";
+import { useAuthState, ADMIN_EMAIL } from '@/hooks/auth';
 
 const Auth = () => {
   const navigate = useNavigate();
@@ -18,7 +14,6 @@ const Auth = () => {
   const [checking, setChecking] = useState(true);
 
   useEffect(() => {
-    // Check if user is already signed in
     const checkUser = async () => {
       try {
         console.log("🔍 Auth page: Checking user session");
@@ -27,17 +22,14 @@ const Auth = () => {
         if (user) {
           console.log("✅ Auth page: User already signed in", user.email);
           
-          // Special case for predefined admin
           if (user.email === ADMIN_EMAIL) {
             console.log("✅ Auth page: Predefined admin account detected, redirecting to admin panel");
             navigate('/admin');
             return;
           }
           
-          // Make sure we have the latest admin status
           console.log("🔍 Auth page: Checking admin status");
           
-          // First, directly verify from database
           try {
             console.log("🔍 Auth page: Verifying admin status directly from database");
             const { data, error } = await supabase
@@ -67,7 +59,6 @@ const Auth = () => {
             console.error("❌ Auth page: Exception during direct admin check:", err);
           }
           
-          // If we got here, user is not admin, check if there's a redirect path
           const state = location.state as { redirectTo?: string } | null;
           const redirectPath = state?.redirectTo || '/dashboard';
           

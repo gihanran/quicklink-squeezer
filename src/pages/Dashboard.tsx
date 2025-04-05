@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
-import { useAuthState } from "@/hooks/useAuthState";
+import { useAuthState } from "@/hooks/auth";
 import { supabase } from "@/integrations/supabase/client";
 import { getUserUrls, getUrlStats } from "@/utils/urlUtils";
 

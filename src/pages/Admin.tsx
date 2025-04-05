@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useToast } from "@/hooks/use-toast";
-import { useAuthState } from "@/hooks/useAuthState";
+import { useAuthState, ADMIN_EMAIL } from "@/hooks/auth";
 import AdminNavigation from "@/components/admin/AdminNavigation";
 import AdminDashboard from "@/components/admin/AdminDashboard";
 import MembersList from "@/components/admin/MembersList";
