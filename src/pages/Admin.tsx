@@ -3,7 +3,6 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useToast } from "@/hooks/use-toast";
 import { useAuthState } from "@/hooks/useAuthState";
-import { supabase } from "@/integrations/supabase/client";
 import AdminNavigation from "@/components/admin/AdminNavigation";
 import AdminDashboard from "@/components/admin/AdminDashboard";
 import MembersList from "@/components/admin/MembersList";
@@ -13,14 +12,13 @@ import AdminSettings from "@/components/admin/AdminSettings";
 
 const Admin = () => {
   const [activeTab, setActiveTab] = useState('dashboard');
-  const [isAdmin, setIsAdmin] = useState(false);
   const [loading, setLoading] = useState(true);
-  const { user } = useAuthState();
+  const { user, isAdmin, checkAdminStatus } = useAuthState();
   const navigate = useNavigate();
   const { toast } = useToast();
 
   useEffect(() => {
-    const checkAdminAccess = async () => {
+    const verifyAdminAccess = async () => {
       if (!user) {
         toast({
           title: "Authentication required",
@@ -32,21 +30,11 @@ const Admin = () => {
       }
 
       try {
-        console.log("Checking admin access for user ID:", user.id);
-        const { data, error } = await supabase
-          .from('profiles')
-          .select('is_admin')
-          .eq('id', user.id)
-          .maybeSingle();
-
-        if (error) {
-          console.error("Error fetching admin status:", error);
-          throw error;
-        }
-
-        console.log("Admin check result:", data);
+        console.log("Verifying admin access for user ID:", user.id);
+        // Use the checkAdminStatus function from our hook
+        const hasAdminAccess = await checkAdminStatus();
         
-        if (!data || data.is_admin !== true) {
+        if (!hasAdminAccess) {
           toast({
             title: "Access Denied",
             description: "You don't have permission to access the admin panel",
@@ -55,10 +43,10 @@ const Admin = () => {
           navigate('/dashboard');
           return;
         }
-
-        setIsAdmin(true);
+        
+        console.log("Admin access verified successfully");
       } catch (error) {
-        console.error("Error checking admin status:", error);
+        console.error("Error verifying admin status:", error);
         toast({
           title: "Error",
           description: "Something went wrong while verifying admin access",
@@ -70,8 +58,8 @@ const Admin = () => {
       }
     };
 
-    checkAdminAccess();
-  }, [user, navigate, toast]);
+    verifyAdminAccess();
+  }, [user, navigate, toast, checkAdminStatus]);
 
   if (loading) {
     return (

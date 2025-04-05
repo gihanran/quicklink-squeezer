@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
@@ -9,6 +8,7 @@ import { Label } from '@/components/ui/label';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
 import { AtSign, Key, Loader2 } from 'lucide-react';
+import { useAuthState } from '@/hooks/useAuthState';
 
 type AuthMode = 'signin' | 'signup' | 'reset';
 
@@ -18,6 +18,7 @@ const AuthForm = () => {
   const [mode, setMode] = useState<AuthMode>('signin');
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
+  const { checkAdminStatus } = useAuthState();
 
   const handleAuth = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -104,31 +105,16 @@ const AuthForm = () => {
         });
         
         console.log("Login successful. Checking admin status...");
-        // Check if the user is an admin
-        try {
-          const { data: profileData, error: profileError } = await supabase
-            .from('profiles')
-            .select('is_admin')
-            .eq('id', data.user?.id)
-            .maybeSingle();
-            
-          if (profileError) {
-            console.error("Error checking admin status:", profileError);
-            navigate('/dashboard');
-            return;
-          }
-            
-          // If admin, redirect to admin panel, otherwise to dashboard
-          if (profileData && profileData.is_admin === true) {
-            console.log("User is admin, redirecting to admin panel");
-            navigate('/admin');
-          } else {
-            console.log("User is not admin, redirecting to dashboard");
-            navigate('/dashboard');
-          }
-        } catch (err) {
-          console.error("Error checking admin status:", err);
-          navigate('/dashboard'); // Default to dashboard if check fails
+        // Use our improved admin status check
+        const isAdmin = await checkAdminStatus();
+        
+        // If admin, redirect to admin panel, otherwise to dashboard
+        if (isAdmin) {
+          console.log("User is admin, redirecting to admin panel");
+          navigate('/admin');
+        } else {
+          console.log("User is not admin, redirecting to dashboard");
+          navigate('/dashboard');
         }
       }
     } catch (error: any) {
@@ -156,7 +142,6 @@ const AuthForm = () => {
     setPassword('');
   };
 
-  
   return (
     <Card className="w-full max-w-md mx-auto shadow-lg">
       <CardHeader className="text-center">
