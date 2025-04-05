@@ -1,6 +1,49 @@
 
 import { supabase } from "@/integrations/supabase/client";
 import { UrlData, UrlStats } from "./types";
+import { generateShortCode } from "./codeGenerator";
+import { checkUserLinkLimit } from "./linkLimits";
+
+// Create a new shortened URL and store it in the database
+export const storeUrl = async (originalUrl: string, title?: string): Promise<UrlData> => {
+  try {
+    // Check if user is authenticated
+    const { data: { session } } = await supabase.auth.getSession();
+    const userId = session?.user?.id;
+    
+    // If user is authenticated, check if they've reached their monthly limit
+    if (userId) {
+      const canCreateLink = await checkUserLinkLimit(userId);
+      if (!canCreateLink) {
+        throw new Error("You have reached your monthly link creation limit");
+      }
+    }
+    
+    // Generate a unique short code
+    const shortCode = generateShortCode();
+    
+    // Default expiration is 30 days for anonymous users, 90 days for authenticated users
+    const expirationDays = userId ? 90 : 30;
+    
+    // Store the URL in the database
+    const urlData = await createShortenedUrl(
+      originalUrl,
+      shortCode,
+      expirationDays,
+      userId,
+      title
+    );
+    
+    if (!urlData) {
+      throw new Error("Failed to create shortened URL");
+    }
+    
+    return urlData;
+  } catch (error: any) {
+    console.error('Error storing URL:', error);
+    throw error;
+  }
+};
 
 // Create a new shortened URL
 export const createShortenedUrl = async (
