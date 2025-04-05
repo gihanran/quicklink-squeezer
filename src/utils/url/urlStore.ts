@@ -2,7 +2,7 @@
 import { supabase } from "@/integrations/supabase/client";
 import { UrlData, UrlStats } from "./types";
 import { generateShortCode } from "./codeGenerator";
-import { checkUserLinkLimit } from "./linkLimits";
+import { checkLinkBalance } from "./linkLimits";
 
 // Create a new shortened URL and store it in the database
 export const storeUrl = async (originalUrl: string, title?: string): Promise<UrlData> => {
@@ -13,7 +13,7 @@ export const storeUrl = async (originalUrl: string, title?: string): Promise<Url
     
     // If user is authenticated, check if they've reached their monthly limit
     if (userId) {
-      const canCreateLink = await checkUserLinkLimit(userId);
+      const canCreateLink = await checkLinkBalance();
       if (!canCreateLink) {
         throw new Error("You have reached your monthly link creation limit");
       }
