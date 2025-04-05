@@ -1,4 +1,3 @@
-
 import { useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
 import { toast } from '@/hooks/use-toast';
@@ -59,6 +58,8 @@ const AuthForm = () => {
       : 'Enter your email to receive a password reset link';
   };
 
+  const showAdminTools = mode === 'signin';
+
   return (
     <Card className="w-full max-w-md mx-auto shadow-lg">
       <CardHeader className="text-center">
@@ -91,14 +92,18 @@ const AuthForm = () => {
           <FormSubmitButton loading={loading} mode={mode} />
         </form>
 
-        <AdminCredentialsButton useAdminCredentials={useAdminCredentials} />
-        
-        <DebugInfoSection
-          email={email}
-          password={password}
-          showDebugInfo={showDebugInfo}
-          toggleDebugInfo={toggleDebugInfo}
-        />
+        {showAdminTools && (
+          <>
+            <AdminCredentialsButton useAdminCredentials={useAdminCredentials} />
+            
+            <DebugInfoSection
+              email={email}
+              password={password}
+              showDebugInfo={showDebugInfo}
+              toggleDebugInfo={toggleDebugInfo}
+            />
+          </>
+        )}
       </CardContent>
       
       <CardFooter className="flex flex-col">
