@@ -1,9 +1,10 @@
+
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import UrlShortenerForm from '@/components/UrlShortenerForm';
 import ShortenedUrlResult from '@/components/ShortenedUrlResult';
 import FeatureShowcase from '@/components/FeatureShowcase';
-import { UrlData } from '@/utils/urlUtils';
+import { UrlData } from '@/utils/url';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Link2 } from "lucide-react";
 import { useAuthState } from '@/hooks/auth';

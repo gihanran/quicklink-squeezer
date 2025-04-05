@@ -3,7 +3,7 @@ import React, { useEffect, useState } from 'react';
 import { Card, CardContent } from "@/components/ui/card";
 import { CheckCircle, Clock, Globe, Users, ChartBar, Infinity, ShieldCheck } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
-import { getUrlStats } from '@/utils/urlUtils';
+import { getUrlStats } from '@/utils/url';
 import { Skeleton } from "@/components/ui/skeleton";
 
 const FeatureShowcase: React.FC = () => {
