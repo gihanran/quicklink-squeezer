@@ -8,6 +8,7 @@ import { UrlData } from '@/utils/url';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Link2 } from "lucide-react";
 import { useAuthState } from '@/hooks/auth';
+import Footer from '@/components/Footer';
 
 const Index = () => {
   const [shortenedUrlData, setShortenedUrlData] = useState<UrlData | null>(null);
@@ -109,13 +110,7 @@ const Index = () => {
         <FeatureShowcase />
       </main>
 
-      <footer className="w-full py-6 bg-white border-t">
-        <div className="container max-w-4xl mx-auto px-4">
-          <p className="text-center text-gray-500 text-sm">
-            &copy; {new Date().getFullYear()} QuickLink Squeezer. All rights reserved.
-          </p>
-        </div>
-      </footer>
+      <Footer />
     </div>
   );
 };

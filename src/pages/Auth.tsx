@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
@@ -5,6 +6,7 @@ import AuthForm from '@/components/AuthForm';
 import { Link2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useAuthState, ADMIN_EMAIL } from '@/hooks/auth';
+import Footer from '@/components/Footer';
 
 const Auth = () => {
   const navigate = useNavigate();
@@ -109,13 +111,7 @@ const Auth = () => {
         </div>
       </main>
 
-      <footer className="w-full py-6 bg-white border-t">
-        <div className="container max-w-4xl mx-auto px-4">
-          <p className="text-center text-gray-500 text-sm">
-            &copy; {new Date().getFullYear()} QuickLink Squeezer. All rights reserved.
-          </p>
-        </div>
-      </footer>
+      <Footer />
     </div>
   );
 };

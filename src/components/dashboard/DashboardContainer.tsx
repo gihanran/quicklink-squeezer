@@ -2,7 +2,7 @@
 import React from 'react';
 import { useAuthState } from "@/hooks/auth";
 import DashboardHeader from "@/components/dashboard/DashboardHeader";
-import DashboardFooter from "@/components/dashboard/DashboardFooter";
+import Footer from "@/components/Footer";
 import DashboardTabNav from "@/components/dashboard/DashboardTabNav";
 import LinkDialogs from "@/components/dashboard/LinkDialogs";
 import DashboardContent from "@/components/dashboard/DashboardContent";
@@ -82,7 +82,7 @@ const DashboardContainer: React.FC<DashboardContainerProps> = () => {
         </DashboardTabNav>
       </main>
 
-      <DashboardFooter />
+      <Footer />
       
       <LinkDialogs 
         deleteDialogOpen={deleteDialogOpen}
