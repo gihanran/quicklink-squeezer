@@ -22,20 +22,31 @@ const Admin = () => {
   useEffect(() => {
     const checkAdminAccess = async () => {
       if (!user) {
+        toast({
+          title: "Authentication required",
+          description: "Please log in to access this page",
+          variant: "destructive"
+        });
         navigate('/auth');
         return;
       }
 
       try {
+        console.log("Checking admin access for user ID:", user.id);
         const { data, error } = await supabase
           .from('profiles')
           .select('is_admin')
           .eq('id', user.id)
-          .single();
+          .maybeSingle();
 
-        if (error) throw error;
+        if (error) {
+          console.error("Error fetching admin status:", error);
+          throw error;
+        }
 
-        if (!data || !data.is_admin) {
+        console.log("Admin check result:", data);
+        
+        if (!data || data.is_admin !== true) {
           toast({
             title: "Access Denied",
             description: "You don't have permission to access the admin panel",

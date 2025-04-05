@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
@@ -8,7 +7,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
-import { AtSign, Key, Loader2, RefreshCw } from 'lucide-react';
+import { AtSign, Key, Loader2 } from 'lucide-react';
 
 type AuthMode = 'signin' | 'signup' | 'reset';
 
@@ -90,7 +89,7 @@ const AuthForm = () => {
         });
         
       } else {
-        const { error } = await supabase.auth.signInWithPassword({ email, password });
+        const { error, data } = await supabase.auth.signInWithPassword({ email, password });
         
         if (error) throw error;
         
@@ -99,7 +98,24 @@ const AuthForm = () => {
           description: "You've successfully signed in."
         });
         
-        navigate('/dashboard');
+        // Check if the user is an admin
+        try {
+          const { data: profileData } = await supabase
+            .from('profiles')
+            .select('is_admin')
+            .eq('id', data.user?.id)
+            .maybeSingle();
+            
+          // If admin, redirect to admin panel, otherwise to dashboard
+          if (profileData && profileData.is_admin === true) {
+            navigate('/admin');
+          } else {
+            navigate('/dashboard');
+          }
+        } catch (err) {
+          console.error("Error checking admin status:", err);
+          navigate('/dashboard'); // Default to dashboard if check fails
+        }
       }
     } catch (error: any) {
       console.error('Authentication error:', error);
@@ -126,6 +142,7 @@ const AuthForm = () => {
     setPassword('');
   };
 
+  
   return (
     <Card className="w-full max-w-md mx-auto shadow-lg">
       <CardHeader className="text-center">

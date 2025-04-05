@@ -49,12 +49,14 @@ export const useProfileData = () => {
   };
 
   const fetchProfile = async () => {
+    if (!user) return;
+    
     try {
       setProfileLoading(true);
       const { data, error } = await supabase
         .from('profiles')
         .select('*')
-        .eq('id', user?.id)
+        .eq('id', user.id)
         .maybeSingle();
 
       if (error) throw error;
@@ -110,7 +112,7 @@ export const useProfileData = () => {
         title: "Profile updated",
         description: "Your profile has been updated successfully"
       });
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error updating profile:', error);
       toast({
         title: "Update failed",
