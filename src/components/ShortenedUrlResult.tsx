@@ -2,7 +2,7 @@
 import React from 'react';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { UrlData } from '@/utils/urlUtils';
+import { UrlData } from '@/utils/url';
 import { useToast } from "@/components/ui/use-toast";
 import { Copy, Facebook, Twitter, Linkedin, Link } from "lucide-react";
 import { toast as sonnerToast } from "sonner";

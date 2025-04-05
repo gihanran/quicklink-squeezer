@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 import { useAuthState } from "@/hooks/auth";
 import { supabase } from "@/integrations/supabase/client";
-import { getUserUrls, getUrlStats } from "@/utils/urlUtils";
+import { getUserUrls, getUrlStats } from "@/utils/url";
 
 // Import our component files
 import DashboardHeader from "@/components/dashboard/DashboardHeader";

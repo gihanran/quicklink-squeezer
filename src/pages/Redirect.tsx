@@ -1,7 +1,7 @@
 
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { getUrlByShortCode, trackVisit } from '@/utils/urlUtils';
+import { getUrlByShortCode, trackVisit } from '@/utils/url';
 
 const Redirect: React.FC = () => {
   const { shortCode } = useParams<{ shortCode: string }>();

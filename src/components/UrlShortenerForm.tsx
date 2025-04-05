@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { storeUrl, getFullShortenedUrl, UrlData } from '@/utils/urlUtils';
+import { storeUrl, getFullShortenedUrl, UrlData } from '@/utils/url';
 import { useToast } from "@/hooks/use-toast";
 import { ArrowRight } from "lucide-react";
 
