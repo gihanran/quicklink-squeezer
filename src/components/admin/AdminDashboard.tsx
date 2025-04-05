@@ -4,13 +4,12 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { supabase } from "@/integrations/supabase/client";
 import { Users, Link2, MousePointer, Globe } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import {
-  Chart,
-  ChartTitle,
-  ChartItem,
-  ChartBar,
-  ChartBarItem,
+import { 
+  ChartContainer as Chart,
+  ChartTooltipContent as ChartTitle,
+  ChartLegendContent as ChartBar,
 } from "@/components/ui/chart";
+import * as RechartsPrimitive from "recharts";
 
 const AdminDashboard = () => {
   const [stats, setStats] = useState({
@@ -57,9 +56,9 @@ const AdminDashboard = () => {
         if (countryError) throw countryError;
 
         // Process country data
-        const countryCounts = countryData.reduce((acc, { country }) => {
-          if (!country) return acc;
-          acc[country] = (acc[country] || 0) + 1;
+        const countryCounts = countryData.reduce((acc, profile) => {
+          if (!profile.country) return acc;
+          acc[profile.country] = (acc[profile.country] || 0) + 1;
           return acc;
         }, {} as Record<string, number>);
 
@@ -149,19 +148,16 @@ const AdminDashboard = () => {
           </CardHeader>
           <CardContent>
             {stats.countriesData.length > 0 ? (
-              <Chart className="h-[300px]">
-                <ChartTitle>Top Countries</ChartTitle>
-                <ChartBar>
-                  {stats.countriesData.map((item, idx) => (
-                    <ChartBarItem
-                      key={item.country}
-                      value={item.count}
-                      label={item.country}
-                      color={`hsl(${(idx * 50) % 360}, 70%, 60%)`}
-                    />
-                  ))}
-                </ChartBar>
-              </Chart>
+              <div className="h-[300px]">
+                <RechartsPrimitive.ResponsiveContainer width="100%" height={300}>
+                  <RechartsPrimitive.BarChart data={stats.countriesData}>
+                    <RechartsPrimitive.XAxis dataKey="country" />
+                    <RechartsPrimitive.YAxis />
+                    <RechartsPrimitive.Tooltip />
+                    <RechartsPrimitive.Bar dataKey="count" fill="#8884d8" />
+                  </RechartsPrimitive.BarChart>
+                </RechartsPrimitive.ResponsiveContainer>
+              </div>
             ) : (
               <p className="text-center text-gray-500 my-12">No country data available</p>
             )}
