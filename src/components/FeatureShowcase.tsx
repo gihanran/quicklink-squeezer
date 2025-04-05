@@ -1,10 +1,10 @@
+
 import React, { useEffect, useState } from 'react';
 import { Card, CardContent } from "@/components/ui/card";
 import { CheckCircle, Clock, Globe, Users, ChartBar, Infinity, ShieldCheck } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
 import { getUrlStats } from '@/utils/urlUtils';
 import { Skeleton } from "@/components/ui/skeleton";
-import PayPalSubscription from './PayPalSubscription';
 
 const FeatureShowcase: React.FC = () => {
   const [stats, setStats] = useState({
@@ -86,7 +86,7 @@ const FeatureShowcase: React.FC = () => {
           <FeatureCard
             icon={<Infinity className="h-6 w-6 text-brand-blue" />}
             title="Unlimited Links"
-            description="Premium members can create unlimited short links"
+            description="Create as many short links as you need"
           />
         </div>
         
@@ -108,42 +108,6 @@ const FeatureShowcase: React.FC = () => {
               <p className="text-4xl font-bold text-brand-blue mt-2">{stats.totalClicks.toLocaleString()}</p>
             )}
           </div>
-        </div>
-        
-        {/* Subscription Card */}
-        <div className="bg-gradient-to-r from-brand-purple to-brand-blue p-1 rounded-xl">
-          <Card className="rounded-lg overflow-hidden">
-            <CardContent className="p-0">
-              <div className="grid grid-cols-1 md:grid-cols-2">
-                <div className="p-8 flex flex-col justify-center">
-                  <h3 className="text-2xl font-bold mb-4">Premium Subscription</h3>
-                  <ul className="space-y-3">
-                    <FeatureItem>Unlimited link creation</FeatureItem>
-                    <FeatureItem>Advanced analytics dashboard</FeatureItem>
-                    <FeatureItem>Geographic click tracking</FeatureItem>
-                    <FeatureItem>Device & OS statistics</FeatureItem>
-                    <FeatureItem>Priority support</FeatureItem>
-                  </ul>
-                  <div className="mt-6">
-                    <span className="text-3xl font-bold">$2.99</span>
-                    <span className="text-gray-500 ml-1">/ month</span>
-                  </div>
-                </div>
-                <div className="bg-gray-50 p-8 flex flex-col justify-center items-center">
-                  <h4 className="text-xl font-semibold mb-4">Ready to get started?</h4>
-                  <p className="text-gray-600 mb-6 text-center">
-                    Sign up for our premium plan and unlock all features
-                  </p>
-                  <PayPalSubscription 
-                    className="px-6 py-3 bg-gradient-to-r from-brand-purple to-brand-blue text-white rounded-md hover:opacity-90 transition-all"
-                  />
-                  <p className="mt-4 text-sm text-gray-500">
-                    Secure payment with PayPal
-                  </p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
         </div>
       </div>
     </div>
