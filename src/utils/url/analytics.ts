@@ -46,7 +46,10 @@ export const getUrlStats = async (): Promise<UrlStats> => {
     // Count total links (including deleted ones)
     // We'll use the database function to get a count of all links ever created
     const { data: totalLinksData, error: linksError } = await supabase
-      .rpc('get_total_links_created');
+      .rpc('get_total_links_created') as { 
+        data: { count: number }[] | null, 
+        error: Error | null 
+      };
     
     if (linksError) {
       console.error('Error counting total links:', linksError);
@@ -63,7 +66,10 @@ export const getUrlStats = async (): Promise<UrlStats> => {
     
     // Get total clicks (including for deleted links)
     const { data: totalClicksData, error: clicksError } = await supabase
-      .rpc('get_total_clicks');
+      .rpc('get_total_clicks') as { 
+        data: { total_clicks: number }[] | null, 
+        error: Error | null 
+      };
     
     if (clicksError) {
       console.error('Error getting total clicks:', clicksError);
