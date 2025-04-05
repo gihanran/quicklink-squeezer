@@ -8,6 +8,7 @@ interface DeviceBreakdownProps {
     desktop: number;
     mobile: number;
     tablet: number;
+    [key: string]: number; // Allow additional device types while requiring the main ones
   };
 }
 

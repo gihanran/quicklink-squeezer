@@ -59,6 +59,11 @@ export const aggregateAnalyticsData = (enhancedLinks: any[]) => {
     }
   });
   
+  // Ensure all required device properties exist
+  if (!devices.desktop) devices.desktop = 0;
+  if (!devices.mobile) devices.mobile = 0;
+  if (!devices.tablet) devices.tablet = 0;
+  
   return { devices, browsers, locations, clicksOverTime };
 };
 

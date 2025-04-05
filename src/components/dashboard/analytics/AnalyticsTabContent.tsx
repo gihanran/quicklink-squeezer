@@ -12,7 +12,12 @@ interface AnalyticsTabContentProps {
   browserData: { name: string; value: number }[];
   locationData: { name: string; value: number }[];
   timelineData: { date: string; clicks: number }[];
-  devices: {[key: string]: number};
+  devices: {
+    desktop: number;
+    mobile: number;
+    tablet: number;
+    [key: string]: number;
+  };
 }
 
 const AnalyticsTabContent: React.FC<AnalyticsTabContentProps> = ({
