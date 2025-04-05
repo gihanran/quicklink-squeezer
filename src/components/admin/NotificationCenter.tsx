@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
@@ -114,6 +115,7 @@ const NotificationCenter = () => {
 
     try {
       setSendingNotification(true);
+      console.log("Sending notification:", formData);
 
       // Insert notification
       const { data: notifData, error: notifError } = await supabase
@@ -127,9 +129,17 @@ const NotificationCenter = () => {
         .select()
         .single();
 
-      if (notifError) throw notifError;
+      if (notifError) {
+        console.error("Error creating notification:", notifError);
+        throw notifError;
+      }
 
-      if (!notifData) throw new Error("Failed to create notification");
+      if (!notifData) {
+        console.error("Failed to create notification - no data returned");
+        throw new Error("Failed to create notification");
+      }
+      
+      console.log("Notification created successfully:", notifData);
 
       // If global notification, get all users
       if (formData.isGlobal) {
@@ -138,9 +148,14 @@ const NotificationCenter = () => {
           .select('id')
           .eq('is_active', true);
 
-        if (userError) throw userError;
+        if (userError) {
+          console.error("Error fetching users for global notification:", userError);
+          throw userError;
+        }
 
         if (userData && userData.length > 0) {
+          console.log(`Creating notifications for ${userData.length} users`);
+          
           // Create user_notification entries for all users
           const userNotifications = userData.map(user => ({
             user_id: user.id,
@@ -151,7 +166,12 @@ const NotificationCenter = () => {
             .from('user_notifications')
             .insert(userNotifications);
 
-          if (bulkError) throw bulkError;
+          if (bulkError) {
+            console.error("Error creating user notifications:", bulkError);
+            throw bulkError;
+          }
+          
+          console.log(`Successfully sent to ${userData.length} users`);
         }
 
         toast({
@@ -161,6 +181,8 @@ const NotificationCenter = () => {
       } 
       // If individual notification
       else if (formData.recipient) {
+        console.log(`Creating notification for user: ${formData.recipient}`);
+        
         const { error: userNotifError } = await supabase
           .from('user_notifications')
           .insert({
@@ -168,7 +190,12 @@ const NotificationCenter = () => {
             notification_id: notifData.id
           });
 
-        if (userNotifError) throw userNotifError;
+        if (userNotifError) {
+          console.error("Error creating user notification:", userNotifError);
+          throw userNotifError;
+        }
+        
+        console.log("Successfully sent to individual user");
 
         toast({
           title: "Notification sent",

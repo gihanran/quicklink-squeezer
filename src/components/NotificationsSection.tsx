@@ -31,6 +31,8 @@ const NotificationsSection = () => {
   const fetchNotifications = async () => {
     try {
       setLoading(true);
+      console.log("Fetching notifications for user:", user?.id);
+      
       // Fixed query to properly join notification table data
       const { data, error } = await supabase
         .from('user_notifications')
@@ -46,10 +48,15 @@ const NotificationsSection = () => {
         `)
         .eq('user_id', user?.id)
         .order('is_read', { ascending: true })
-        .order('notifications.created_at', { ascending: false });
+        .order('notifications(created_at)', { ascending: false });
 
-      if (error) throw error;
+      if (error) {
+        console.error("Error fetching notifications:", error);
+        throw error;
+      }
 
+      console.log("Notifications data received:", data);
+      
       if (data) {
         const formattedNotifications = data.map(item => ({
           id: item.id,
@@ -59,6 +66,8 @@ const NotificationsSection = () => {
           created_at: item.notifications.created_at,
           is_read: item.is_read
         }));
+        
+        console.log("Formatted notifications:", formattedNotifications);
         setNotifications(formattedNotifications);
       }
     } catch (error) {
@@ -75,12 +84,17 @@ const NotificationsSection = () => {
 
   const markAsRead = async (notificationId: string) => {
     try {
+      console.log("Marking notification as read:", notificationId);
+      
       const { error } = await supabase
         .from('user_notifications')
         .update({ is_read: true })
         .eq('id', notificationId);
 
-      if (error) throw error;
+      if (error) {
+        console.error("Error marking notification as read:", error);
+        throw error;
+      }
 
       // Update local state
       setNotifications(notifications.map(notif =>
@@ -104,6 +118,8 @@ const NotificationsSection = () => {
     if (notifications.filter(n => !n.is_read).length === 0) return;
     
     try {
+      console.log("Marking all notifications as read");
+      
       const unreadIds = notifications
         .filter(n => !n.is_read)
         .map(n => n.id);
@@ -113,7 +129,10 @@ const NotificationsSection = () => {
         .update({ is_read: true })
         .in('id', unreadIds);
 
-      if (error) throw error;
+      if (error) {
+        console.error("Error marking all as read:", error);
+        throw error;
+      }
 
       // Update local state
       setNotifications(notifications.map(notif => ({ ...notif, is_read: true })));
