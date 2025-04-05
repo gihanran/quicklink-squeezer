@@ -1,28 +1,26 @@
+
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/hooks/use-toast';
 import { useAuthState } from '@/hooks/auth';
-import { ADMIN_EMAIL, ADMIN_PASSWORD } from '@/hooks/auth/adminUtils';
 
 export type AuthMode = 'signin' | 'signup' | 'reset';
 
 export const useAuthForm = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [firstName, setFirstName] = useState('');
+  const [lastName, setLastName] = useState('');
+  const [whatsAppNumber, setWhatsAppNumber] = useState('');
   const [mode, setMode] = useState<AuthMode>('signin');
   const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
   const { checkAdminStatus } = useAuthState();
-  const [showDebugInfo, setShowDebugInfo] = useState(false);
 
-  const toggleDebugInfo = () => {
-    setShowDebugInfo(!showDebugInfo);
-  };
-
-  const useAdminCredentials = () => {
-    setEmail(ADMIN_EMAIL);
-    setPassword(ADMIN_PASSWORD);
+  const toggleShowPassword = () => {
+    setShowPassword(!showPassword);
   };
 
   const toggleMode = () => {
@@ -89,6 +87,17 @@ export const useAuthForm = () => {
       return;
     }
     
+    if (mode === 'signup') {
+      if (!firstName || !lastName) {
+        toast({
+          title: "Missing information",
+          description: "Please enter your first name and last name",
+          variant: "destructive"
+        });
+        return;
+      }
+    }
+    
     setLoading(true);
     
     try {
@@ -100,6 +109,9 @@ export const useAuthForm = () => {
             emailRedirectTo: `${window.location.origin}/auth`,
             data: {
               email: email,
+              first_name: firstName,
+              last_name: lastName,
+              whatsapp_number: whatsAppNumber
             }
           }
         });
@@ -113,47 +125,6 @@ export const useAuthForm = () => {
         
       } else {
         console.log("🔐 AuthForm: Attempting to sign in with email:", email);
-        
-        let isAdminLogin = false;
-        
-        if (email === ADMIN_EMAIL && password === ADMIN_PASSWORD) {
-          console.log("✅ AuthForm: Using predefined admin credentials");
-          isAdminLogin = true;
-          
-          const { data: existingProfile } = await supabase
-            .from('profiles')
-            .select('*')
-            .eq('email', ADMIN_EMAIL)
-            .maybeSingle();
-            
-          if (!existingProfile) {
-            console.log("🔍 AuthForm: Creating predefined admin profile");
-            const { error: signUpError, data: signUpData } = await supabase.auth.signUp({
-              email: ADMIN_EMAIL,
-              password: ADMIN_PASSWORD
-            });
-            
-            if (signUpError) throw signUpError;
-            
-            if (signUpData.user) {
-              const { error: profileError } = await supabase
-                .from('profiles')
-                .insert({
-                  id: signUpData.user.id,
-                  email: ADMIN_EMAIL,
-                  is_admin: true,
-                  first_name: "Admin",
-                  last_name: "User",
-                  full_name: "Admin User"
-                });
-                
-              if (profileError) {
-                console.error("❌ AuthForm: Error creating admin profile:", profileError);
-                throw profileError;
-              }
-            }
-          }
-        }
         
         const { error, data } = await supabase.auth.signInWithPassword({ 
           email, 
@@ -171,11 +142,6 @@ export const useAuthForm = () => {
           title: "Welcome back!",
           description: "You've successfully signed in."
         });
-        
-        if (isAdminLogin) {
-          navigate('/admin');
-          return;
-        }
         
         const isAdmin = await checkAdminStatus();
         
@@ -204,13 +170,18 @@ export const useAuthForm = () => {
     setEmail,
     password,
     setPassword,
+    firstName,
+    setFirstName,
+    lastName,
+    setLastName,
+    whatsAppNumber,
+    setWhatsAppNumber,
     mode,
     loading,
-    showDebugInfo,
+    showPassword,
+    toggleShowPassword,
     handleAuth,
     toggleMode,
-    switchToResetMode,
-    toggleDebugInfo,
-    useAdminCredentials
+    switchToResetMode
   };
 };

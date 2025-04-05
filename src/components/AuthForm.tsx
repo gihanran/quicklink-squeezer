@@ -1,3 +1,4 @@
+
 import { useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
 import { toast } from '@/hooks/use-toast';
@@ -14,9 +15,8 @@ import { useAuthForm } from '@/hooks/useAuthForm';
 import EmailInput from './auth/EmailInput';
 import PasswordInput from './auth/PasswordInput';
 import FormSubmitButton from './auth/FormSubmitButton';
-import AdminCredentialsButton from './auth/AdminCredentialsButton';
-import DebugInfoSection from './auth/DebugInfoSection';
 import ModeToggle from './auth/ModeToggle';
+import SignupFields from './auth/SignupFields';
 
 const AuthForm = () => {
   const {
@@ -24,14 +24,19 @@ const AuthForm = () => {
     setEmail,
     password,
     setPassword,
+    firstName,
+    setFirstName,
+    lastName,
+    setLastName,
+    whatsAppNumber,
+    setWhatsAppNumber,
     mode,
     loading,
-    showDebugInfo,
     handleAuth,
     toggleMode,
     switchToResetMode,
-    toggleDebugInfo,
-    useAdminCredentials
+    showPassword,
+    toggleShowPassword
   } = useAuthForm();
   
   const location = useLocation();
@@ -58,8 +63,6 @@ const AuthForm = () => {
       : 'Enter your email to receive a password reset link';
   };
 
-  const showAdminTools = mode === 'signin';
-
   return (
     <Card className="w-full max-w-md mx-auto shadow-lg">
       <CardHeader className="text-center">
@@ -79,31 +82,32 @@ const AuthForm = () => {
             disabled={loading} 
           />
           
+          {mode === 'signup' && (
+            <SignupFields
+              firstName={firstName}
+              setFirstName={setFirstName}
+              lastName={lastName}
+              setLastName={setLastName}
+              whatsAppNumber={whatsAppNumber}
+              setWhatsAppNumber={setWhatsAppNumber}
+              disabled={loading}
+            />
+          )}
+          
           {mode !== 'reset' && (
             <PasswordInput 
               password={password} 
               setPassword={setPassword} 
               mode={mode} 
-              switchToResetMode={switchToResetMode} 
+              switchToResetMode={switchToResetMode}
+              showPassword={showPassword}
+              toggleShowPassword={toggleShowPassword}
               disabled={loading} 
             />
           )}
           
           <FormSubmitButton loading={loading} mode={mode} />
         </form>
-
-        {showAdminTools && (
-          <>
-            <AdminCredentialsButton useAdminCredentials={useAdminCredentials} />
-            
-            <DebugInfoSection
-              email={email}
-              password={password}
-              showDebugInfo={showDebugInfo}
-              toggleDebugInfo={toggleDebugInfo}
-            />
-          </>
-        )}
       </CardContent>
       
       <CardFooter className="flex flex-col">
