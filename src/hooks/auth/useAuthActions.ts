@@ -1,3 +1,4 @@
+
 import { FormEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
@@ -89,12 +90,25 @@ export const useAuthActions = (
         });
         return;
       }
+      
+      // Add check for country validation
+      if (!state.country || state.country === "none") {
+        toast({
+          title: "Missing information",
+          description: "Please select your country",
+          variant: "destructive"
+        });
+        return;
+      }
     }
     
     setLoading(true);
     
     try {
       if (state.mode === 'signup') {
+        // Process the country value (if "none", treat as undefined)
+        const userCountry = state.country === "none" ? undefined : state.country;
+        
         const { error } = await supabase.auth.signUp({ 
           email: state.email, 
           password: state.password,
@@ -105,7 +119,7 @@ export const useAuthActions = (
               first_name: state.firstName,
               last_name: state.lastName,
               whatsapp_number: state.whatsAppNumber,
-              country: state.country
+              country: userCountry
             }
           }
         });

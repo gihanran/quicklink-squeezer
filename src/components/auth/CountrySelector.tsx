@@ -18,7 +18,8 @@ type CountrySelectorProps = {
 
 const CountrySelector = ({ value, onChange, disabled }: CountrySelectorProps) => {
   const countries = [
-    { code: "", name: "Select a country" },
+    // Removed the empty code value that was causing the error
+    { code: "none", name: "Select a country" },
     { code: "US", name: "United States" },
     { code: "GB", name: "United Kingdom" },
     { code: "CA", name: "Canada" },

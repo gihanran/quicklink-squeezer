@@ -19,7 +19,7 @@ export const CountrySelector: React.FC<CountrySelectorProps> = ({
           <SelectValue placeholder="Select your country" />
         </SelectTrigger>
         <SelectContent className="max-h-80">
-          {/* List of countries */}
+          {/* List of countries - all have non-empty values so this is fine */}
           <SelectItem value="Afghanistan">Afghanistan</SelectItem>
           <SelectItem value="Albania">Albania</SelectItem>
           <SelectItem value="Algeria">Algeria</SelectItem>
