@@ -11,6 +11,7 @@ export const useProfileData = () => {
   const [email, setEmail] = useState("");
   const [whatsappNumber, setWhatsappNumber] = useState("");
   const [country, setCountry] = useState("");
+  const [avatarUrl, setAvatarUrl] = useState<string | undefined>(undefined);
   const [loading, setLoading] = useState(false);
   const [profileLoading, setProfileLoading] = useState(true);
   const { toast } = useToast();
@@ -40,6 +41,7 @@ export const useProfileData = () => {
         setLastName(data.last_name || "");
         setWhatsappNumber(data.whatsapp_number || "");
         setCountry(data.country || "");
+        setAvatarUrl(data.avatar_url || undefined);
       }
     } catch (error) {
       console.error('Error fetching profile:', error);
@@ -70,7 +72,8 @@ export const useProfileData = () => {
           country: country,
           full_name: `${firstName} ${lastName}`.trim(),
           has_completed_profile: Boolean(mandatoryFieldsComplete),
-          updated_at: new Date().toISOString()
+          updated_at: new Date().toISOString(),
+          avatar_url: avatarUrl
         });
 
       if (error) throw error;
@@ -97,6 +100,7 @@ export const useProfileData = () => {
     email,
     whatsappNumber,
     country,
+    avatarUrl,
     loading,
     profileLoading,
     mandatoryFieldsComplete,
@@ -104,6 +108,7 @@ export const useProfileData = () => {
     setLastName,
     setWhatsappNumber,
     setCountry,
+    setAvatarUrl,
     saveProfile,
     user
   };

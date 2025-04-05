@@ -17,10 +17,12 @@ interface PersonalInfoCardProps {
   loading: boolean;
   mandatoryFieldsComplete: boolean;
   user: User | null;
+  avatarUrl?: string;
   setFirstName: (value: string) => void;
   setLastName: (value: string) => void;
   setWhatsappNumber: (value: string) => void;
   setCountry: (value: string) => void;
+  setAvatarUrl: (value: string) => void;
   saveProfile: () => Promise<void>;
 }
 
@@ -33,10 +35,12 @@ export const PersonalInfoCard = ({
   loading,
   mandatoryFieldsComplete,
   user,
+  avatarUrl,
   setFirstName,
   setLastName,
   setWhatsappNumber,
   setCountry,
+  setAvatarUrl,
   saveProfile
 }: PersonalInfoCardProps) => {
   return (
@@ -47,7 +51,14 @@ export const PersonalInfoCard = ({
       </CardHeader>
       <CardContent className="space-y-4">
         <div className="flex justify-center mb-4">
-          <UserAvatar firstName={firstName} lastName={lastName} />
+          <UserAvatar 
+            firstName={firstName} 
+            lastName={lastName} 
+            imageUrl={avatarUrl}
+            user={user}
+            editable={true}
+            onAvatarChange={setAvatarUrl}
+          />
         </div>
         
         <div className="text-center mb-4">
