@@ -4,8 +4,9 @@ import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 import { useAuthState } from "@/hooks/auth";
 import { supabase } from "@/integrations/supabase/client";
-import { getUserUrls, getUrlStats, getUrlWithAnalytics } from "@/utils/url";
+import { getUserUrls, getUrlWithAnalytics } from "@/utils/url";
 import { UrlData } from "@/utils/url/types";
+import { getUrlStats } from "@/utils/url/urlStore";
 
 export const useDashboardData = () => {
   const [links, setLinks] = useState<UrlData[]>([]);

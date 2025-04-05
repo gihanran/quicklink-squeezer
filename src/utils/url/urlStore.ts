@@ -1,90 +1,108 @@
 
 import { supabase } from "@/integrations/supabase/client";
-import { toast } from "@/hooks/use-toast";
-import { UrlData } from "./types";
-import { generateShortCode } from "./codeGenerator";
-import { checkLinkBalance } from "./linkLimits";
+import { UrlData, UrlStats } from "./types";
 
-// Store a URL in Supabase
-export const storeUrl = async (originalUrl: string, title?: string): Promise<UrlData> => {
+// Create a new shortened URL
+export const createShortenedUrl = async (
+  originalUrl: string,
+  shortCode: string,
+  expirationDays?: number,
+  userId?: string,
+  title?: string
+): Promise<UrlData | null> => {
   try {
-    // Check if URL already exists
-    const { data: existingUrls, error: existingError } = await supabase
-      .from('short_urls')
-      .select('*')
-      .eq('original_url', originalUrl)
-      .limit(1);
+    // Calculate expiration date if requested
+    const expiresAt = expirationDays 
+      ? new Date(Date.now() + expirationDays * 24 * 60 * 60 * 1000).toISOString()
+      : null;
     
-    if (existingError) throw existingError;
-    
-    if (existingUrls && existingUrls.length > 0) {
-      // Return existing URL data
-      const existingUrl = existingUrls[0];
-      return {
-        id: existingUrl.id,
-        originalUrl: existingUrl.original_url,
-        shortCode: existingUrl.short_code,
-        createdAt: new Date(existingUrl.created_at).getTime(),
-        expiresAt: existingUrl.expires_at ? new Date(existingUrl.expires_at).getTime() : undefined,
-        visits: existingUrl.visits,
-        userId: existingUrl.user_id,
-        title: existingUrl.title
-      };
-    }
-    
-    // Get current user (if logged in)
-    const { data: { session } } = await supabase.auth.getSession();
-    const userId = session?.user?.id || null;
-    
-    // If user is logged in, check link balance
-    if (userId) {
-      const hasBalance = await checkLinkBalance();
-      if (!hasBalance) {
-        throw new Error('Monthly link limit reached');
-      }
-    }
-    
-    // If not, create a new short URL
-    const shortCode = generateShortCode();
-    const now = new Date();
-    const threeMonthsInMs = 90 * 24 * 60 * 60 * 1000; // 90 days in milliseconds
-    const expiresAt = new Date(now.getTime() + threeMonthsInMs);
-    
-    // Set the title to the URL if not provided
-    const linkTitle = title || originalUrl;
-    
-    // Insert new URL
     const { data, error } = await supabase
       .from('short_urls')
       .insert({
-        short_code: shortCode,
         original_url: originalUrl,
-        expires_at: expiresAt.toISOString(),
+        short_code: shortCode,
+        expires_at: expiresAt,
         user_id: userId,
-        title: linkTitle
+        title: title || null
       })
       .select()
       .single();
     
     if (error) throw error;
     
-    if (!data) throw new Error('No data returned from insert');
-    
     return {
       id: data.id,
       originalUrl: data.original_url,
       shortCode: data.short_code,
       createdAt: new Date(data.created_at).getTime(),
-      expiresAt: data.expires_at ? new Date(data.expires_at).getTime() : undefined,
+      expiresAt: expiresAt ? new Date(expiresAt).getTime() : undefined,
       visits: data.visits,
       userId: data.user_id,
       title: data.title
     };
-  } catch (error: any) {
-    console.error('Error storing URL:', error);
-    if (error.message === 'Monthly link limit reached') {
-      throw new Error('You have reached your monthly link creation limit');
+  } catch (error) {
+    console.error('Error creating shortened URL:', error);
+    return null;
+  }
+};
+
+// Delete a shortened URL
+export const deleteUrl = async (id: string): Promise<boolean> => {
+  try {
+    const { error } = await supabase
+      .from('short_urls')
+      .delete()
+      .eq('id', id);
+    
+    if (error) throw error;
+    
+    return true;
+  } catch (error) {
+    console.error('Error deleting URL:', error);
+    return false;
+  }
+};
+
+// Get stats about user's URLs
+export const getUrlStats = async (): Promise<UrlStats> => {
+  try {
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session?.user) {
+      return { totalLinks: 0, totalClicks: 0 };
     }
-    throw new Error('Failed to shorten URL');
+    
+    const { data: links, error } = await supabase
+      .from('short_urls')
+      .select('visits')
+      .eq('user_id', session.user.id);
+    
+    if (error) throw error;
+    
+    const totalLinks = links.length;
+    const totalClicks = links.reduce((sum, link) => sum + (link.visits || 0), 0);
+    
+    // Get user's link limit
+    const { data: profile, error: profileError } = await supabase
+      .from('profiles')
+      .select('link_limit')
+      .eq('id', session.user.id)
+      .single();
+    
+    if (profileError) {
+      return { totalLinks, totalClicks };
+    }
+    
+    const linkLimit = profile?.link_limit || 10; // Default to 10 if not set
+    const remainingLinks = linkLimit - totalLinks;
+    
+    return { 
+      totalLinks, 
+      totalClicks,
+      linkLimit,
+      remainingLinks
+    };
+  } catch (error) {
+    console.error('Error getting URL stats:', error);
+    return { totalLinks: 0, totalClicks: 0 };
   }
 };

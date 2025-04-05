@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react';
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { UrlData } from "@/utils/url/types";
-import { getUserUrls, getUrlStats, getUrlWithAnalytics, updateUrlData } from "@/utils/url";
+import { getUserUrls, getUrlWithAnalytics, updateUrlData } from "@/utils/url";
 
 export const useLinkActions = () => {
   const [selectedLink, setSelectedLink] = useState<UrlData | null>(null);
