@@ -114,7 +114,8 @@ export const getUrlByShortCode = async (shortCode: string): Promise<UrlData | nu
       createdAt: new Date(data.created_at).getTime(),
       expiresAt: data.expires_at ? new Date(data.expires_at).getTime() : undefined,
       visits: data.visits,
-      userId: data.user_id
+      userId: data.user_id,
+      title: data.title
     };
   } catch (error) {
     console.error('Error retrieving URL:', error);
@@ -145,7 +146,8 @@ export const getUserUrls = async (): Promise<UrlData[]> => {
       createdAt: new Date(url.created_at).getTime(),
       expiresAt: url.expires_at ? new Date(url.expires_at).getTime() : undefined,
       visits: url.visits,
-      userId: url.user_id
+      userId: url.user_id,
+      title: url.title
     }));
   } catch (error) {
     console.error('Error fetching user URLs:', error);
