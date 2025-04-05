@@ -17,6 +17,7 @@ import PasswordInput from './auth/PasswordInput';
 import FormSubmitButton from './auth/FormSubmitButton';
 import ModeToggle from './auth/ModeToggle';
 import SignupFields from './auth/SignupFields';
+import CountrySelector from './auth/CountrySelector';
 
 const AuthForm = () => {
   const {
@@ -30,6 +31,8 @@ const AuthForm = () => {
     setLastName,
     whatsAppNumber,
     setWhatsAppNumber,
+    country,
+    setCountry,
     mode,
     loading,
     handleAuth,
@@ -83,15 +86,22 @@ const AuthForm = () => {
           />
           
           {mode === 'signup' && (
-            <SignupFields
-              firstName={firstName}
-              setFirstName={setFirstName}
-              lastName={lastName}
-              setLastName={setLastName}
-              whatsAppNumber={whatsAppNumber}
-              setWhatsAppNumber={setWhatsAppNumber}
-              disabled={loading}
-            />
+            <>
+              <SignupFields
+                firstName={firstName}
+                setFirstName={setFirstName}
+                lastName={lastName}
+                setLastName={setLastName}
+                whatsAppNumber={whatsAppNumber}
+                setWhatsAppNumber={setWhatsAppNumber}
+                disabled={loading}
+              />
+              <CountrySelector
+                value={country}
+                onChange={setCountry}
+                disabled={loading}
+              />
+            </>
           )}
           
           {mode !== 'reset' && (

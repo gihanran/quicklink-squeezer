@@ -15,6 +15,8 @@ export const useAuthForm = () => {
     setLastName,
     whatsAppNumber,
     setWhatsAppNumber,
+    country,
+    setCountry,
     mode,
     setMode,
     loading,
@@ -29,7 +31,7 @@ export const useAuthForm = () => {
     switchToResetMode,
     handleAuth
   } = useAuthActions(
-    { email, password, firstName, lastName, whatsAppNumber, mode, loading, showPassword },
+    { email, password, firstName, lastName, whatsAppNumber, country, mode, loading, showPassword },
     setLoading,
     setMode
   );
@@ -45,6 +47,8 @@ export const useAuthForm = () => {
     setLastName,
     whatsAppNumber,
     setWhatsAppNumber,
+    country,
+    setCountry,
     mode,
     loading,
     showPassword,

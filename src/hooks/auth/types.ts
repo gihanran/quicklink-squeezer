@@ -7,6 +7,7 @@ export interface AuthFormState {
   firstName: string;
   lastName: string;
   whatsAppNumber: string;
+  country: string;
   mode: AuthMode;
   loading: boolean;
   showPassword: boolean;

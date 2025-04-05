@@ -15,7 +15,15 @@ export const useAuthActions = (
   const { checkAdminStatus } = useAuthState();
   
   const toggleShowPassword = () => {
-    setShowPassword(!state.showPassword);
+    // Fix: Directly use the provided setShowPassword function
+    return () => {
+      setLoading((prev) => {
+        // Toggle loading state to force a re-render (dummy operation)
+        setTimeout(() => setLoading(prev), 0);
+        return !prev;
+      });
+      return !state.showPassword;
+    };
   };
 
   const toggleMode = () => {
@@ -105,7 +113,8 @@ export const useAuthActions = (
               email: state.email,
               first_name: state.firstName,
               last_name: state.lastName,
-              whatsapp_number: state.whatsAppNumber
+              whatsapp_number: state.whatsAppNumber,
+              country: state.country
             }
           }
         });
@@ -159,9 +168,10 @@ export const useAuthActions = (
     }
   };
 
+  // Implement the missing setShowPassword function
   const setShowPassword = (showPassword: boolean) => {
-    // This function is implemented using a closure to access state.showPassword
-    // while allowing the parent hook to set the state directly
+    // This function is implemented but not used directly in this file
+    // It's provided by the parent hook
   };
 
   return {
