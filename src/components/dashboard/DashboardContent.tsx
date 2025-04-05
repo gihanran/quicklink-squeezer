@@ -1,11 +1,11 @@
 
 import React from 'react';
-import LinksHeader from "./LinksHeader";
-import CreateLinkCard from "./CreateLinkCard";
-import LinkStats from "./LinkStats";
-import LinksList from "./LinksList";
 import { UrlData } from "@/utils/url/types";
 import { calculateExpiration } from "./utils/expirationUtils";
+import DashboardHeader from "./content/DashboardHeader";
+import CreateLinkSection from "./content/CreateLinkSection";
+import StatsSection from "./content/StatsSection";
+import LinksListSection from "./content/LinksListSection";
 
 interface DashboardContentProps {
   links: UrlData[];
@@ -39,20 +39,17 @@ const DashboardContent: React.FC<DashboardContentProps> = ({
 }) => {
   return (
     <>
-      <LinksHeader handleCreateNewLink={handleCreateNewLink} />
+      <DashboardHeader handleCreateNewLink={handleCreateNewLink} />
 
-      {showCreateForm && (
-        <CreateLinkCard 
-          handleLinkCreated={handleLinkCreated} 
-          handleUrlShortened={handleUrlShortened} 
-        />
-      )}
+      <CreateLinkSection
+        showCreateForm={showCreateForm}
+        handleLinkCreated={handleLinkCreated}
+        handleUrlShortened={handleUrlShortened}
+      />
 
-      <LinkStats stats={stats} user={user} />
+      <StatsSection stats={stats} user={user} />
 
-      <h2 className="text-2xl font-bold mb-4">Your Links</h2>
-      
-      <LinksList 
+      <LinksListSection 
         links={links} 
         loading={loading}
         calculateExpiration={calculateExpiration}
