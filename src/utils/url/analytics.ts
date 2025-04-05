@@ -44,8 +44,8 @@ export const trackVisit = async (shortCode: string): Promise<void> => {
 export const getUrlStats = async (): Promise<UrlStats> => {
   try {
     // Count total links (including deleted ones)
-    // We'll use a separate query to get a count of all links ever created
-    const { count: totalLinks, error: linksError } = await supabase
+    // We'll use the database function to get a count of all links ever created
+    const { data: totalLinksData, error: linksError } = await supabase
       .rpc('get_total_links_created');
     
     if (linksError) {
@@ -58,6 +58,8 @@ export const getUrlStats = async (): Promise<UrlStats> => {
       if (currentLinksError) throw currentLinksError;
       return { totalLinks: currentLinks || 0, totalClicks: 0 };
     }
+    
+    const totalLinks = totalLinksData && totalLinksData[0] ? Number(totalLinksData[0].count) : 0;
     
     // Get total clicks (including for deleted links)
     const { data: totalClicksData, error: clicksError } = await supabase
@@ -72,10 +74,10 @@ export const getUrlStats = async (): Promise<UrlStats> => {
       
       if (currentClicksError) throw currentClicksError;
       const totalClicks = clicksData.reduce((sum, url) => sum + (url.visits || 0), 0);
-      return { totalLinks: totalLinks || 0, totalClicks };
+      return { totalLinks, totalClicks };
     }
 
-    const totalClicks = totalClicksData?.total_clicks || 0;
+    const totalClicks = totalClicksData && totalClicksData[0] ? Number(totalClicksData[0].total_clicks) : 0;
     
     // Get remaining link balance if user is logged in
     let remainingLinks;
@@ -107,7 +109,7 @@ export const getUrlStats = async (): Promise<UrlStats> => {
     }
     
     return {
-      totalLinks: totalLinks || 0,
+      totalLinks,
       totalClicks,
       remainingLinks,
       linkLimit

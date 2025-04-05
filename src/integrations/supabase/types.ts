@@ -189,6 +189,18 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      get_total_clicks: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          total_clicks: number
+        }[]
+      }
+      get_total_links_created: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          count: number
+        }[]
+      }
       is_admin: {
         Args: Record<PropertyKey, never>
         Returns: boolean
