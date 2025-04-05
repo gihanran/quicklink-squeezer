@@ -24,12 +24,34 @@ const Auth = () => {
         
         if (data.session) {
           console.log("User already signed in, redirecting");
+          console.log("Session user:", data.session.user);
           
-          // Check if there's a redirect path in the location state
-          const state = location.state as { redirectTo?: string } | null;
-          const redirectPath = state?.redirectTo || '/dashboard';
+          // Get admin status directly
+          const userId = data.session.user.id;
+          const { data: profileData, error: profileError } = await supabase
+            .from('profiles')
+            .select('is_admin')
+            .eq('id', userId)
+            .maybeSingle();
+            
+          if (profileError) {
+            console.error("Error fetching profile:", profileError);
+          }
           
-          navigate(redirectPath);
+          console.log("Profile data:", profileData);
+          
+          // Redirect based on admin status
+          if (profileData?.is_admin === true) {
+            console.log("User is admin, redirecting to admin panel");
+            navigate('/admin');
+          } else {
+            // Check if there's a redirect path in the location state
+            const state = location.state as { redirectTo?: string } | null;
+            const redirectPath = state?.redirectTo || '/dashboard';
+            
+            console.log("User is not admin, redirecting to:", redirectPath);
+            navigate(redirectPath);
+          }
         } else {
           console.log("No active session found");
         }

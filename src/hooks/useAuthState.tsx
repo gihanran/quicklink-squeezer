@@ -27,6 +27,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       console.log("Checking admin status for user:", user.id);
       console.log("User email:", user.email);
       
+      // Direct query to profiles table
       const { data, error } = await supabase
         .from('profiles')
         .select('is_admin, email')
@@ -40,7 +41,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       
       console.log("Admin check result:", data);
       
+      // Explicitly check for true value
       const adminStatus = data?.is_admin === true;
+      console.log("Setting admin status to:", adminStatus);
       setIsAdmin(adminStatus);
       return adminStatus;
     } catch (error) {
@@ -50,6 +53,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   };
 
   useEffect(() => {
+    console.log("AuthProvider initializing...");
     // Set up auth state listener FIRST
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
@@ -86,6 +90,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   }, []);
 
   const signOut = async () => {
+    console.log("Signing out...");
     await supabase.auth.signOut();
     setIsAdmin(false);
   };

@@ -109,7 +109,11 @@ const AuthForm = () => {
         
       } else {
         console.log("Attempting to sign in with:", { email });
-        const { error, data } = await supabase.auth.signInWithPassword({ email, password });
+        
+        const { error, data } = await supabase.auth.signInWithPassword({ 
+          email, 
+          password 
+        });
         
         if (error) {
           console.error("Login error:", error);
@@ -123,17 +127,45 @@ const AuthForm = () => {
           description: "You've successfully signed in."
         });
         
-        console.log("Login successful. Checking admin status...");
-        // Use our improved admin status check
-        const isAdmin = await checkAdminStatus();
-        console.log("Admin status check result:", isAdmin);
+        // Get user information from Supabase directly after login
+        const { data: userData, error: userError } = await supabase.auth.getUser();
         
-        // If admin, redirect to admin panel, otherwise to dashboard
-        if (isAdmin) {
-          console.log("User is admin, redirecting to admin panel");
-          navigate('/admin');
+        if (userError) {
+          console.error("Error getting user data:", userError);
         } else {
-          console.log("User is not admin, redirecting to dashboard");
+          console.log("User data after login:", userData);
+        }
+        
+        // Get session information
+        const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
+        
+        if (sessionError) {
+          console.error("Error getting session data:", sessionError);
+        } else {
+          console.log("Session data after login:", sessionData);
+        }
+        
+        if (userData?.user) {
+          // Directly query the profiles table for admin status
+          const { data: profileData, error: profileError } = await supabase
+            .from('profiles')
+            .select('is_admin, email')
+            .eq('id', userData.user.id)
+            .maybeSingle();
+            
+          console.log("Profile query result:", profileData, profileError);
+          
+          const isAdmin = profileData?.is_admin === true;
+          console.log("Is admin from direct query:", isAdmin);
+          
+          if (isAdmin) {
+            console.log("User is admin, redirecting to admin panel");
+            navigate('/admin');
+          } else {
+            console.log("User is not admin, redirecting to dashboard");
+            navigate('/dashboard');
+          }
+        } else {
           navigate('/dashboard');
         }
       }
