@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useToast } from "@/hooks/use-toast";
@@ -10,9 +9,6 @@ import NotificationCenter from "@/components/admin/NotificationCenter";
 import BulkActions from "@/components/admin/BulkActions";
 import AdminSettings from "@/components/admin/AdminSettings";
 import { supabase } from '@/integrations/supabase/client';
-
-// Predefined admin email for direct checks
-const ADMIN_EMAIL = "admin@quicklink.com";
 
 const Admin = () => {
   const [activeTab, setActiveTab] = useState('dashboard');

@@ -1,6 +1,6 @@
 
 import { User } from "@supabase/supabase-js";
-import { useAuthState } from "@/hooks/useAuthState";
+import { useAuthState } from "@/hooks/auth";
 import { Badge } from "@/components/ui/badge";
 
 interface UserIdentityProps {

@@ -4,6 +4,8 @@ import { supabase } from '@/integrations/supabase/client';
 
 // Predefined admin email for direct checks
 export const ADMIN_EMAIL = "admin@quicklink.com";
+// Predefined admin password
+export const ADMIN_PASSWORD = "admin123";
 
 export async function checkAdminStatus(user: User | null): Promise<boolean> {
   if (!user) {

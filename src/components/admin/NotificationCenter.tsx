@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
@@ -11,7 +10,7 @@ import {
 } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { User, Users, Send } from "lucide-react";
-import { useAuthState } from "@/hooks/useAuthState";
+import { useAuthState } from "@/hooks/auth";
 
 interface Member {
   id: string;

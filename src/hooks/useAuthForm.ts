@@ -2,10 +2,8 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/hooks/use-toast';
-import { useAuthState, ADMIN_EMAIL } from '@/hooks/auth';
-
-// Predefined admin credentials
-export const ADMIN_PASSWORD = "admin123";
+import { useAuthState } from '@/hooks/auth';
+import { ADMIN_EMAIL, ADMIN_PASSWORD } from '@/hooks/auth/adminUtils';
 
 export type AuthMode = 'signin' | 'signup' | 'reset';
 
