@@ -54,6 +54,14 @@ const LinkAnalytics: React.FC<LinkAnalyticsProps> = ({ links }) => {
   const totalClicks = enhancedLinks.reduce((total, link) => total + (link.visits || 0), 0);
   const averageClicks = totalLinks > 0 ? Math.round(totalClicks / totalLinks) : 0;
 
+  // Ensure devices object has all required properties
+  const devices = {
+    desktop: aggregatedData.devices.desktop || 0,
+    mobile: aggregatedData.devices.mobile || 0,
+    tablet: aggregatedData.devices.tablet || 0,
+    ...aggregatedData.devices  // Include any additional device types
+  };
+
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
@@ -82,7 +90,7 @@ const LinkAnalytics: React.FC<LinkAnalyticsProps> = ({ links }) => {
         browserData={browserData}
         locationData={locationData}
         timelineData={timelineData}
-        devices={aggregatedData.devices}
+        devices={devices}
       />
     </div>
   );
