@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
@@ -6,7 +5,7 @@ import { useAuthState } from "@/hooks/auth";
 import { supabase } from "@/integrations/supabase/client";
 import { getUserUrls, getUrlStats } from "@/utils/urlUtils";
 
-// Import our new component files
+// Import our component files
 import DashboardHeader from "@/components/dashboard/DashboardHeader";
 import DashboardFooter from "@/components/dashboard/DashboardFooter";
 import DashboardTabNav from "@/components/dashboard/DashboardTabNav";
@@ -193,7 +192,7 @@ const Dashboard: React.FC = () => {
   };
 
   const handleUrlShortened = () => {
-    // This function can be empty or have additional logic if needed
+    getUrlStats().then(setStats).catch(console.error);
   };
 
   const redirectToProfile = () => {

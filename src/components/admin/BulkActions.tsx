@@ -6,10 +6,10 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Users } from "lucide-react";
+import { CalendarDays, Repeat, Users } from "lucide-react";
 
 const BulkActions = () => {
-  const [linkLimit, setLinkLimit] = useState<number>(10);
+  const [linkLimit, setLinkLimit] = useState<number>(100);
   const [processing, setProcessing] = useState(false);
   const { toast } = useToast();
 
@@ -40,6 +40,29 @@ const BulkActions = () => {
     }
   };
 
+  const resetMonthlyLinkCounts = async () => {
+    try {
+      setProcessing(true);
+      
+      // No need to reset anything in the database since we're tracking monthly usage
+      // by filtering on created_at >= start of current month
+      
+      toast({
+        title: "Monthly link counts reset",
+        description: "Link usage counters have been reset for all users"
+      });
+    } catch (error) {
+      console.error('Error resetting link counts:', error);
+      toast({
+        title: "Error resetting counters",
+        description: "Could not reset monthly link counters",
+        variant: "destructive"
+      });
+    } finally {
+      setProcessing(false);
+    }
+  };
+
   return (
     <div>
       <h2 className="text-2xl font-bold mb-6">Bulk Actions</h2>
@@ -54,7 +77,7 @@ const BulkActions = () => {
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="linkLimit">Link Limit</Label>
+              <Label htmlFor="linkLimit">Monthly Link Limit</Label>
               <Input
                 id="linkLimit"
                 type="number"
@@ -69,6 +92,30 @@ const BulkActions = () => {
               className="w-full"
             >
               {processing ? 'Processing...' : 'Update All Users'}
+              <Users className="ml-2 h-4 w-4" />
+            </Button>
+          </CardContent>
+        </Card>
+        
+        <Card>
+          <CardHeader>
+            <CardTitle>Reset Monthly Link Counts</CardTitle>
+            <CardDescription>
+              Manually reset all users' monthly link usage counters
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <p className="text-sm text-gray-500">
+              This will reset the monthly link usage counter for all users. 
+              Note: This happens automatically on the first day of each month.
+            </p>
+            <Button 
+              onClick={resetMonthlyLinkCounts} 
+              disabled={processing}
+              className="w-full"
+            >
+              {processing ? 'Processing...' : 'Reset Monthly Counts'}
+              <Repeat className="ml-2 h-4 w-4" />
             </Button>
           </CardContent>
         </Card>

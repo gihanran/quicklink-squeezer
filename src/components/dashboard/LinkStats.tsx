@@ -6,13 +6,15 @@ interface LinkStatsProps {
   stats: {
     totalLinks: number;
     totalClicks: number;
+    remainingLinks?: number;
+    linkLimit?: number;
   };
   user: any;
 }
 
 const LinkStats: React.FC<LinkStatsProps> = ({ stats, user }) => {
   return (
-    <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+    <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
       <Card>
         <CardHeader className="pb-2">
           <CardTitle className="text-lg font-medium">Total Links</CardTitle>
@@ -27,6 +29,17 @@ const LinkStats: React.FC<LinkStatsProps> = ({ stats, user }) => {
         </CardHeader>
         <CardContent>
           <p className="text-4xl font-bold">{stats.totalClicks}</p>
+        </CardContent>
+      </Card>
+      <Card>
+        <CardHeader className="pb-2">
+          <CardTitle className="text-lg font-medium">Link Balance</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <p className="text-4xl font-bold">{stats.remainingLinks !== undefined ? stats.remainingLinks : 'N/A'}</p>
+          <p className="text-sm text-gray-500">
+            of {stats.linkLimit || 100} monthly limit
+          </p>
         </CardContent>
       </Card>
       <Card>

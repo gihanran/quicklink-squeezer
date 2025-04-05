@@ -23,6 +23,84 @@ export interface UrlData {
   userId?: string | null;
 }
 
+// Check if user has remaining link balance
+export const checkLinkBalance = async (): Promise<boolean> => {
+  try {
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session?.user) return false;
+    
+    // Get user's current link limit and usage for this month
+    const { data: profile, error: profileError } = await supabase
+      .from('profiles')
+      .select('link_limit')
+      .eq('id', session.user.id)
+      .single();
+      
+    if (profileError) throw profileError;
+    
+    const linkLimit = profile?.link_limit || 100;
+    
+    // Count links created this month
+    const startOfMonth = new Date();
+    startOfMonth.setDate(1);
+    startOfMonth.setHours(0, 0, 0, 0);
+    
+    const { count, error: countError } = await supabase
+      .from('short_urls')
+      .select('*', { count: 'exact', head: true })
+      .eq('user_id', session.user.id)
+      .gte('created_at', startOfMonth.toISOString());
+    
+    if (countError) throw countError;
+    
+    const linksCreatedThisMonth = count || 0;
+    
+    return linksCreatedThisMonth < linkLimit;
+  } catch (error) {
+    console.error('Error checking link balance:', error);
+    return false;
+  }
+};
+
+// Get remaining link balance
+export const getRemainingLinkBalance = async (): Promise<number | null> => {
+  try {
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session?.user) return null;
+    
+    // Get user's current link limit
+    const { data: profile, error: profileError } = await supabase
+      .from('profiles')
+      .select('link_limit')
+      .eq('id', session.user.id)
+      .single();
+      
+    if (profileError) throw profileError;
+    
+    const linkLimit = profile?.link_limit || 100;
+    
+    // Count links created this month
+    const startOfMonth = new Date();
+    startOfMonth.setDate(1);
+    startOfMonth.setHours(0, 0, 0, 0);
+    
+    const { count, error: countError } = await supabase
+      .from('short_urls')
+      .select('*', { count: 'exact', head: true })
+      .eq('user_id', session.user.id)
+      .gte('created_at', startOfMonth.toISOString());
+    
+    if (countError) throw countError;
+    
+    const linksCreatedThisMonth = count || 0;
+    
+    return linkLimit - linksCreatedThisMonth;
+  } catch (error) {
+    console.error('Error getting remaining link balance:', error);
+    return null;
+  }
+};
+
 // Store a URL in Supabase
 export const storeUrl = async (originalUrl: string): Promise<UrlData> => {
   try {
@@ -49,15 +127,23 @@ export const storeUrl = async (originalUrl: string): Promise<UrlData> => {
       };
     }
     
+    // Get current user (if logged in)
+    const { data: { session } } = await supabase.auth.getSession();
+    const userId = session?.user?.id || null;
+    
+    // If user is logged in, check link balance
+    if (userId) {
+      const hasBalance = await checkLinkBalance();
+      if (!hasBalance) {
+        throw new Error('Monthly link limit reached');
+      }
+    }
+    
     // If not, create a new short URL
     const shortCode = generateShortCode();
     const now = new Date();
     const threeMonthsInMs = 90 * 24 * 60 * 60 * 1000; // 90 days in milliseconds
     const expiresAt = new Date(now.getTime() + threeMonthsInMs);
-    
-    // Get current user (if logged in)
-    const { data: { session } } = await supabase.auth.getSession();
-    const userId = session?.user?.id || null;
     
     // Insert new URL
     const { data, error } = await supabase
@@ -84,8 +170,11 @@ export const storeUrl = async (originalUrl: string): Promise<UrlData> => {
       visits: data.visits,
       userId: data.user_id
     };
-  } catch (error) {
+  } catch (error: any) {
     console.error('Error storing URL:', error);
+    if (error.message === 'Monthly link limit reached') {
+      throw new Error('You have reached your monthly link creation limit');
+    }
     throw new Error('Failed to shorten URL');
   }
 };
@@ -167,7 +256,7 @@ export const getFullShortenedUrl = (shortCode: string): string => {
 };
 
 // Get stats about total links and clicks
-export const getUrlStats = async (): Promise<{ totalLinks: number, totalClicks: number }> => {
+export const getUrlStats = async (): Promise<{ totalLinks: number, totalClicks: number, remainingLinks?: number, linkLimit?: number }> => {
   try {
     // Count total valid links (not expired)
     const { count: totalLinks, error: linksError } = await supabase
@@ -186,9 +275,40 @@ export const getUrlStats = async (): Promise<{ totalLinks: number, totalClicks: 
     
     const totalClicks = clicksData.reduce((sum, url) => sum + (url.visits || 0), 0);
     
+    // Get remaining link balance if user is logged in
+    let remainingLinks;
+    let linkLimit;
+    
+    const { data: { session } } = await supabase.auth.getSession();
+    if (session?.user) {
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('link_limit')
+        .eq('id', session.user.id)
+        .single();
+      
+      linkLimit = profile?.link_limit || 100;
+      
+      // Count links created this month
+      const startOfMonth = new Date();
+      startOfMonth.setDate(1);
+      startOfMonth.setHours(0, 0, 0, 0);
+      
+      const { count } = await supabase
+        .from('short_urls')
+        .select('*', { count: 'exact', head: true })
+        .eq('user_id', session.user.id)
+        .gte('created_at', startOfMonth.toISOString());
+      
+      const linksCreatedThisMonth = count || 0;
+      remainingLinks = linkLimit - linksCreatedThisMonth;
+    }
+    
     return {
       totalLinks: totalLinks || 0,
-      totalClicks
+      totalClicks,
+      remainingLinks,
+      linkLimit
     };
   } catch (error) {
     console.error('Error getting URL stats:', error);

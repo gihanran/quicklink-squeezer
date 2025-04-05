@@ -28,6 +28,7 @@ interface MemberStats {
   id: string;
   linkCount: number;
   clickCount: number;
+  linksThisMonth: number; // New field to track monthly usage
 }
 
 const MembersList = () => {
@@ -73,6 +74,11 @@ const MembersList = () => {
     try {
       // Fetch link counts and click counts for each member
       const stats: Record<string, MemberStats> = {};
+      
+      // Get start of current month
+      const startOfMonth = new Date();
+      startOfMonth.setDate(1);
+      startOfMonth.setHours(0, 0, 0, 0);
 
       for (const member of members) {
         // Get link count
@@ -83,13 +89,24 @@ const MembersList = () => {
 
         if (linkError) throw linkError;
 
+        // Get monthly link count
+        const { count: monthlyCount, error: monthlyError } = await supabase
+          .from('short_urls')
+          .select('*', { count: 'exact', head: true })
+          .eq('user_id', member.id)
+          .gte('created_at', startOfMonth.toISOString());
+        
+        if (monthlyError) throw monthlyError;
+
         const linkCount = linkData?.length || 0;
         const clickCount = linkData?.reduce((sum, link) => sum + (link.visits || 0), 0) || 0;
+        const linksThisMonth = monthlyCount || 0;
 
         stats[member.id] = {
           id: member.id,
           linkCount,
-          clickCount
+          clickCount,
+          linksThisMonth
         };
       }
 
@@ -200,9 +217,10 @@ const MembersList = () => {
                 <TableHead>Name</TableHead>
                 <TableHead>Email</TableHead>
                 <TableHead>Country</TableHead>
-                <TableHead>Links</TableHead>
-                <TableHead>Clicks</TableHead>
-                <TableHead>Link Limit</TableHead>
+                <TableHead>Total Links</TableHead>
+                <TableHead>Total Clicks</TableHead>
+                <TableHead>Links This Month</TableHead>
+                <TableHead>Monthly Limit</TableHead>
                 <TableHead>Status</TableHead>
                 <TableHead>Actions</TableHead>
               </TableRow>
@@ -219,6 +237,11 @@ const MembersList = () => {
                     <TableCell>{member.country || 'N/A'}</TableCell>
                     <TableCell>{memberStats[member.id]?.linkCount || 0}</TableCell>
                     <TableCell>{memberStats[member.id]?.clickCount || 0}</TableCell>
+                    <TableCell>
+                      <span className={memberStats[member.id]?.linksThisMonth >= member.link_limit ? 'text-red-600 font-bold' : ''}>
+                        {memberStats[member.id]?.linksThisMonth || 0} / {member.link_limit}
+                      </span>
+                    </TableCell>
                     <TableCell>
                       <span className="font-medium">{member.link_limit}</span>
                     </TableCell>
@@ -259,7 +282,7 @@ const MembersList = () => {
                 ))
               ) : (
                 <TableRow>
-                  <TableCell colSpan={9} className="text-center py-8 text-gray-500">
+                  <TableCell colSpan={10} className="text-center py-8 text-gray-500">
                     No members found
                   </TableCell>
                 </TableRow>
@@ -274,11 +297,11 @@ const MembersList = () => {
           <DialogHeader>
             <DialogTitle>Update Link Limit</DialogTitle>
             <DialogDescription>
-              Change the maximum number of links this user can create
+              Change the maximum number of links this user can create per month
             </DialogDescription>
           </DialogHeader>
           <div className="py-4">
-            <Label htmlFor="linkLimit">Link Limit</Label>
+            <Label htmlFor="linkLimit">Monthly Link Limit</Label>
             <Input
               id="linkLimit"
               type="number"

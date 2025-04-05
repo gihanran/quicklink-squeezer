@@ -71,11 +71,13 @@ const UrlShortenerForm: React.FC<UrlShortenerFormProps> = ({ onUrlShortened, onS
         title: "URL shortened successfully!",
         description: "Your short link is ready to share.",
       });
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error shortening URL:', error);
       toast({ 
-        title: "Failed to shorten URL",
-        description: "Please try again later.",
+        title: error.message || "Failed to shorten URL",
+        description: error.message === "You have reached your monthly link creation limit" 
+          ? "Please try again next month or contact support for a limit increase." 
+          : "Please try again later.",
         variant: "destructive"
       });
     } finally {
