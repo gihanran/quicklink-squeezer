@@ -99,7 +99,7 @@ const Auth = () => {
           <div className="flex items-center">
             <Link2 className="h-6 w-6 text-brand-purple mr-2" />
             <h1 className="text-2xl font-bold bg-gradient-to-r from-brand-purple to-brand-blue bg-clip-text text-transparent">
-              <a href="/">QuickLink Squeezer</a>
+              <a href="/">shortit</a>
             </h1>
           </div>
         </div>

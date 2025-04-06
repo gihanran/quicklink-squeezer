@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { Link2, Github, Twitter, Linkedin, Mail, Heart } from 'lucide-react';
@@ -20,7 +21,7 @@ const Footer: React.FC = () => {
                   <Link2 className="h-5 w-5 text-white" />
                 </div>
                 <h2 className="text-xl font-bold bg-gradient-to-r from-brand-purple to-brand-blue bg-clip-text text-transparent">
-                  <a href="/">QuickLink</a>
+                  <a href="/">shortit</a>
                 </h2>
               </div>
               <p className="text-gray-300 text-sm">
@@ -98,7 +99,7 @@ const Footer: React.FC = () => {
                 <a href="#" aria-label="LinkedIn" className="text-gray-300 hover:text-white transition duration-200">
                   <Linkedin className="h-5 w-5" />
                 </a>
-                <a href="mailto:info@quicklinksqueezer.com" aria-label="Email" className="text-gray-300 hover:text-white transition duration-200">
+                <a href="mailto:info@shortit.com" aria-label="Email" className="text-gray-300 hover:text-white transition duration-200">
                   <Mail className="h-5 w-5" />
                 </a>
               </div>
@@ -107,7 +108,7 @@ const Footer: React.FC = () => {
 
           <div className="border-t border-gray-700 mt-10 pt-6 flex flex-col md:flex-row justify-between items-center">
             <p className="text-gray-400 text-sm">
-              &copy; {new Date().getFullYear()} QuickLink Squeezer. All rights reserved.
+              &copy; {new Date().getFullYear()} shortit. All rights reserved.
             </p>
             <p className="text-gray-400 text-sm mt-2 md:mt-0 flex items-center">
               Made with <Heart className="h-4 w-4 text-red-500 mx-1" /> for shorter links
