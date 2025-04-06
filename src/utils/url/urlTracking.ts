@@ -1,7 +1,7 @@
 
 import { supabase } from "@/integrations/supabase/client";
 
-// Track visit to a shortened URL - now only counts visits from Chrome browser
+// Track visit to a shortened URL - now tracks visits from all browsers
 export const trackVisit = async (shortCode: string): Promise<boolean> => {
   try {
     // First, get the current URL data
@@ -13,16 +13,7 @@ export const trackVisit = async (shortCode: string): Promise<boolean> => {
     
     if (error) throw error;
     
-    // Check browser before incrementing
-    const isChrome = typeof navigator !== 'undefined' && 
-      navigator.userAgent.indexOf("Chrome") > -1;
-    
-    if (!isChrome) {
-      console.log('Visit not tracked - not using Chrome browser');
-      return false;
-    }
-    
-    // Increment the visit counter only for Chrome
+    // Increment the visit counter for all browsers
     const visits = (data?.visits || 0) + 1;
     
     // Update the URL with the new visit count

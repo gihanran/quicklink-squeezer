@@ -1,15 +1,18 @@
 
-// Generate a random short code
-export const generateShortCode = (length: number = 6): string => {
+// Generate a random short code for a URL
+export const generateShortCode = (length: number = 8): string => {
   const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
   let result = '';
+  
   for (let i = 0; i < length; i++) {
-    result += characters.charAt(Math.floor(Math.random() * characters.length));
+    const randomIndex = Math.floor(Math.random() * characters.length);
+    result += characters.charAt(randomIndex);
   }
+  
   return result;
 };
 
-// Get the complete shortened URL
-export const getFullShortenedUrl = (shortCode: string): string => {
-  return `${window.location.origin}/s/${shortCode}`;
+// Generate a short user ID (12 characters)
+export const generateShortUserId = (): string => {
+  return generateShortCode(12);
 };

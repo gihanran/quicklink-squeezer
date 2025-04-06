@@ -135,7 +135,7 @@ export const getUrlStats = async (): Promise<UrlStats> => {
       return { totalLinks, totalClicks };
     }
     
-    const linkLimit = profile?.link_limit || 10; // Default to 10 if not set
+    const linkLimit = profile?.link_limit || 100; // Default to 100 if not set
     const remainingLinks = linkLimit - totalLinks;
     
     return { 

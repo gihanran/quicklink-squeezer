@@ -23,13 +23,8 @@ const Redirect: React.FC = () => {
           return;
         }
 
-        // Check if browser is Chrome
-        const isChrome = navigator.userAgent.indexOf("Chrome") > -1;
-        
-        // Only track the visit if using Chrome
-        if (isChrome) {
-          await trackVisit(shortCode);
-        }
+        // Track the visit for all browsers
+        await trackVisit(shortCode);
         
         // Redirect to the original URL
         window.location.href = urlData.originalUrl;
