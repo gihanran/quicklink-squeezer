@@ -23,11 +23,18 @@ export const checkLinkBalance = async (): Promise<boolean> => {
     startOfMonth.setDate(1);
     startOfMonth.setHours(0, 0, 0, 0);
     
+    const now = new Date().toISOString();
+    
+    // Only count links that are:
+    // 1. Created this month
+    // 2. Not expired (expires_at > now OR expires_at IS NULL)
+    // 3. Not deleted (we don't have a deleted flag, so we rely on existence)
     const { count, error: countError } = await supabase
       .from('short_urls')
       .select('*', { count: 'exact', head: true })
       .eq('user_id', session.user.id)
-      .gte('created_at', startOfMonth.toISOString());
+      .gte('created_at', startOfMonth.toISOString())
+      .or(`expires_at.gt.${now},expires_at.is.null`);
     
     if (countError) throw countError;
     
@@ -62,11 +69,18 @@ export const getRemainingLinkBalance = async (): Promise<number | null> => {
     startOfMonth.setDate(1);
     startOfMonth.setHours(0, 0, 0, 0);
     
+    const now = new Date().toISOString();
+    
+    // Only count links that are:
+    // 1. Created this month
+    // 2. Not expired (expires_at > now OR expires_at IS NULL)
+    // 3. Not deleted (we don't have a deleted flag, so we rely on existence)
     const { count, error: countError } = await supabase
       .from('short_urls')
       .select('*', { count: 'exact', head: true })
       .eq('user_id', session.user.id)
-      .gte('created_at', startOfMonth.toISOString());
+      .gte('created_at', startOfMonth.toISOString())
+      .or(`expires_at.gt.${now},expires_at.is.null`);
     
     if (countError) throw countError;
     

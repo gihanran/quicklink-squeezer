@@ -150,7 +150,8 @@ export const getUrlStats = async (): Promise<UrlStats> => {
       .from('short_urls')
       .select('*', { count: 'exact', head: true })
       .eq('user_id', session.user.id)
-      .gte('created_at', startOfMonth.toISOString());
+      .gte('created_at', startOfMonth.toISOString())
+      .or(`expires_at.gt.${now},expires_at.is.null`);
     
     if (countError) throw countError;
     
