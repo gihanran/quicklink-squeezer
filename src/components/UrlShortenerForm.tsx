@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -10,14 +9,14 @@ import { Label } from "@/components/ui/label";
 
 interface UrlShortenerFormProps {
   onUrlShortened: (urlData: UrlData, fullUrl: string) => void;
-  onSuccess?: () => void; // Add this optional prop for Dashboard
-  showTitleField?: boolean; // New prop to control visibility of title field
+  onSuccess?: () => void; // This is now optional since we handle it differently
+  showTitleField?: boolean;
 }
 
 const UrlShortenerForm: React.FC<UrlShortenerFormProps> = ({ 
   onUrlShortened, 
   onSuccess,
-  showTitleField = true // Default to true to maintain backward compatibility
+  showTitleField = true
 }) => {
   const [url, setUrl] = useState<string>('');
   const [title, setTitle] = useState<string>('');
@@ -69,18 +68,14 @@ const UrlShortenerForm: React.FC<UrlShortenerFormProps> = ({
       // Callback to parent component with the shortened URL
       onUrlShortened(urlData, fullShortenedUrl);
       
-      // Call onSuccess if provided (for Dashboard)
+      // Reset form - we'll keep this for any forms not using the ad popup
+      setUrl('');
+      setTitle('');
+      
+      // If there's a direct success handler, call it (for backward compatibility)
       if (onSuccess) {
         onSuccess();
       }
-      
-      // Reset form
-      setUrl('');
-      setTitle('');
-      toast({
-        title: "URL shortened successfully!",
-        description: "Your short link is ready to share.",
-      });
     } catch (error: any) {
       console.error('Error shortening URL:', error);
       toast({ 
