@@ -10,6 +10,7 @@ import Auth from "./pages/Auth";
 import NotFound from "./pages/NotFound";
 import Dashboard from "./pages/Dashboard";
 import Admin from "./pages/Admin";
+import Affiliate from "./pages/Affiliate";
 import * as TooltipPrimitive from "@radix-ui/react-tooltip";
 
 const queryClient = new QueryClient();
@@ -27,6 +28,7 @@ const App = () => (
             <Route path="/s/:shortCode" element={<Redirect />} />
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/admin" element={<Admin />} />
+            <Route path="/affiliate" element={<Affiliate />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>

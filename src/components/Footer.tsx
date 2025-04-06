@@ -18,7 +18,7 @@ const Footer: React.FC = () => {
                 <Link2 className="h-5 w-5 text-white" />
               </div>
               <h2 className="text-xl font-bold bg-gradient-to-r from-brand-purple to-brand-blue bg-clip-text text-transparent">
-                QuickLink
+                <a href="/">QuickLink</a>
               </h2>
             </div>
             <p className="text-gray-300 text-sm">
@@ -48,6 +48,11 @@ const Footer: React.FC = () => {
                   </Link>
                 </li>
               )}
+              <li>
+                <Link to="/affiliate" className="text-gray-300 hover:text-white transition duration-200">
+                  Affiliate Program
+                </Link>
+              </li>
               <li>
                 <Link to="#" className="text-gray-300 hover:text-white transition duration-200">
                   Pricing
