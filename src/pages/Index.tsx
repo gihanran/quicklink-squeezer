@@ -30,7 +30,7 @@ const Index = () => {
                 <Link2 className="h-6 w-6 text-white" />
               </div>
               <h1 className="text-2xl font-bold bg-gradient-to-r from-brand-purple to-brand-blue bg-clip-text text-transparent">
-                shortit
+                Shortit
               </h1>
             </div>
             <div className="flex items-center space-x-4">

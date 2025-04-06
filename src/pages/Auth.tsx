@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
@@ -99,7 +98,7 @@ const Auth = () => {
           <div className="flex items-center">
             <Link2 className="h-6 w-6 text-brand-purple mr-2" />
             <h1 className="text-2xl font-bold bg-gradient-to-r from-brand-purple to-brand-blue bg-clip-text text-transparent">
-              <a href="/">shortit</a>
+              <a href="/">Shortit</a>
             </h1>
           </div>
         </div>

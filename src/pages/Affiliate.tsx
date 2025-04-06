@@ -44,7 +44,7 @@ const Affiliate = () => {
               </Link>
             </div>
             <h1 className="text-xl font-bold bg-gradient-to-r from-brand-purple to-brand-blue bg-clip-text text-transparent">
-              <Link to="/">shortit</Link>
+              <Link to="/">Shortit</Link>
             </h1>
           </div>
           <nav>
