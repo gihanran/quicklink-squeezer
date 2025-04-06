@@ -17,7 +17,7 @@ const LinkStats: React.FC<LinkStatsProps> = ({ stats, user }) => {
     <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
       <Card>
         <CardHeader className="pb-2">
-          <CardTitle className="text-lg font-medium">Total Links</CardTitle>
+          <CardTitle className="text-lg font-medium">Your Total Links</CardTitle>
         </CardHeader>
         <CardContent>
           <p className="text-4xl font-bold">{stats.totalLinks}</p>
@@ -25,7 +25,7 @@ const LinkStats: React.FC<LinkStatsProps> = ({ stats, user }) => {
       </Card>
       <Card>
         <CardHeader className="pb-2">
-          <CardTitle className="text-lg font-medium">Total Clicks</CardTitle>
+          <CardTitle className="text-lg font-medium">Your Total Clicks</CardTitle>
         </CardHeader>
         <CardContent>
           <p className="text-4xl font-bold">{stats.totalClicks}</p>

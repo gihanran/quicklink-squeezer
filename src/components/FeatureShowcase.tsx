@@ -16,10 +16,10 @@ const FeatureShowcase: React.FC = () => {
   useEffect(() => {
     const fetchStats = async () => {
       try {
-        const { totalLinks, totalClicks } = await getUrlStats();
+        const fetchedStats = await getUrlStats();
         setStats({
-          linksCreated: totalLinks,
-          totalClicks,
+          linksCreated: fetchedStats.totalLinks,
+          totalClicks: fetchedStats.totalClicks,
         });
       } catch (error) {
         console.error('Error fetching URL stats:', error);

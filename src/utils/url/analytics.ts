@@ -14,7 +14,7 @@ export const getUrlStats = async () => {
       linkLimit: undefined
     };
     
-    // If user is logged in, fetch user-specific stats
+    // If user is logged in, fetch user-specific stats for the dashboard
     if (session?.user) {
       const now = new Date().toISOString();
       
@@ -52,30 +52,25 @@ export const getUrlStats = async () => {
           stats.remainingLinks = linkLimit - (count || 0);
         }
       }
-    } else {
-      // For public facing stats (total links and clicks across the platform)
-      
-      // Get total count of short_codes (total links created)
-      const { count, error: countError } = await supabase
-        .from('short_urls')
-        .select('short_code', { count: 'exact', head: true });
-      
-      if (countError) {
-        console.error('Error fetching total links:', countError);
-      } else {
-        stats.totalLinks = count || 0;
-      }
-      
-      // Sum all visits (total clicks)
-      const { data: clicksData, error: clicksError } = await supabase
-        .from('short_urls')
-        .select('visits');
-      
-      if (clicksError) {
-        console.error('Error fetching total clicks:', clicksError);
-      } else {
-        stats.totalClicks = clicksData.reduce((sum, link) => sum + (link.visits || 0), 0);
-      }
+    }
+    
+    // Get total platform stats (ALL users) - this runs for BOTH logged in and anonymous users
+    // Count total links created across all users
+    const { count: totalLinksCount, error: totalLinksError } = await supabase
+      .from('short_urls')
+      .select('id', { count: 'exact', head: true });
+    
+    if (!totalLinksError) {
+      stats.totalLinks = totalLinksCount || 0;
+    }
+    
+    // Sum all visits (total clicks) across all links
+    const { data: allClicksData, error: allClicksError } = await supabase
+      .from('short_urls')
+      .select('visits');
+    
+    if (!allClicksError) {
+      stats.totalClicks = allClicksData.reduce((sum, link) => sum + (link.visits || 0), 0);
     }
     
     return stats;
