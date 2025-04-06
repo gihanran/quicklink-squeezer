@@ -38,7 +38,7 @@ const LinkStats: React.FC<LinkStatsProps> = ({ stats, user }) => {
         <CardContent>
           <p className="text-4xl font-bold">{stats.remainingLinks !== undefined ? stats.remainingLinks : 'N/A'}</p>
           <p className="text-sm text-gray-500">
-            of {stats.linkLimit || 100} monthly limit
+            of {stats.linkLimit || 100} total limit
           </p>
         </CardContent>
       </Card>

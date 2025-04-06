@@ -11,11 +11,11 @@ export const storeUrl = async (originalUrl: string, title?: string): Promise<Url
     const { data: { session } } = await supabase.auth.getSession();
     const userId = session?.user?.id;
     
-    // If user is authenticated, check if they've reached their monthly limit
+    // If user is authenticated, check if they've reached their limit
     if (userId) {
       const canCreateLink = await checkLinkBalance();
       if (!canCreateLink) {
-        throw new Error("You have reached your monthly link creation limit");
+        throw new Error("You have reached your link creation limit");
       }
     }
     
@@ -141,22 +141,17 @@ export const getUrlStats = async (): Promise<UrlStats> => {
     
     const linkLimit = profile?.link_limit || 100; // Default to 100 if not set
     
-    // Count active links created this month for the link balance
-    const startOfMonth = new Date();
-    startOfMonth.setDate(1);
-    startOfMonth.setHours(0, 0, 0, 0);
-    
-    const { count: monthlyLinksCount, error: countError } = await supabase
+    // Count active links for the link balance
+    const { count: activeLinksCount, error: countError } = await supabase
       .from('short_urls')
       .select('*', { count: 'exact', head: true })
       .eq('user_id', session.user.id)
-      .gte('created_at', startOfMonth.toISOString())
       .or(`expires_at.gt.${now},expires_at.is.null`);
     
     if (countError) throw countError;
     
-    const linksCreatedThisMonth = monthlyLinksCount || 0;
-    const remainingLinks = linkLimit - linksCreatedThisMonth;
+    const activeLinks = activeLinksCount || 0;
+    const remainingLinks = linkLimit - activeLinks;
     
     return { 
       totalLinks, 
