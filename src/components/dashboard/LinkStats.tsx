@@ -33,7 +33,7 @@ const LinkStats: React.FC<LinkStatsProps> = ({ stats, user }) => {
       </Card>
       <Card>
         <CardHeader className="pb-2">
-          <CardTitle className="text-lg font-medium">Link Balance</CardTitle>
+          <CardTitle className="text-lg font-medium">Available Links</CardTitle>
         </CardHeader>
         <CardContent>
           <p className="text-4xl font-bold">{stats.remainingLinks !== undefined ? stats.remainingLinks : 'N/A'}</p>

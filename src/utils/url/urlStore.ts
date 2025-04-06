@@ -114,19 +114,27 @@ export const getUrlStats = async (): Promise<UrlStats> => {
       return { totalLinks: 0, totalClicks: 0 };
     }
     
-    // Get all active links (not expired) for the user
     const now = new Date().toISOString();
     
-    const { data: links, error } = await supabase
+    // Get all links for the user (for counting total links created)
+    const { data: allLinks, error: allLinksError } = await supabase
+      .from('short_urls')
+      .select('visits')
+      .eq('user_id', session.user.id);
+    
+    if (allLinksError) throw allLinksError;
+    
+    // Get only active links (not expired) for calculating link balance
+    const { data: activeLinks, error: activeLinksError } = await supabase
       .from('short_urls')
       .select('visits')
       .eq('user_id', session.user.id)
       .or(`expires_at.gt.${now},expires_at.is.null`);
     
-    if (error) throw error;
+    if (activeLinksError) throw activeLinksError;
     
-    const totalLinks = links.length;
-    const totalClicks = links.reduce((sum, link) => sum + (link.visits || 0), 0);
+    const totalLinks = allLinks.length; // Total links ever created
+    const totalClicks = allLinks.reduce((sum, link) => sum + (link.visits || 0), 0);
     
     // Get user's link limit
     const { data: profile, error: profileError } = await supabase
@@ -141,17 +149,9 @@ export const getUrlStats = async (): Promise<UrlStats> => {
     
     const linkLimit = profile?.link_limit || 100; // Default to 100 if not set
     
-    // Count active links for the link balance
-    const { count: activeLinksCount, error: countError } = await supabase
-      .from('short_urls')
-      .select('*', { count: 'exact', head: true })
-      .eq('user_id', session.user.id)
-      .or(`expires_at.gt.${now},expires_at.is.null`);
-    
-    if (countError) throw countError;
-    
-    const activeLinks = activeLinksCount || 0;
-    const remainingLinks = linkLimit - activeLinks;
+    // Count active links for the remaining links calculation
+    const activeLinksCount = activeLinks.length;
+    const remainingLinks = linkLimit - activeLinksCount;
     
     return { 
       totalLinks, 

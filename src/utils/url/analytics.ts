@@ -16,7 +16,9 @@ export const getUrlStats = async () => {
     
     // If user is logged in, fetch user-specific stats
     if (session?.user) {
-      // Fetch total links for the user
+      const now = new Date().toISOString();
+      
+      // Fetch total links for the user (all links ever created)
       const { data: userLinks, error: userLinksError } = await supabase
         .from('short_urls')
         .select('id, visits')
@@ -24,7 +26,7 @@ export const getUrlStats = async () => {
       
       if (userLinksError) throw userLinksError;
       
-      // Compute user stats - visits are now Chrome-only
+      // Compute user stats
       stats.totalLinks = userLinks?.length || 0;
       stats.totalClicks = userLinks?.reduce((sum, link) => sum + (link.visits || 0), 0) || 0;
       
@@ -39,12 +41,12 @@ export const getUrlStats = async () => {
         const linkLimit = profile.link_limit || 100; // Default to 100 if not set
         stats.linkLimit = linkLimit;
         
-        // Calculate remaining links
+        // Calculate remaining links - only count active, non-expired links
         const { count, error: countError } = await supabase
           .from('short_urls')
-          .select('id', { count: 'exact', head: false })
+          .select('id', { count: 'exact', head: true })
           .eq('user_id', session.user.id)
-          .gte('created_at', new Date(new Date().setDate(1)).toISOString()); // From 1st of current month
+          .or(`expires_at.gt.${now},expires_at.is.null`);
         
         if (!countError) {
           stats.remainingLinks = linkLimit - (count || 0);
@@ -52,7 +54,6 @@ export const getUrlStats = async () => {
       }
     } else {
       // For public facing stats (total links and clicks across the platform)
-      // These should not decrease when users delete their links
       
       // For total links, use the DB function that returns the total count
       const { data: totalLinks, error: totalLinksError } = await supabase
