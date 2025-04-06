@@ -55,24 +55,26 @@ export const getUrlStats = async () => {
     } else {
       // For public facing stats (total links and clicks across the platform)
       
-      // For total links, use the DB function that returns the total count
-      const { data: totalLinks, error: totalLinksError } = await supabase
-        .rpc('get_total_links_created');
+      // Get total count of short_codes (total links created)
+      const { count, error: countError } = await supabase
+        .from('short_urls')
+        .select('short_code', { count: 'exact', head: true });
       
-      if (totalLinksError) {
-        console.error('Error fetching total links:', totalLinksError);
+      if (countError) {
+        console.error('Error fetching total links:', countError);
       } else {
-        stats.totalLinks = totalLinks?.[0]?.count || 0;
+        stats.totalLinks = count || 0;
       }
       
-      // For total clicks, use the DB function that returns the total clicks
-      const { data: totalClicks, error: totalClicksError } = await supabase
-        .rpc('get_total_clicks');
+      // Sum all visits (total clicks)
+      const { data: clicksData, error: clicksError } = await supabase
+        .from('short_urls')
+        .select('visits');
       
-      if (totalClicksError) {
-        console.error('Error fetching total clicks:', totalClicksError);
+      if (clicksError) {
+        console.error('Error fetching total clicks:', clicksError);
       } else {
-        stats.totalClicks = totalClicks?.[0]?.total_clicks || 0;
+        stats.totalClicks = clicksData.reduce((sum, link) => sum + (link.visits || 0), 0);
       }
     }
     
