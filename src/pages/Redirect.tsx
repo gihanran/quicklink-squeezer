@@ -16,6 +16,7 @@ const Redirect: React.FC = () => {
 
     const handleRedirect = async () => {
       try {
+        console.log(`Attempting to redirect with shortCode: ${shortCode}`);
         const urlData = await getUrlByShortCode(shortCode);
         
         if (!urlData) {
@@ -23,8 +24,9 @@ const Redirect: React.FC = () => {
           return;
         }
 
-        // Track the visit for all browsers
-        await trackVisit(shortCode);
+        // Track the visit before redirecting
+        const trackingResult = await trackVisit(shortCode);
+        console.log(`Tracking result: ${trackingResult ? 'Success' : 'Failed'}`);
         
         // Redirect to the original URL
         window.location.href = urlData.originalUrl;
