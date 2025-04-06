@@ -6,11 +6,14 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { CalendarDays, Repeat, Users } from "lucide-react";
+import { CalendarDays, Repeat, Users, AlertTriangle } from "lucide-react";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 
 const BulkActions = () => {
   const [linkLimit, setLinkLimit] = useState<number>(100);
   const [processing, setProcessing] = useState(false);
+  const [preservedUserId, setPreservedUserId] = useState<string>("cf29b4c7-7a38-4bdf-8cf2-f5df5bfd6314");
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const { toast } = useToast();
 
   const updateAllUsersLinkLimit = async () => {
@@ -56,6 +59,44 @@ const BulkActions = () => {
       toast({
         title: "Error resetting counters",
         description: "Could not reset monthly link counters",
+        variant: "destructive"
+      });
+    } finally {
+      setProcessing(false);
+    }
+  };
+
+  const removeAllUsersExcept = async () => {
+    try {
+      setProcessing(true);
+      
+      // Delete all users except the specified one
+      const { error } = await supabase
+        .from('profiles')
+        .delete()
+        .neq('id', preservedUserId);
+
+      if (error) throw error;
+      
+      // Also delete all short_urls for those users
+      const { error: urlError } = await supabase
+        .from('short_urls')
+        .delete()
+        .neq('user_id', preservedUserId);
+
+      if (urlError) throw urlError;
+      
+      toast({
+        title: "Users removed",
+        description: `All users except ID ${preservedUserId.slice(0,8)}... have been removed`,
+      });
+      
+      setShowDeleteConfirm(false);
+    } catch (error) {
+      console.error('Error removing users:', error);
+      toast({
+        title: "Error removing users",
+        description: "Could not remove users from the database",
         variant: "destructive"
       });
     } finally {
@@ -117,6 +158,72 @@ const BulkActions = () => {
               {processing ? 'Processing...' : 'Reset Monthly Counts'}
               <Repeat className="ml-2 h-4 w-4" />
             </Button>
+          </CardContent>
+        </Card>
+        
+        {/* New card for removing all users except the specified one */}
+        <Card className="md:col-span-2">
+          <CardHeader>
+            <CardTitle className="text-red-600 flex items-center gap-2">
+              <AlertTriangle size={20} />
+              Remove All Users
+            </CardTitle>
+            <CardDescription>
+              Remove all users except the specified one (DANGER: This action cannot be undone)
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            {showDeleteConfirm ? (
+              <>
+                <Alert variant="destructive">
+                  <AlertTriangle className="h-4 w-4" />
+                  <AlertTitle>Warning: Destructive Action</AlertTitle>
+                  <AlertDescription>
+                    This will permanently remove all users except the one with ID: {preservedUserId}. 
+                    All links belonging to removed users will also be deleted.
+                  </AlertDescription>
+                </Alert>
+                
+                <div className="flex gap-4 mt-4">
+                  <Button 
+                    variant="destructive" 
+                    onClick={removeAllUsersExcept} 
+                    disabled={processing}
+                    className="flex-1"
+                  >
+                    {processing ? 'Processing...' : 'Confirm Deletion'}
+                  </Button>
+                  <Button 
+                    variant="outline" 
+                    onClick={() => setShowDeleteConfirm(false)}
+                    disabled={processing}
+                    className="flex-1"
+                  >
+                    Cancel
+                  </Button>
+                </div>
+              </>
+            ) : (
+              <>
+                <div className="space-y-2">
+                  <Label htmlFor="preservedUserId">Preserve Only User ID</Label>
+                  <Input
+                    id="preservedUserId"
+                    value={preservedUserId}
+                    onChange={(e) => setPreservedUserId(e.target.value)}
+                    readOnly={true}
+                    className="font-mono"
+                  />
+                </div>
+                <Button 
+                  variant="destructive" 
+                  onClick={() => setShowDeleteConfirm(true)} 
+                  className="w-full"
+                >
+                  Remove All Other Users
+                </Button>
+              </>
+            )}
           </CardContent>
         </Card>
       </div>
