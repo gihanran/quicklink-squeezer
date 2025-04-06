@@ -48,7 +48,7 @@ const CreateLinkCard: React.FC<CreateLinkCardProps> = ({ handleLinkCreated, hand
         open={showAdPopup}
         onClose={() => setShowAdPopup(false)}
         onComplete={handleAdComplete}
-        adUrl="//pl26116430.effectiveratecpm.com/17/9d/65/179d6589a4ee5873eab2d6a953fb2232.js"
+        adUrl="https://244966bb-a3bd-48e7-ba59-0be0c88a9a7d.lovableproject.com/s/1FJHWywV"
       />
     </>
   );
