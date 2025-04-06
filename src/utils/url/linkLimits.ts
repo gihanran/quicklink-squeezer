@@ -18,7 +18,7 @@ export const checkLinkBalance = async (): Promise<boolean> => {
     
     const linkLimit = profile?.link_limit || 100; // Default to 100 if not set
     
-    // Count links created this month
+    // Count active links created this month
     const startOfMonth = new Date();
     startOfMonth.setDate(1);
     startOfMonth.setHours(0, 0, 0, 0);
@@ -57,7 +57,7 @@ export const getRemainingLinkBalance = async (): Promise<number | null> => {
     
     const linkLimit = profile?.link_limit || 100; // Default to 100
     
-    // Count links created this month
+    // Count active links created this month
     const startOfMonth = new Date();
     startOfMonth.setDate(1);
     startOfMonth.setHours(0, 0, 0, 0);

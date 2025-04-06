@@ -114,10 +114,14 @@ export const getUrlStats = async (): Promise<UrlStats> => {
       return { totalLinks: 0, totalClicks: 0 };
     }
     
+    // Get all active links (not expired) for the user
+    const now = new Date().toISOString();
+    
     const { data: links, error } = await supabase
       .from('short_urls')
       .select('visits')
-      .eq('user_id', session.user.id);
+      .eq('user_id', session.user.id)
+      .or(`expires_at.gt.${now},expires_at.is.null`);
     
     if (error) throw error;
     
@@ -136,7 +140,22 @@ export const getUrlStats = async (): Promise<UrlStats> => {
     }
     
     const linkLimit = profile?.link_limit || 100; // Default to 100 if not set
-    const remainingLinks = linkLimit - totalLinks;
+    
+    // Count active links created this month for the link balance
+    const startOfMonth = new Date();
+    startOfMonth.setDate(1);
+    startOfMonth.setHours(0, 0, 0, 0);
+    
+    const { count: monthlyLinksCount, error: countError } = await supabase
+      .from('short_urls')
+      .select('*', { count: 'exact', head: true })
+      .eq('user_id', session.user.id)
+      .gte('created_at', startOfMonth.toISOString());
+    
+    if (countError) throw countError;
+    
+    const linksCreatedThisMonth = monthlyLinksCount || 0;
+    const remainingLinks = linkLimit - linksCreatedThisMonth;
     
     return { 
       totalLinks, 
