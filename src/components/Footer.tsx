@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Link2, Github, Twitter, Linkedin, Mail, Heart } from 'lucide-react';
+import { Link2, Github, Twitter, Linkedin, Mail, Heart, FileText, Shield, Cookie } from 'lucide-react';
 import { useAuthState } from '@/hooks/auth';
 import AdBanner from './AdBanner';
 
@@ -69,17 +69,20 @@ const Footer: React.FC = () => {
               <h3 className="text-lg font-semibold mb-4">Legal</h3>
               <ul className="space-y-2 text-sm">
                 <li>
-                  <Link to="#" className="text-gray-300 hover:text-white transition duration-200">
+                  <Link to="/privacy" className="text-gray-300 hover:text-white transition duration-200 flex items-center">
+                    <FileText className="h-4 w-4 mr-2" />
                     Privacy Policy
                   </Link>
                 </li>
                 <li>
-                  <Link to="#" className="text-gray-300 hover:text-white transition duration-200">
+                  <Link to="/terms" className="text-gray-300 hover:text-white transition duration-200 flex items-center">
+                    <Shield className="h-4 w-4 mr-2" />
                     Terms of Service
                   </Link>
                 </li>
                 <li>
-                  <Link to="#" className="text-gray-300 hover:text-white transition duration-200">
+                  <Link to="/cookies" className="text-gray-300 hover:text-white transition duration-200 flex items-center">
+                    <Cookie className="h-4 w-4 mr-2" />
                     Cookie Policy
                   </Link>
                 </li>
