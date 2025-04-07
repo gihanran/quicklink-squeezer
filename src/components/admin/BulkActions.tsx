@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
@@ -10,7 +9,7 @@ import { Users, AlertTriangle } from "lucide-react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 
 const BulkActions = () => {
-  const [linkLimit, setLinkLimit] = useState<number>(100);
+  const [linkLimit, setLinkLimit] = useState<number>(1000);
   const [processing, setProcessing] = useState(false);
   const [preservedUserId, setPreservedUserId] = useState<string>("cf29b4c7-7a38-4bdf-8cf2-f5df5bfd6314");
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
@@ -115,7 +114,6 @@ const BulkActions = () => {
           </CardContent>
         </Card>
         
-        {/* New card for removing all users except the specified one */}
         <Card className="md:col-span-1">
           <CardHeader>
             <CardTitle className="text-red-600 flex items-center gap-2">
