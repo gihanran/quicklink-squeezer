@@ -1,3 +1,4 @@
+
 import { supabase } from "@/integrations/supabase/client";
 import { UrlData, UrlStats } from "./types";
 import { generateShortCode } from "./codeGenerator";
