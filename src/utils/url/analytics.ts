@@ -30,28 +30,9 @@ export const getUrlStats = async () => {
       stats.totalLinks = userLinks?.length || 0;
       stats.totalClicks = userLinks?.reduce((sum, link) => sum + (link.visits || 0), 0) || 0;
       
-      // Get user link limit from profile
-      const { data: profile, error: profileError } = await supabase
-        .from('profiles')
-        .select('link_limit')
-        .eq('id', session.user.id)
-        .single();
-      
-      if (!profileError && profile) {
-        const linkLimit = profile.link_limit || 1000; // Default to 1000 if not set
-        stats.linkLimit = linkLimit;
-        
-        // Calculate remaining links - only count active, non-expired links
-        const { count, error: countError } = await supabase
-          .from('short_urls')
-          .select('id', { count: 'exact', head: true })
-          .eq('user_id', session.user.id)
-          .or(`expires_at.gt.${now},expires_at.is.null`);
-        
-        if (!countError) {
-          stats.remainingLinks = linkLimit - (count || 0);
-        }
-      }
+      // Get user link limit from profile - this is now unlimited for registered users
+      stats.linkLimit = Infinity; // Set to Infinity for unlimited
+      stats.remainingLinks = Infinity; // Set to Infinity for unlimited
     }
     
     // Get total platform stats (ALL users) - this runs for BOTH logged in and anonymous users
@@ -79,8 +60,8 @@ export const getUrlStats = async () => {
     return {
       totalLinks: 0,
       totalClicks: 0,
-      remainingLinks: undefined,
-      linkLimit: undefined
+      remainingLinks: Infinity, // Set to Infinity for unlimited
+      linkLimit: Infinity // Set to Infinity for unlimited
     };
   }
 };

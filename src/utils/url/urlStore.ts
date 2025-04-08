@@ -1,8 +1,6 @@
-
 import { supabase } from "@/integrations/supabase/client";
 import { UrlData, UrlStats } from "./types";
 import { generateShortCode } from "./codeGenerator";
-import { checkLinkBalance } from "./linkLimits";
 
 // Create a new shortened URL and store it in the database
 export const storeUrl = async (originalUrl: string, title?: string): Promise<UrlData> => {
@@ -11,13 +9,8 @@ export const storeUrl = async (originalUrl: string, title?: string): Promise<Url
     const { data: { session } } = await supabase.auth.getSession();
     const userId = session?.user?.id;
     
-    // If user is authenticated, check if they've reached their limit
-    if (userId) {
-      const canCreateLink = await checkLinkBalance();
-      if (!canCreateLink) {
-        throw new Error("You have reached your link creation limit");
-      }
-    }
+    // If user is authenticated, they have unlimited links (no limit check needed)
+    // Only anonymous users have restrictions
     
     // Generate a unique short code
     const shortCode = generateShortCode();
@@ -124,40 +117,15 @@ export const getUrlStats = async (): Promise<UrlStats> => {
     
     if (allLinksError) throw allLinksError;
     
-    // Get only active links (not expired) for calculating link balance
-    const { data: activeLinks, error: activeLinksError } = await supabase
-      .from('short_urls')
-      .select('visits')
-      .eq('user_id', session.user.id)
-      .or(`expires_at.gt.${now},expires_at.is.null`);
-    
-    if (activeLinksError) throw activeLinksError;
-    
     const totalLinks = allLinks.length; // Total links ever created
     const totalClicks = allLinks.reduce((sum, link) => sum + (link.visits || 0), 0);
     
-    // Get user's link limit
-    const { data: profile, error: profileError } = await supabase
-      .from('profiles')
-      .select('link_limit')
-      .eq('id', session.user.id)
-      .single();
-    
-    if (profileError) {
-      return { totalLinks, totalClicks };
-    }
-    
-    const linkLimit = profile?.link_limit || 1000; // Default to 1000 if not set
-    
-    // Count active links for the remaining links calculation
-    const activeLinksCount = activeLinks.length;
-    const remainingLinks = linkLimit - activeLinksCount;
-    
+    // For registered users, there is no link limit
     return { 
       totalLinks, 
       totalClicks,
-      linkLimit,
-      remainingLinks
+      linkLimit: Infinity,
+      remainingLinks: Infinity
     };
   } catch (error) {
     console.error('Error getting URL stats:', error);

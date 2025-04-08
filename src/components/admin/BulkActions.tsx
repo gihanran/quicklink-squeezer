@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
@@ -9,7 +10,7 @@ import { Users, AlertTriangle } from "lucide-react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 
 const BulkActions = () => {
-  const [linkLimit, setLinkLimit] = useState<number>(1000);
+  const [linkLimit, setLinkLimit] = useState<number>(-1); // -1 will represent unlimited
   const [processing, setProcessing] = useState(false);
   const [preservedUserId, setPreservedUserId] = useState<string>("cf29b4c7-7a38-4bdf-8cf2-f5df5bfd6314");
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
@@ -19,16 +20,24 @@ const BulkActions = () => {
     try {
       setProcessing(true);
       
+      let limitValue = linkLimit;
+      if (linkLimit === -1) {
+        // Use NULL in the database to represent unlimited
+        limitValue = null;
+      }
+      
       const { error } = await supabase
         .from('profiles')
-        .update({ link_limit: linkLimit })
+        .update({ link_limit: limitValue })
         .not('is_admin', 'is', true);  // Don't change admin limits
       
       if (error) throw error;
       
       toast({
         title: "Link limits updated",
-        description: `All users' link limits have been set to ${linkLimit}`
+        description: linkLimit === -1 ? 
+          "All users now have unlimited links" : 
+          `All users' link limits have been set to ${linkLimit}`
       });
     } catch (error) {
       console.error('Error updating link limits:', error);
@@ -89,19 +98,25 @@ const BulkActions = () => {
           <CardHeader>
             <CardTitle>Update All Users' Link Limits</CardTitle>
             <CardDescription>
-              Set the same link generation limit for all regular users
+              Set link generation limits for all regular users (-1 for unlimited)
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="linkLimit">Link Limit</Label>
+              <Label htmlFor="linkLimit">
+                Link Limit {linkLimit === -1 ? "(Unlimited)" : ""}
+              </Label>
               <Input
                 id="linkLimit"
                 type="number"
                 value={linkLimit}
-                onChange={(e) => setLinkLimit(parseInt(e.target.value) || 0)}
-                min={0}
+                onChange={(e) => setLinkLimit(parseInt(e.target.value) || -1)}
+                min={-1}
+                placeholder="Enter -1 for unlimited"
               />
+              <p className="text-sm text-gray-500">
+                Enter -1 for unlimited links
+              </p>
             </div>
             <Button 
               onClick={updateAllUsersLinkLimit} 

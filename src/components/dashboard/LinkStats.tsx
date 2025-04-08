@@ -67,17 +67,14 @@ const LinkStats: React.FC<LinkStatsProps> = ({ stats, user }) => {
                   <Info className="h-4 w-4 ml-2 text-gray-400" />
                 </TooltipTrigger>
                 <TooltipContent>
-                  <p className="w-48">Number of links you can still create</p>
+                  <p className="w-48">No limits for registered users</p>
                 </TooltipContent>
               </Tooltip>
             </TooltipProvider>
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <p className="text-4xl font-bold">{stats.remainingLinks !== undefined ? stats.remainingLinks : 'N/A'}</p>
-          <p className="text-sm text-gray-500">
-            of {stats.linkLimit || 1000} total limit
-          </p>
+          <p className="text-4xl font-bold">Unlimited</p>
         </CardContent>
       </Card>
       <Card className="border-l-4 border-l-amber-500">
