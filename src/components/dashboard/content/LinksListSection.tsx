@@ -2,6 +2,7 @@
 import React from 'react';
 import LinksList from "../LinksList";
 import { UrlData } from "@/utils/url/types";
+import AdBanner from "@/components/AdBanner";
 
 interface LinksListSectionProps {
   links: UrlData[];
@@ -32,6 +33,9 @@ const LinksListSection: React.FC<LinksListSectionProps> = ({
         handleDeleteLink={handleDeleteLink}
         handleEditTitle={handleEditTitle}
       />
+      
+      {/* Add the banner ad between links */}
+      {links.length > 0 && <AdBanner />}
     </>
   );
 };

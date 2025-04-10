@@ -3,6 +3,7 @@ import React from 'react';
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import LinkCard from "./LinkCard";
+import AdBanner from "@/components/AdBanner";
 
 interface LinksListProps {
   links: any[];
@@ -40,9 +41,33 @@ const LinksList: React.FC<LinksListProps> = ({
     );
   }
   
+  // Split the links in half to insert the banner in the middle
+  const midPoint = Math.ceil(links.length / 2);
+  const firstHalfLinks = links.slice(0, midPoint);
+  const secondHalfLinks = links.slice(midPoint);
+  
   return (
     <div className="space-y-6">
-      {links.map(link => (
+      {/* First half of links */}
+      {firstHalfLinks.map(link => (
+        <LinkCard
+          key={link.id}
+          link={link}
+          calculateExpiration={calculateExpiration}
+          handleDeleteLink={handleDeleteLink}
+          handleEditTitle={handleEditTitle}
+        />
+      ))}
+      
+      {/* Ad banner between links */}
+      {links.length > 1 && (
+        <div className="my-8">
+          <AdBanner />
+        </div>
+      )}
+      
+      {/* Second half of links */}
+      {secondHalfLinks.map(link => (
         <LinkCard
           key={link.id}
           link={link}
