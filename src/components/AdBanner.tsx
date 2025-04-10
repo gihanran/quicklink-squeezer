@@ -5,37 +5,26 @@ const AdBanner: React.FC = () => {
   const adContainerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    // Create and inject the first script (atOptions)
-    const optionsScript = document.createElement('script');
-    optionsScript.type = 'text/javascript';
-    optionsScript.text = `
-      atOptions = {
-        'key' : '10fe1b4b47f15cfeeae0b2c57466fc41',
-        'format' : 'iframe',
-        'height' : 90,
-        'width' : 728,
-        'params' : {}
-      };
-    `;
-    adContainerRef.current?.appendChild(optionsScript);
-
-    // Create and inject the second script (invoke.js)
-    const invokeScript = document.createElement('script');
-    invokeScript.type = 'text/javascript';
-    invokeScript.src = '//www.highperformanceformat.com/10fe1b4b47f15cfeeae0b2c57466fc41/invoke.js';
-    adContainerRef.current?.appendChild(invokeScript);
+    // Create and inject the script
+    const script = document.createElement('script');
+    script.async = true;
+    script.setAttribute('data-cfasync', 'false');
+    script.src = '//pl26346283.profitableratecpm.com/10e0dcde14080101e2d150c60e1fa610/invoke.js';
+    
+    // Append the script to the document
+    document.head.appendChild(script);
 
     // Cleanup function
     return () => {
-      if (adContainerRef.current) {
-        adContainerRef.current.innerHTML = '';
+      if (script.parentNode) {
+        script.parentNode.removeChild(script);
       }
     };
   }, []);
 
   return (
     <div className="w-full flex justify-center py-4 bg-gray-50">
-      <div ref={adContainerRef} className="ad-container"></div>
+      <div id="container-10e0dcde14080101e2d150c60e1fa610"></div>
     </div>
   );
 };
