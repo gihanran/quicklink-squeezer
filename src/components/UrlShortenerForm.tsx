@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -110,7 +111,7 @@ const UrlShortenerForm: React.FC<UrlShortenerFormProps> = ({
               className="bg-gradient-to-r from-brand-purple to-brand-blue hover:opacity-90 transition-opacity h-12 px-6"
               disabled={isLoading}
             >
-              Shorten URL
+              Short It
               <ArrowRight className="ml-2 h-5 w-5" />
             </Button>
           </div>

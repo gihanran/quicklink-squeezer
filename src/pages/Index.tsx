@@ -96,8 +96,8 @@ const Index = () => {
                 <div className="h-10 w-10 bg-brand-blue/10 rounded-full flex items-center justify-center mb-3">
                   <span className="text-brand-blue font-bold">2</span>
                 </div>
-                <h3 className="font-medium mb-2">Shorten it</h3>
-                <p className="text-sm text-gray-600">Click the Shorten URL button to generate your short link.</p>
+                <h3 className="font-medium mb-2">Short It</h3>
+                <p className="text-sm text-gray-600">Click the Short It button to generate your short link.</p>
               </div>
               <div className="p-4 border rounded-md">
                 <div className="h-10 w-10 bg-gradient-to-r from-brand-purple/10 to-brand-blue/10 rounded-full flex items-center justify-center mb-3">
