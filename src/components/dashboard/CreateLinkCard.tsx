@@ -12,21 +12,21 @@ interface CreateLinkCardProps {
 
 const CreateLinkCard: React.FC<CreateLinkCardProps> = ({ handleLinkCreated, handleUrlShortened }) => {
   const [showAdPopup, setShowAdPopup] = useState(false);
-  const [pendingUrlData, setPendingUrlData] = useState<{urlData: UrlData; fullUrl: string} | null>(null);
   
   const handleFormSubmit = (urlData: UrlData, fullUrl: string) => {
-    // Store the URL data temporarily and show the ad popup
-    setPendingUrlData({ urlData, fullUrl });
+    // Open the ad in a new window
+    window.open('https://www.profitableratecpm.com/ux9fm65hmy?key=fd2351bc9ac57a148dab2b212d7b6cd2', '_blank');
+    
+    // Process the link creation immediately
+    handleUrlShortened();
+    handleLinkCreated();
+    
+    // Optionally show the popup as a confirmation
     setShowAdPopup(true);
   };
   
   const handleAdComplete = () => {
-    // After ad is viewed and closed, complete the link creation process
-    if (pendingUrlData) {
-      handleUrlShortened();
-      handleLinkCreated();
-      setPendingUrlData(null);
-    }
+    setShowAdPopup(false);
   };
 
   return (
@@ -48,7 +48,6 @@ const CreateLinkCard: React.FC<CreateLinkCardProps> = ({ handleLinkCreated, hand
         open={showAdPopup}
         onClose={() => setShowAdPopup(false)}
         onComplete={handleAdComplete}
-        adScript={true}
       />
     </>
   );
