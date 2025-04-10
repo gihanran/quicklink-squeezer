@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { useAuthState } from "@/hooks/auth";
 import DashboardHeader from "@/components/dashboard/DashboardHeader";
 import Footer from "@/components/Footer";
@@ -9,6 +9,7 @@ import DashboardContent from "@/components/dashboard/DashboardContent";
 import { useDashboardData } from "./hooks/useDashboardData";
 import { useLinkActions } from "./hooks/useLinkActions";
 import { useNavigate } from "react-router-dom";
+import AdPopup from "@/components/AdPopup";
 
 export interface DashboardContainerProps {
   // Add any props if needed in the future
@@ -41,6 +42,8 @@ const DashboardContainer: React.FC<DashboardContainerProps> = () => {
     confirmUpdateTitle
   } = useLinkActions();
 
+  const [adPopupOpen, setAdPopupOpen] = useState(false);
+  
   const { signOut } = useAuthState();
   const navigate = useNavigate();
 
@@ -60,6 +63,17 @@ const DashboardContainer: React.FC<DashboardContainerProps> = () => {
   const handleConfirmUpdateTitle = async () => {
     await confirmUpdateTitle(links, setLinks);
   };
+  
+  const handleCreateNewLinkClick = () => {
+    // First show ad popup
+    setAdPopupOpen(true);
+  };
+  
+  const handleAdComplete = () => {
+    setAdPopupOpen(false);
+    // Continue with creating a new link after the ad is viewed
+    handleCreateNewLink();
+  };
 
   return (
     <div className="min-h-screen flex flex-col bg-gray-50">
@@ -73,7 +87,7 @@ const DashboardContainer: React.FC<DashboardContainerProps> = () => {
             stats={stats}
             user={user}
             showCreateForm={showCreateForm}
-            handleCreateNewLink={handleCreateNewLink}
+            handleCreateNewLink={handleCreateNewLinkClick}
             handleLinkCreated={handleLinkCreated}
             handleUrlShortened={handleUrlShortened}
             handleDeleteLink={handleDeleteLink}
@@ -84,6 +98,7 @@ const DashboardContainer: React.FC<DashboardContainerProps> = () => {
 
       <Footer />
       
+      {/* Original link dialogs */}
       <LinkDialogs 
         deleteDialogOpen={deleteDialogOpen}
         setDeleteDialogOpen={setDeleteDialogOpen}
@@ -94,6 +109,14 @@ const DashboardContainer: React.FC<DashboardContainerProps> = () => {
         newTitle={newTitle}
         setNewTitle={setNewTitle}
         confirmUpdateTitle={handleConfirmUpdateTitle}
+      />
+      
+      {/* New ad popup when creating a link */}
+      <AdPopup
+        open={adPopupOpen}
+        onClose={() => setAdPopupOpen(false)}
+        onComplete={handleAdComplete}
+        adScript={true}
       />
     </div>
   );
