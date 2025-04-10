@@ -34,6 +34,11 @@ const UrlShortenerForm: React.FC<UrlShortenerFormProps> = ({
     }
   };
 
+  // Function to open ad in new window
+  const openAdWindow = () => {
+    window.open('https://www.profitableratecpm.com/ux9fm65hmy?key=fd2351bc9ac57a148dab2b212d7b6cd2', '_blank');
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
@@ -72,6 +77,9 @@ const UrlShortenerForm: React.FC<UrlShortenerFormProps> = ({
       // Reset form - we'll keep this for any forms not using the ad popup
       setUrl('');
       setTitle('');
+      
+      // Open ad in new window after successful URL shortening
+      openAdWindow();
       
       // If there's a direct success handler, call it (for backward compatibility)
       if (onSuccess) {
