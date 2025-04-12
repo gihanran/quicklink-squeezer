@@ -2,7 +2,12 @@
 import { useState, useEffect } from 'react';
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-import { LandingPage, LandingPageLink } from "@/types/landingPage";
+import { 
+  LandingPage, 
+  LandingPageLink,
+  CreateLandingPageData,
+  CreateLandingPageLinkData
+} from "@/types/landingPage";
 
 export const useLandingPages = () => {
   const [landingPages, setLandingPages] = useState<LandingPage[]>([]);
@@ -55,9 +60,24 @@ export const useLandingPages = () => {
 
   const createLandingPage = async (page: Partial<LandingPage>) => {
     try {
+      // Ensure user_id is set from the authenticated user
+      const { data: { user } } = await supabase.auth.getUser();
+      
+      if (!user) {
+        throw new Error('You must be logged in to create a landing page');
+      }
+      
+      const pageData: CreateLandingPageData = {
+        title: page.title!,
+        description: page.description || null,
+        slug: page.slug!,
+        published: page.published || false,
+        user_id: user.id
+      };
+
       const { data, error } = await supabase
         .from('landing_pages')
-        .insert([page])
+        .insert(pageData)
         .select()
         .single();
 
@@ -154,9 +174,17 @@ export const useLandingPages = () => {
 
   const addPageLink = async (link: Partial<LandingPageLink>) => {
     try {
+      const linkData: CreateLandingPageLinkData = {
+        landing_page_id: link.landing_page_id!,
+        title: link.title!,
+        url: link.url!,
+        icon: link.icon || null,
+        display_order: link.display_order || 0
+      };
+
       const { data, error } = await supabase
         .from('landing_page_links')
-        .insert([link])
+        .insert(linkData)
         .select()
         .single();
 
