@@ -1,10 +1,8 @@
 
 import React from 'react';
 import { LandingPage, LandingPageLink } from "@/types/landingPage";
-import PageDetailsCard from './PageDetailsCard';
-import LinksCard from './LinksCard';
-import FormHeader from './FormHeader';
-import { useLandingPageForm } from '@/hooks/useLandingPageForm';
+import FormLayout from './FormLayout';
+import { FormProvider } from './FormContext';
 
 interface LandingPageFormProps {
   page: Partial<LandingPage> | null;
@@ -26,74 +24,18 @@ const LandingPageFormContainer: React.FC<LandingPageFormProps> = ({
   onUpdateLinkOrder,
   onBack
 }) => {
-  const {
-    title,
-    description,
-    slug,
-    published,
-    profileImageUrl,
-    themeColor,
-    saving,
-    uploading,
-    error,
-    localLinks,
-    isEditing,
-    setTitle,
-    setDescription,
-    setSlug,
-    setPublished,
-    setThemeColor,
-    handleProfileImageUpload,
-    handleSave,
-    handleAddLink,
-    handleReorderLinks
-  } = useLandingPageForm({
-    page,
-    links,
-    onSave,
-    onAddLink,
-    onUpdateLinkOrder
-  });
-
   return (
-    <div className="space-y-6">
-      <FormHeader 
-        isEditing={isEditing} 
-        error={error} 
-        onBack={onBack} 
-      />
-
-      <PageDetailsCard 
-        page={page}
-        title={title}
-        setTitle={setTitle}
-        description={description}
-        setDescription={setDescription}
-        slug={slug}
-        setSlug={setSlug}
-        published={published}
-        setPublished={setPublished}
-        profileImageUrl={profileImageUrl}
-        themeColor={themeColor}
-        setThemeColor={setThemeColor}
-        uploading={uploading}
-        error={error}
-        handleProfileImageUpload={handleProfileImageUpload}
-        handleSave={handleSave}
-        saving={saving}
-        onCancel={onBack}
-      />
-
-      {isEditing && (
-        <LinksCard 
-          links={localLinks}
-          onAddLink={handleAddLink}
-          onDeleteLink={onDeleteLink}
-          onReorderLinks={handleReorderLinks}
-          error={error}
-        />
-      )}
-    </div>
+    <FormProvider
+      page={page}
+      links={links}
+      onSave={onSave}
+      onAddLink={onAddLink}
+      onDeleteLink={onDeleteLink}
+      onUpdateLinkOrder={onUpdateLinkOrder}
+      onBack={onBack}
+    >
+      <FormLayout />
+    </FormProvider>
   );
 };
 

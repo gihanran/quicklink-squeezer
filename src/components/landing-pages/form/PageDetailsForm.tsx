@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React from 'react';
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -12,9 +12,9 @@ import { LandingPage } from "@/types/landingPage";
 interface PageDetailsFormProps {
   page: Partial<LandingPage> | null;
   title: string;
-  setTitle: (value: string) => void;
+  setTitle: (e: React.ChangeEvent<HTMLInputElement>) => void;
   description: string;
-  setDescription: (value: string) => void;
+  setDescription: (e: React.ChangeEvent<HTMLTextAreaElement>) => void;
   slug: string;
   setSlug: (value: string) => void;
   published: boolean;
@@ -43,19 +43,15 @@ const themeColors = [
 const PageDetailsForm: React.FC<PageDetailsFormProps> = ({
   page,
   title,
-  setTitle,
   description,
-  setDescription,
   slug,
-  setSlug,
   published,
-  setPublished,
   profileImageUrl,
-  setProfileImageUrl,
   themeColor,
+  setSlug,
+  setPublished,
   setThemeColor,
   uploading,
-  error,
   handleProfileImageUpload,
   handleTitleChange,
   handleDescriptionChange,
