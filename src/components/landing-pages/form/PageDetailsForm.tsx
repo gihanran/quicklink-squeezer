@@ -56,6 +56,11 @@ const PageDetailsForm: React.FC<PageDetailsFormProps> = ({
   handleTitleChange,
   handleDescriptionChange,
 }) => {
+  // Handle slug change directly since it's a simple string value
+  const handleSlugChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSlug(e.target.value);
+  };
+
   return (
     <div className="space-y-4">
       <div className="space-y-4">
@@ -122,7 +127,7 @@ const PageDetailsForm: React.FC<PageDetailsFormProps> = ({
           <Input
             id="slug"
             value={slug}
-            onChange={(e) => setSlug(e.target.value)}
+            onChange={handleSlugChange}
             placeholder="my-landing-page"
           />
         </div>

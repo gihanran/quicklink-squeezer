@@ -4,6 +4,7 @@ import { LandingPage, LandingPageLink } from "@/types/landingPage";
 import { useLandingPageForm } from '@/hooks/useLandingPageForm';
 
 interface FormContextType {
+  page: Partial<LandingPage> | null;
   title: string;
   description: string;
   slug: string;
@@ -89,6 +90,7 @@ export const FormProvider: React.FC<FormProviderProps> = ({
   });
 
   const value = {
+    page,
     title,
     description,
     slug,

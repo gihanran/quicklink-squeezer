@@ -73,7 +73,6 @@ const PageDetailsCard: React.FC<PageDetailsCardProps> = ({
           published={published}
           setPublished={setPublished}
           profileImageUrl={profileImageUrl}
-          setProfileImageUrl={() => {}}
           themeColor={themeColor}
           setThemeColor={setThemeColor}
           uploading={uploading}
