@@ -14,6 +14,19 @@ export const fetchPageLinks = async (landingPageId: string): Promise<LandingPage
 };
 
 export const addPageLink = async (linkData: CreateLandingPageLinkData): Promise<LandingPageLink> => {
+  // First check if the page already has 5 links
+  const { data: existingLinks, error: countError } = await supabase
+    .from('landing_page_links')
+    .select('id', { count: 'exact' })
+    .eq('landing_page_id', linkData.landing_page_id);
+
+  if (countError) throw countError;
+  
+  if (existingLinks && existingLinks.length >= 5) {
+    throw new Error('Maximum of 5 links allowed per landing page');
+  }
+
+  // If under the limit, add the new link
   const { data, error } = await supabase
     .from('landing_page_links')
     .insert(linkData)

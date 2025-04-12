@@ -5,6 +5,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { LandingPage, LandingPageLink } from '@/types/landingPage';
 import { Button } from '@/components/ui/button';
 import { ExternalLink } from 'lucide-react';
+import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 
 const LandingPageView: React.FC = () => {
   const { slug } = useParams<{ slug: string }>();
@@ -79,15 +80,38 @@ const LandingPageView: React.FC = () => {
     );
   }
 
+  const themeColor = page.theme_color || '#9b87f5';
+
   return (
-    <div className="min-h-screen flex flex-col bg-gradient-to-b from-white to-gray-100 py-12 px-4">
+    <div 
+      className="min-h-screen flex flex-col bg-gradient-to-b from-white to-gray-100 py-12 px-4"
+      style={{ 
+        '--theme-color': themeColor,
+        background: `linear-gradient(to bottom, white, ${themeColor}10)`
+      } as React.CSSProperties}
+    >
       <div className="max-w-md w-full mx-auto space-y-8">
         <div className="text-center">
-          <h1 className="text-4xl font-bold bg-gradient-to-r from-brand-purple to-brand-blue bg-clip-text text-transparent">
+          {page.profile_image_url && (
+            <div className="flex justify-center mb-6">
+              <Avatar className="h-24 w-24 ring-4 ring-white">
+                <AvatarImage src={page.profile_image_url} alt={page.title} />
+                <AvatarFallback style={{ backgroundColor: themeColor, color: 'white' }}>
+                  {page.title.charAt(0).toUpperCase()}
+                </AvatarFallback>
+              </Avatar>
+            </div>
+          )}
+          <h1 
+            className="text-4xl font-bold bg-clip-text text-transparent"
+            style={{ 
+              backgroundImage: `linear-gradient(to right, ${themeColor}, ${themeColor}CC)` 
+            }}
+          >
             {page.title}
           </h1>
           {page.description && (
-            <p className="mt-4 text-gray-600">{page.description}</p>
+            <p className="mt-4 text-gray-600 max-w-sm mx-auto">{page.description}</p>
           )}
         </div>
 
@@ -103,6 +127,7 @@ const LandingPageView: React.FC = () => {
               <Button
                 variant="outline"
                 className="w-full py-6 flex items-center justify-between hover:bg-gray-50 border-2 transition-all"
+                style={{ borderColor: `${themeColor}40` }}
               >
                 <span className="text-lg font-medium">{link.title}</span>
                 <ExternalLink className="h-4 w-4 opacity-50" />
@@ -115,7 +140,8 @@ const LandingPageView: React.FC = () => {
           <p className="text-sm text-gray-400">
             Powered by <a 
               href="/" 
-              className="text-brand-purple hover:underline"
+              className="hover:underline"
+              style={{ color: themeColor }}
             >
               Shortit
             </a>

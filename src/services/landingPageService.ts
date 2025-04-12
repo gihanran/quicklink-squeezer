@@ -54,3 +54,20 @@ export const deleteLandingPage = async (id: string): Promise<void> => {
 
   if (error) throw error;
 };
+
+export const uploadProfileImage = async (file: File, userId: string): Promise<string> => {
+  const fileExt = file.name.split('.').pop();
+  const fileName = `${userId}/landing-pages/${Date.now()}.${fileExt}`;
+  
+  const { error: uploadError } = await supabase.storage
+    .from('landing_pages')
+    .upload(fileName, file, { upsert: true });
+  
+  if (uploadError) throw uploadError;
+  
+  const { data } = supabase.storage
+    .from('landing_pages')
+    .getPublicUrl(fileName);
+  
+  return data.publicUrl;
+};

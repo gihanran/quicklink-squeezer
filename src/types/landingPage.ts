@@ -6,6 +6,8 @@ export interface LandingPage {
   description: string | null;
   slug: string;
   published: boolean;
+  profile_image_url: string | null;
+  theme_color: string;
   created_at: string;
   updated_at: string;
 }
@@ -26,6 +28,8 @@ export interface CreateLandingPageData {
   description?: string | null;
   slug: string;
   published?: boolean;
+  profile_image_url?: string | null;
+  theme_color?: string;
   user_id: string;
 }
 

@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Card,
   CardContent,
@@ -13,8 +13,12 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
-import { ArrowLeft, Save, Plus, Trash2, GripVertical } from "lucide-react";
+import { ArrowLeft, Save, Plus, Trash2, GripVertical, Upload, AlertCircle } from "lucide-react";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { LandingPage, LandingPageLink } from "@/types/landingPage";
+import { supabase } from "@/integrations/supabase/client";
+import { uploadProfileImage } from "@/services/landingPageService";
+import { Alert } from "@/components/ui/alert";
 
 interface LandingPageFormProps {
   page: Partial<LandingPage> | null;
@@ -26,6 +30,16 @@ interface LandingPageFormProps {
   onUpdateLinkOrder: (links: LandingPageLink[]) => Promise<boolean>;
   onBack: () => void;
 }
+
+const themeColors = [
+  { name: 'Purple', value: '#9b87f5' },
+  { name: 'Blue', value: '#3b82f6' },
+  { name: 'Green', value: '#22c55e' },
+  { name: 'Red', value: '#ef4444' },
+  { name: 'Orange', value: '#f97316' },
+  { name: 'Pink', value: '#ec4899' },
+  { name: 'Teal', value: '#14b8a6' },
+];
 
 const LandingPageForm: React.FC<LandingPageFormProps> = ({
   page,
@@ -41,12 +55,20 @@ const LandingPageForm: React.FC<LandingPageFormProps> = ({
   const [description, setDescription] = useState(page?.description || '');
   const [slug, setSlug] = useState(page?.slug || '');
   const [published, setPublished] = useState(page?.published || false);
+  const [profileImageUrl, setProfileImageUrl] = useState(page?.profile_image_url || '');
+  const [themeColor, setThemeColor] = useState(page?.theme_color || themeColors[0].value);
   const [saving, setSaving] = useState(false);
+  const [uploading, setUploading] = useState(false);
   const [linkTitle, setLinkTitle] = useState('');
   const [linkUrl, setLinkUrl] = useState('');
   const [addingLink, setAddingLink] = useState(false);
   const [localLinks, setLocalLinks] = useState<LandingPageLink[]>(links);
+  const [error, setError] = useState<string | null>(null);
   const isEditing = !!page?.id;
+
+  useEffect(() => {
+    setLocalLinks(links);
+  }, [links]);
 
   // Generate a slug from the title
   const generateSlug = (title: string) => {
@@ -66,6 +88,35 @@ const LandingPageForm: React.FC<LandingPageFormProps> = ({
     }
   };
 
+  const handleDescriptionChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    const value = e.target.value;
+    if (value.length <= 250) {
+      setDescription(value);
+    }
+  };
+
+  const handleProfileImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (!files || files.length === 0) return;
+    
+    try {
+      setUploading(true);
+      setError(null);
+      
+      // Get authenticated user
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error('You must be logged in to upload an image');
+      
+      const url = await uploadProfileImage(files[0], user.id);
+      setProfileImageUrl(url);
+    } catch (error: any) {
+      console.error('Error uploading image:', error);
+      setError(error.message);
+    } finally {
+      setUploading(false);
+    }
+  };
+
   const handleSave = async () => {
     if (!title) {
       return;
@@ -77,7 +128,9 @@ const LandingPageForm: React.FC<LandingPageFormProps> = ({
         title,
         description: description || null,
         slug,
-        published
+        published,
+        profile_image_url: profileImageUrl || null,
+        theme_color: themeColor
       };
 
       if (!isEditing) {
@@ -90,12 +143,26 @@ const LandingPageForm: React.FC<LandingPageFormProps> = ({
     }
   };
 
+  const handleLinkTitleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    if (value.length <= 140) {
+      setLinkTitle(value);
+    }
+  };
+
   const handleAddLink = async () => {
     if (!linkTitle || !linkUrl) {
       return;
     }
+    
+    if (localLinks.length >= 5) {
+      setError('Maximum of 5 links allowed per landing page');
+      return;
+    }
 
     setAddingLink(true);
+    setError(null);
+    
     try {
       const newLink = await onAddLink({
         landing_page_id: page!.id,
@@ -109,6 +176,9 @@ const LandingPageForm: React.FC<LandingPageFormProps> = ({
         setLinkTitle('');
         setLinkUrl('');
       }
+    } catch (error: any) {
+      console.error('Error adding link:', error);
+      setError(error.message);
     } finally {
       setAddingLink(false);
     }
@@ -137,6 +207,13 @@ const LandingPageForm: React.FC<LandingPageFormProps> = ({
         </h2>
       </div>
 
+      {error && (
+        <Alert variant="destructive" className="mb-4">
+          <AlertCircle className="h-4 w-4" />
+          <span className="ml-2">{error}</span>
+        </Alert>
+      )}
+
       <Card>
         <CardHeader>
           <CardTitle>Page Details</CardTitle>
@@ -145,6 +222,38 @@ const LandingPageForm: React.FC<LandingPageFormProps> = ({
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
+          <div className="space-y-4">
+            <div className="flex justify-center mb-4">
+              <div className="relative">
+                <Avatar className="h-24 w-24 border-2 border-gray-200">
+                  <AvatarImage src={profileImageUrl || ""} alt="Profile" />
+                  <AvatarFallback>
+                    {title ? title.charAt(0).toUpperCase() : "LP"}
+                  </AvatarFallback>
+                </Avatar>
+                <div className="absolute -bottom-2 -right-2">
+                  <div className="relative">
+                    <Button
+                      type="button"
+                      size="icon"
+                      className="h-8 w-8 rounded-full bg-primary hover:bg-primary/90"
+                      disabled={uploading}
+                    >
+                      <Upload className="h-4 w-4 text-white" />
+                    </Button>
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={handleProfileImageUpload}
+                      className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                      disabled={uploading}
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
           <div className="space-y-2">
             <Label htmlFor="title">Title</Label>
             <Input
@@ -156,14 +265,18 @@ const LandingPageForm: React.FC<LandingPageFormProps> = ({
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="description">Description (Optional)</Label>
+            <Label htmlFor="description">Description (Max 250 characters)</Label>
             <Textarea
               id="description"
               value={description}
-              onChange={(e) => setDescription(e.target.value)}
+              onChange={handleDescriptionChange}
               placeholder="A brief description of what this page is about"
               rows={3}
+              maxLength={250}
             />
+            <p className="text-xs text-gray-500 text-right">
+              {description?.length || 0}/250
+            </p>
           </div>
 
           <div className="space-y-2">
@@ -180,6 +293,22 @@ const LandingPageForm: React.FC<LandingPageFormProps> = ({
             <p className="text-sm text-gray-500">
               This will be the URL of your landing page: /p/{slug || 'my-landing-page'}
             </p>
+          </div>
+
+          <div className="space-y-2 pt-4">
+            <Label>Theme Color</Label>
+            <div className="flex flex-wrap gap-2">
+              {themeColors.map(color => (
+                <button
+                  key={color.value}
+                  className={`w-8 h-8 rounded-full border-2 ${themeColor === color.value ? 'border-black' : 'border-transparent'}`}
+                  style={{ backgroundColor: color.value }}
+                  onClick={() => setThemeColor(color.value)}
+                  type="button"
+                  aria-label={`Select ${color.name} theme`}
+                />
+              ))}
+            </div>
           </div>
 
           <div className="flex items-center space-x-2 pt-4">
@@ -209,40 +338,46 @@ const LandingPageForm: React.FC<LandingPageFormProps> = ({
           <CardHeader>
             <CardTitle>Links</CardTitle>
             <CardDescription>
-              Add links that will appear on your landing page.
+              Add links that will appear on your landing page (maximum 5).
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-6">
-            <div className="grid grid-cols-12 gap-4">
-              <div className="col-span-5">
-                <Label htmlFor="linkTitle">Link Title</Label>
-                <Input
-                  id="linkTitle"
-                  value={linkTitle}
-                  onChange={(e) => setLinkTitle(e.target.value)}
-                  placeholder="Instagram"
-                />
+            {localLinks.length < 5 && (
+              <div className="grid grid-cols-12 gap-4">
+                <div className="col-span-5">
+                  <Label htmlFor="linkTitle">Link Title (Max 140 characters)</Label>
+                  <Input
+                    id="linkTitle"
+                    value={linkTitle}
+                    onChange={handleLinkTitleChange}
+                    placeholder="Instagram"
+                    maxLength={140}
+                  />
+                  <p className="text-xs text-gray-500 text-right mt-1">
+                    {linkTitle.length}/140
+                  </p>
+                </div>
+                <div className="col-span-5">
+                  <Label htmlFor="linkUrl">URL</Label>
+                  <Input
+                    id="linkUrl"
+                    value={linkUrl}
+                    onChange={(e) => setLinkUrl(e.target.value)}
+                    placeholder="https://instagram.com/username"
+                  />
+                </div>
+                <div className="col-span-2 flex items-end">
+                  <Button 
+                    onClick={handleAddLink}
+                    disabled={addingLink || !linkTitle || !linkUrl}
+                    className="w-full"
+                  >
+                    <Plus className="h-4 w-4 mr-2" />
+                    Add
+                  </Button>
+                </div>
               </div>
-              <div className="col-span-5">
-                <Label htmlFor="linkUrl">URL</Label>
-                <Input
-                  id="linkUrl"
-                  value={linkUrl}
-                  onChange={(e) => setLinkUrl(e.target.value)}
-                  placeholder="https://instagram.com/username"
-                />
-              </div>
-              <div className="col-span-2 flex items-end">
-                <Button 
-                  onClick={handleAddLink}
-                  disabled={addingLink || !linkTitle || !linkUrl}
-                  className="w-full"
-                >
-                  <Plus className="h-4 w-4 mr-2" />
-                  Add
-                </Button>
-              </div>
-            </div>
+            )}
 
             <div className="space-y-2">
               {localLinks.length === 0 ? (
@@ -274,6 +409,11 @@ const LandingPageForm: React.FC<LandingPageFormProps> = ({
                     </div>
                   ))}
                 </div>
+              )}
+              {localLinks.length >= 5 && (
+                <p className="text-sm text-amber-600 mt-2">
+                  Maximum limit of 5 links reached.
+                </p>
               )}
             </div>
           </CardContent>
