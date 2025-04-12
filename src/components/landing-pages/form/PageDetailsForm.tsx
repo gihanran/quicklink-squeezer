@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
@@ -20,7 +19,6 @@ interface PageDetailsFormProps {
   published: boolean;
   setPublished: (value: boolean) => void;
   profileImageUrl: string;
-  setProfileImageUrl: (value: string) => void;
   themeColor: string;
   setThemeColor: (value: string) => void;
   uploading: boolean;
