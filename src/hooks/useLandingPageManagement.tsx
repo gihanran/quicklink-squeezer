@@ -29,6 +29,8 @@ export const useLandingPageManagement = (
         description: page.description || null,
         slug: page.slug!,
         published: page.published || false,
+        profile_image_url: page.profile_image_url || null,
+        theme_color: page.theme_color || '#9b87f5',
         user_id: user.id
       };
 
