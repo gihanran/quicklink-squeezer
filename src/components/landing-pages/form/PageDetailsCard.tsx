@@ -69,7 +69,7 @@ const PageDetailsCard: React.FC<PageDetailsCardProps> = ({
           description={description}
           setDescription={setDescription}
           slug={slug}
-          setSlug={(value) => setSlug(value)}
+          setSlug={setSlug}
           published={published}
           setPublished={setPublished}
           profileImageUrl={profileImageUrl}
