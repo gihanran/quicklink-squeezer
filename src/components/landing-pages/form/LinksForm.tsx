@@ -5,11 +5,13 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Plus, Trash2, GripVertical } from "lucide-react";
 import { LandingPageLink } from "@/types/landingPage";
+import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 
 interface LinksFormProps {
   links: LandingPageLink[];
   onAddLink: (link: { title: string, url: string }) => void;
   onDeleteLink: (id: string) => void;
+  onReorderLinks?: (links: LandingPageLink[]) => void;
   error: string | null;
 }
 
@@ -17,6 +19,7 @@ const LinksForm: React.FC<LinksFormProps> = ({
   links,
   onAddLink,
   onDeleteLink,
+  onReorderLinks,
   error
 }) => {
   const [linkTitle, setLinkTitle] = useState('');
@@ -39,6 +42,26 @@ const LinksForm: React.FC<LinksFormProps> = ({
     
     setLinkTitle('');
     setLinkUrl('');
+  };
+
+  const handleDragEnd = (result: any) => {
+    // Dropped outside the list
+    if (!result.destination || !onReorderLinks) {
+      return;
+    }
+
+    // Reorder the links
+    const reorderedLinks = Array.from(links);
+    const [movedItem] = reorderedLinks.splice(result.source.index, 1);
+    reorderedLinks.splice(result.destination.index, 0, movedItem);
+    
+    // Update the display_order property
+    const updatedLinks = reorderedLinks.map((link, index) => ({
+      ...link,
+      display_order: index
+    }));
+    
+    onReorderLinks(updatedLinks);
   };
 
   return (
@@ -86,30 +109,53 @@ const LinksForm: React.FC<LinksFormProps> = ({
             <p className="text-gray-500">No links added yet.</p>
           </div>
         ) : (
-          <div className="space-y-2">
-            {links.map((link) => (
-              <div 
-                key={link.id} 
-                className="flex items-center justify-between p-3 border rounded-md bg-background"
-              >
-                <div className="flex items-center">
-                  <GripVertical className="h-4 w-4 text-gray-400 mr-2" />
-                  <div>
-                    <p className="font-medium">{link.title}</p>
-                    <p className="text-sm text-gray-500 truncate">{link.url}</p>
-                  </div>
-                </div>
-                <Button 
-                  variant="ghost" 
-                  size="icon" 
-                  className="text-red-500 hover:text-red-600"
-                  onClick={() => onDeleteLink(link.id)}
+          <DragDropContext onDragEnd={handleDragEnd}>
+            <Droppable droppableId="links-list">
+              {(provided) => (
+                <div 
+                  className="space-y-2" 
+                  {...provided.droppableProps} 
+                  ref={provided.innerRef}
                 >
-                  <Trash2 className="h-4 w-4" />
-                </Button>
-              </div>
-            ))}
-          </div>
+                  {links.map((link, index) => (
+                    <Draggable key={link.id} draggableId={link.id} index={index}>
+                      {(provided, snapshot) => (
+                        <div 
+                          ref={provided.innerRef}
+                          {...provided.draggableProps}
+                          className={`flex items-center justify-between p-3 border rounded-md ${
+                            snapshot.isDragging ? 'bg-gray-100' : 'bg-background'
+                          }`}
+                        >
+                          <div className="flex items-center">
+                            <div 
+                              {...provided.dragHandleProps} 
+                              className="cursor-grab mr-2 text-gray-400 hover:text-gray-600 touch-none"
+                            >
+                              <GripVertical className="h-4 w-4" />
+                            </div>
+                            <div>
+                              <p className="font-medium">{link.title}</p>
+                              <p className="text-sm text-gray-500 truncate">{link.url}</p>
+                            </div>
+                          </div>
+                          <Button 
+                            variant="ghost" 
+                            size="icon" 
+                            className="text-red-500 hover:text-red-600"
+                            onClick={() => onDeleteLink(link.id)}
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      )}
+                    </Draggable>
+                  ))}
+                  {provided.placeholder}
+                </div>
+              )}
+            </Droppable>
+          </DragDropContext>
         )}
         {links.length >= 5 && (
           <p className="text-sm text-amber-600 mt-2">

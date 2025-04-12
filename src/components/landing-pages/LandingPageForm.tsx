@@ -167,6 +167,17 @@ const LandingPageForm: React.FC<LandingPageFormProps> = ({
     }
   };
 
+  const handleReorderLinks = async (reorderedLinks: LandingPageLink[]) => {
+    try {
+      setError(null);
+      await onUpdateLinkOrder(reorderedLinks);
+      setLocalLinks(reorderedLinks);
+    } catch (error: any) {
+      console.error('Error reordering links:', error);
+      setError(error.message);
+    }
+  };
+
   return (
     <div className="space-y-6">
       <FormHeader 
@@ -220,6 +231,7 @@ const LandingPageForm: React.FC<LandingPageFormProps> = ({
             <CardTitle>Links</CardTitle>
             <CardDescription>
               Add links that will appear on your landing page (maximum 5).
+              Drag and drop to reorder links.
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -227,6 +239,7 @@ const LandingPageForm: React.FC<LandingPageFormProps> = ({
               links={localLinks}
               onAddLink={handleAddLink}
               onDeleteLink={onDeleteLink}
+              onReorderLinks={handleReorderLinks}
               error={error}
             />
           </CardContent>
