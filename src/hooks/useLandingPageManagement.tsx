@@ -14,9 +14,20 @@ export const useLandingPageManagement = (
   setSelectedPage: React.Dispatch<React.SetStateAction<LandingPage | null>>
 ) => {
   const { toast } = useToast();
+  const MAX_LANDING_PAGES = 25;
 
   const createLandingPage = async (page: Partial<LandingPage>) => {
     try {
+      // Check if the user has reached their landing page limit
+      if (landingPages.length >= MAX_LANDING_PAGES) {
+        toast({
+          title: "Landing page limit reached",
+          description: `You can only create a maximum of ${MAX_LANDING_PAGES} landing pages.`,
+          variant: "destructive"
+        });
+        return null;
+      }
+      
       // Ensure user_id is set from the authenticated user
       const { data: { user } } = await supabase.auth.getUser();
       

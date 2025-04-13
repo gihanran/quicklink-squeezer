@@ -31,6 +31,8 @@ const LandingPagesList: React.FC<LandingPagesListProps> = ({
   onDelete,
   onShowTrackingDetails
 }) => {
+  const MAX_LANDING_PAGES = 25;
+  
   if (loading) {
     return (
       <div className="flex justify-center items-center py-10">
@@ -42,10 +44,16 @@ const LandingPagesList: React.FC<LandingPagesListProps> = ({
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
-        <h2 className="text-2xl font-bold">Your Landing Pages</h2>
+        <div>
+          <h2 className="text-2xl font-bold">Your Landing Pages</h2>
+          <p className="text-sm text-gray-500">
+            {pages.length} of {MAX_LANDING_PAGES} pages used
+          </p>
+        </div>
         <Button 
           onClick={onCreateNew}
-          className="bg-gradient-to-r from-brand-purple to-brand-blue hover:opacity-90 transition-opacity"
+          disabled={pages.length >= MAX_LANDING_PAGES}
+          className="bg-gradient-to-r from-brand-purple to-brand-blue hover:opacity-90 transition-opacity disabled:opacity-50"
         >
           <Plus className="h-4 w-4 mr-2" />
           Create Landing Page
@@ -149,6 +157,15 @@ const LandingPagesList: React.FC<LandingPagesListProps> = ({
               </CardContent>
             </Card>
           ))}
+        </div>
+      )}
+
+      {pages.length >= MAX_LANDING_PAGES && (
+        <div className="bg-yellow-50 border border-yellow-200 p-4 rounded-md mt-4">
+          <p className="text-yellow-800 text-sm">
+            You have reached the maximum limit of {MAX_LANDING_PAGES} landing pages. 
+            To create a new landing page, please delete an existing one.
+          </p>
         </div>
       )}
     </div>
