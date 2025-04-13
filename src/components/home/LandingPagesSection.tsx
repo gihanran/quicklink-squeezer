@@ -46,9 +46,9 @@ const LandingPagesSection: React.FC = () => {
           <Card className="overflow-hidden border-none shadow-lg">
             <CardContent className="p-0">
               <img 
-                src="/landing-page-example.jpg" 
+                src="/example-landing-page.png" 
                 alt="Landing Page Example" 
-                className="w-full h-64 object-cover object-center"
+                className="w-full h-64 object-cover object-top"
                 onError={(e) => {
                   const target = e.target as HTMLImageElement;
                   target.onerror = null;
