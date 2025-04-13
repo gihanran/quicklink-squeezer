@@ -101,30 +101,36 @@ const FeatureShowcase: React.FC = () => {
           />
         </div>
         
-        {/* Stats Section */}
+        {/* Stats Section with Enhanced Colors */}
         <div className="flex flex-col md:flex-row justify-center gap-6 mb-12">
-          <div className="bg-white p-8 rounded-lg shadow-md text-center flex-1">
+          <div className="bg-white p-8 rounded-lg shadow-md text-center flex-1 border-t-4 border-brand-purple">
             <h3 className="text-lg font-medium text-gray-700">Total Links Created</h3>
             {loading ? (
               <Skeleton className="h-10 w-20 mx-auto mt-2" />
             ) : (
-              <p className="text-4xl font-bold text-brand-purple mt-2">{stats.linksCreated.toLocaleString()}</p>
+              <p className="text-4xl font-bold text-brand-purple mt-2 bg-gradient-to-r from-brand-purple to-brand-purple/70 bg-clip-text text-transparent">
+                {stats.linksCreated.toLocaleString()}
+              </p>
             )}
           </div>
-          <div className="bg-white p-8 rounded-lg shadow-md text-center flex-1">
+          <div className="bg-white p-8 rounded-lg shadow-md text-center flex-1 border-t-4 border-brand-blue">
             <h3 className="text-lg font-medium text-gray-700">Total Link Clicks</h3>
             {loading ? (
               <Skeleton className="h-10 w-20 mx-auto mt-2" />
             ) : (
-              <p className="text-4xl font-bold text-brand-blue mt-2">{stats.totalClicks.toLocaleString()}</p>
+              <p className="text-4xl font-bold text-brand-blue mt-2 bg-gradient-to-r from-brand-blue to-brand-blue/70 bg-clip-text text-transparent">
+                {stats.totalClicks.toLocaleString()}
+              </p>
             )}
           </div>
-          <div className="bg-white p-8 rounded-lg shadow-md text-center flex-1">
+          <div className="bg-white p-8 rounded-lg shadow-md text-center flex-1 border-t-4 border-green-500">
             <h3 className="text-lg font-medium text-gray-700">Landing Pages Created</h3>
             {loading ? (
               <Skeleton className="h-10 w-20 mx-auto mt-2" />
             ) : (
-              <p className="text-4xl font-bold text-green-600 mt-2">{stats.landingPagesCount.toLocaleString()}</p>
+              <p className="text-4xl font-bold text-green-600 mt-2 bg-gradient-to-r from-green-600 to-green-500/70 bg-clip-text text-transparent">
+                {stats.landingPagesCount.toLocaleString()}
+              </p>
             )}
           </div>
         </div>
