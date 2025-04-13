@@ -1,15 +1,17 @@
 
 import React, { useEffect, useState } from 'react';
 import { Card, CardContent } from "@/components/ui/card";
-import { CheckCircle, Clock, Globe, Users, ChartBar, Infinity, ShieldCheck } from "lucide-react";
+import { CheckCircle, Clock, Globe, Users, ChartBar, Infinity, ShieldCheck, LayoutGrid } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
 import { getUrlStats } from '@/utils/url/analytics';
 import { Skeleton } from "@/components/ui/skeleton";
+import { supabase } from "@/integrations/supabase/client";
 
 const FeatureShowcase: React.FC = () => {
   const [stats, setStats] = useState({
     linksCreated: 0,
     totalClicks: 0,
+    landingPagesCount: 0
   });
   const [loading, setLoading] = useState(true);
   
@@ -17,12 +19,21 @@ const FeatureShowcase: React.FC = () => {
     const fetchStats = async () => {
       try {
         const fetchedStats = await getUrlStats();
+        
+        // Fetch landing pages count
+        const { count: landingPagesCount, error } = await supabase
+          .from('landing_pages')
+          .select('*', { count: 'exact', head: true });
+          
+        if (error) throw error;
+        
         setStats({
           linksCreated: fetchedStats.totalLinks,
           totalClicks: fetchedStats.totalClicks,
+          landingPagesCount: landingPagesCount || 0
         });
       } catch (error) {
-        console.error('Error fetching URL stats:', error);
+        console.error('Error fetching stats:', error);
       } finally {
         setLoading(false);
       }
@@ -84,9 +95,9 @@ const FeatureShowcase: React.FC = () => {
           />
           
           <FeatureCard
-            icon={<Infinity className="h-6 w-6 text-brand-blue" />}
-            title="Unlimited Links"
-            description="Create as many short links as you need"
+            icon={<LayoutGrid className="h-6 w-6 text-brand-blue" />}
+            title="Landing Pages"
+            description="Create beautiful landing pages for all your links"
           />
         </div>
         
@@ -106,6 +117,14 @@ const FeatureShowcase: React.FC = () => {
               <Skeleton className="h-10 w-20 mx-auto mt-2" />
             ) : (
               <p className="text-4xl font-bold text-brand-blue mt-2">{stats.totalClicks.toLocaleString()}</p>
+            )}
+          </div>
+          <div className="bg-white p-8 rounded-lg shadow-md text-center flex-1">
+            <h3 className="text-lg font-medium text-gray-700">Landing Pages Created</h3>
+            {loading ? (
+              <Skeleton className="h-10 w-20 mx-auto mt-2" />
+            ) : (
+              <p className="text-4xl font-bold text-green-600 mt-2">{stats.landingPagesCount.toLocaleString()}</p>
             )}
           </div>
         </div>
