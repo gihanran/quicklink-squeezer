@@ -1,49 +1,16 @@
 
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { Link } from 'react-router-dom';
 import { LayoutGrid, ArrowRight } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
-import { supabase } from "@/integrations/supabase/client";
-import { Skeleton } from "@/components/ui/skeleton";
 
 const LandingPagesSection: React.FC = () => {
-  const [landingPagesCount, setLandingPagesCount] = useState<number>(0);
-  const [loading, setLoading] = useState<boolean>(true);
-
-  useEffect(() => {
-    const fetchLandingPagesCount = async () => {
-      try {
-        const { count, error } = await supabase
-          .from('landing_pages')
-          .select('*', { count: 'exact', head: true });
-
-        if (error) throw error;
-        setLandingPagesCount(count || 0);
-      } catch (error) {
-        console.error('Error fetching landing pages count:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchLandingPagesCount();
-  }, []);
-
   return (
-    <div className="mt-12 bg-white p-6 rounded-lg shadow-md">
+    <div className="mt-12 bg-gradient-to-r from-brand-purple/10 to-brand-blue/10 p-6 rounded-lg shadow-md">
       <div className="flex items-center justify-between mb-6">
         <h2 className="text-2xl font-bold bg-gradient-to-r from-brand-purple to-brand-blue bg-clip-text text-transparent">
           Create Your Own Landing Page
         </h2>
-        
-        {loading ? (
-          <Skeleton className="h-10 w-32" />
-        ) : (
-          <div className="bg-gradient-to-r from-brand-purple/10 to-brand-blue/10 p-3 rounded-lg">
-            <span className="text-xl font-bold text-brand-purple">{landingPagesCount}</span>
-            <span className="text-sm text-gray-600 ml-2">Landing Pages Created</span>
-          </div>
-        )}
       </div>
       
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
@@ -79,9 +46,14 @@ const LandingPagesSection: React.FC = () => {
           <Card className="overflow-hidden border-none shadow-lg">
             <CardContent className="p-0">
               <img 
-                src="/placeholder.svg" 
+                src="/landing-page-example.jpg" 
                 alt="Landing Page Example" 
                 className="w-full h-64 object-cover object-center"
+                onError={(e) => {
+                  const target = e.target as HTMLImageElement;
+                  target.onerror = null;
+                  target.src = "/placeholder.svg";
+                }}
               />
               <div className="p-4">
                 <h3 className="font-semibold mb-2">Example Landing Page</h3>
