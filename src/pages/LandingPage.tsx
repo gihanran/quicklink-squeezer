@@ -132,7 +132,6 @@ const LandingPageView: React.FC = () => {
           {page.description && (
             <p className="mt-4 text-gray-600 max-w-sm mx-auto">{page.description}</p>
           )}
-          <p className="mt-2 text-xs text-gray-400">{page.views || 0} views</p>
         </div>
 
         <div className="space-y-3">
@@ -150,12 +149,7 @@ const LandingPageView: React.FC = () => {
                 className="w-full py-6 flex items-center justify-between hover:bg-gray-50 border-2 transition-all"
                 style={{ borderColor: `${themeColor}40` }}
               >
-                <div className="flex flex-col items-start">
-                  <span className="text-lg font-medium">{link.title}</span>
-                  {link.clicks > 0 && (
-                    <span className="text-xs text-blue-500">{link.clicks} clicks</span>
-                  )}
-                </div>
+                <span className="text-lg font-medium">{link.title}</span>
                 <ExternalLink className="h-4 w-4 opacity-50" />
               </Button>
             </a>

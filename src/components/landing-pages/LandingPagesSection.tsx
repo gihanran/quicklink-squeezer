@@ -4,6 +4,7 @@ import { useLandingPages } from "@/hooks/useLandingPages";
 import LandingPagesList from "@/components/landing-pages/LandingPagesList";
 import LandingPageForm from "@/components/landing-pages/LandingPageForm";
 import LandingPagePreview from "@/components/landing-pages/LandingPagePreview";
+import TrackingDetailsDialog from "@/components/landing-pages/TrackingDetailsDialog";
 import { 
   AlertDialog, 
   AlertDialogAction, 
@@ -27,6 +28,7 @@ const LandingPagesSection: React.FC = () => {
   const [viewState, setViewState] = useState<ViewState>(ViewState.LIST);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [pageToDelete, setPageToDelete] = useState<LandingPage | null>(null);
+  const [trackingDialogOpen, setTrackingDialogOpen] = useState(false);
   
   const {
     landingPages,
@@ -40,7 +42,8 @@ const LandingPagesSection: React.FC = () => {
     addPageLink,
     updatePageLink,
     deletePageLink,
-    updateLinkOrder
+    updateLinkOrder,
+    fetchPageLinks
   } = useLandingPages();
 
   const handleCreateNew = () => {
@@ -61,6 +64,15 @@ const LandingPagesSection: React.FC = () => {
   const handleDelete = (page: LandingPage) => {
     setPageToDelete(page);
     setDeleteDialogOpen(true);
+  };
+
+  const handleShowTrackingDetails = async (page: LandingPage) => {
+    setSelectedPage(page);
+    // Fetch fresh links data for this page
+    if (page.id) {
+      await fetchPageLinks(page.id);
+    }
+    setTrackingDialogOpen(true);
   };
 
   const confirmDelete = async () => {
@@ -102,6 +114,7 @@ const LandingPagesSection: React.FC = () => {
             onEdit={handleEdit}
             onPreview={handlePreview}
             onDelete={handleDelete}
+            onShowTrackingDetails={handleShowTrackingDetails}
           />
         );
       case ViewState.CREATE:
@@ -176,6 +189,13 @@ const LandingPagesSection: React.FC = () => {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      <TrackingDetailsDialog
+        open={trackingDialogOpen}
+        onOpenChange={setTrackingDialogOpen}
+        page={selectedPage}
+        links={pageLinks}
+      />
     </>
   );
 };

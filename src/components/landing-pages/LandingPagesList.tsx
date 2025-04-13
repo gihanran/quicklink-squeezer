@@ -8,7 +8,7 @@ import {
   CardTitle 
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Plus, Pencil, Globe, Trash2, ExternalLink, Eye } from "lucide-react";
+import { Plus, Pencil, Globe, Trash2, ExternalLink, Eye, BarChart2 } from "lucide-react";
 import { LandingPage } from "@/types/landingPage";
 import { Badge } from "@/components/ui/badge";
 
@@ -19,6 +19,7 @@ interface LandingPagesListProps {
   onEdit: (page: LandingPage) => void;
   onPreview: (page: LandingPage) => void;
   onDelete: (page: LandingPage) => void;
+  onShowTrackingDetails: (page: LandingPage) => void;
 }
 
 const LandingPagesList: React.FC<LandingPagesListProps> = ({
@@ -27,7 +28,8 @@ const LandingPagesList: React.FC<LandingPagesListProps> = ({
   onCreateNew,
   onEdit,
   onPreview,
-  onDelete
+  onDelete,
+  onShowTrackingDetails
 }) => {
   if (loading) {
     return (
@@ -97,6 +99,16 @@ const LandingPagesList: React.FC<LandingPagesListProps> = ({
                     /{page.slug}
                   </div>
                   <div className="flex space-x-2">
+                    <Button 
+                      size="sm" 
+                      variant="outline"
+                      onClick={() => onShowTrackingDetails(page)}
+                      className="text-blue-500 hover:text-blue-600"
+                      title="Show tracking details"
+                    >
+                      <BarChart2 className="h-4 w-4" />
+                      <span className="sr-only">Tracking</span>
+                    </Button>
                     <Button 
                       size="sm" 
                       variant="outline" 

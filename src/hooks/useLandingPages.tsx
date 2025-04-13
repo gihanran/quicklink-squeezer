@@ -45,6 +45,7 @@ export const useLandingPages = () => {
     try {
       const data = await landingPageLinkService.fetchPageLinks(landingPageId);
       setPageLinks(data);
+      return data;
     } catch (error: any) {
       console.error('Error fetching page links:', error);
       toast({
@@ -52,6 +53,7 @@ export const useLandingPages = () => {
         description: error.message,
         variant: "destructive"
       });
+      return [];
     }
   };
 
@@ -87,6 +89,7 @@ export const useLandingPages = () => {
     updatePageLink,
     deletePageLink,
     updateLinkOrder,
-    fetchLandingPages
+    fetchLandingPages,
+    fetchPageLinks
   };
 };
