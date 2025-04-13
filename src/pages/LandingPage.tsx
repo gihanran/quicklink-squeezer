@@ -1,5 +1,5 @@
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { LandingPage, LandingPageLink } from '@/types/landingPage';
@@ -15,6 +15,7 @@ const LandingPageView: React.FC = () => {
   const [links, setLinks] = useState<LandingPageLink[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const adContainerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const fetchLandingPage = async () => {
@@ -71,6 +72,36 @@ const LandingPageView: React.FC = () => {
       fetchLandingPage();
     }
   }, [slug]);
+
+  // Load advertisement scripts
+  useEffect(() => {
+    if (!loading && adContainerRef.current) {
+      // Create the first script element with atOptions
+      const atOptionsScript = document.createElement('script');
+      atOptionsScript.type = 'text/javascript';
+      atOptionsScript.text = `
+        atOptions = {
+          'key' : '8f16a4e70ba2c3e74ea50c0eef897f95',
+          'format' : 'iframe',
+          'height' : 60,
+          'width' : 468,
+          'params' : {}
+        };
+      `;
+      
+      // Create the second script element that loads the ad
+      const adScript = document.createElement('script');
+      adScript.type = 'text/javascript';
+      adScript.src = '//www.highperformanceformat.com/8f16a4e70ba2c3e74ea50c0eef897f95/invoke.js';
+      
+      // Clear any existing content
+      if (adContainerRef.current) {
+        adContainerRef.current.innerHTML = '';
+        adContainerRef.current.appendChild(atOptionsScript);
+        adContainerRef.current.appendChild(adScript);
+      }
+    }
+  }, [loading]);
 
   const handleLinkClick = async (link: LandingPageLink) => {
     try {
@@ -158,22 +189,7 @@ const LandingPageView: React.FC = () => {
 
         {/* Advertisement section */}
         <div className="w-full flex justify-center my-6">
-          <div 
-            dangerouslySetInnerHTML={{ 
-              __html: `
-                <script type="text/javascript">
-                  atOptions = {
-                    'key' : '8f16a4e70ba2c3e74ea50c0eef897f95',
-                    'format' : 'iframe',
-                    'height' : 60,
-                    'width' : 468,
-                    'params' : {}
-                  };
-                </script>
-                <script type="text/javascript" src="//www.highperformanceformat.com/8f16a4e70ba2c3e74ea50c0eef897f95/invoke.js"></script>
-              ` 
-            }} 
-          />
+          <div ref={adContainerRef} className="ad-container" />
         </div>
 
         <div className="pt-8 text-center">
