@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import UrlShortenerForm from '@/components/UrlShortenerForm';
@@ -6,7 +5,7 @@ import ShortenedUrlResult from '@/components/ShortenedUrlResult';
 import FeatureShowcase from '@/components/FeatureShowcase';
 import { UrlData } from '@/utils/url';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Link2, Layouts, BarChart2 } from "lucide-react";
+import { Link2, LayoutGrid, BarChart2 } from "lucide-react";
 import { useAuthState } from '@/hooks/auth';
 import Footer from '@/components/Footer';
 import { supabase } from "@/integrations/supabase/client";
@@ -126,7 +125,7 @@ const Index = () => {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               <div className="bg-white p-5 rounded-md shadow-sm flex flex-col items-center text-center">
                 <div className="h-12 w-12 bg-brand-purple/10 rounded-full flex items-center justify-center mb-3">
-                  <Layouts className="h-6 w-6 text-brand-purple" />
+                  <LayoutGrid className="h-6 w-6 text-brand-purple" />
                 </div>
                 <h3 className="font-medium mb-2">Customized Design</h3>
                 <p className="text-sm text-gray-600">Personalize your landing page with custom themes and profile images.</p>
