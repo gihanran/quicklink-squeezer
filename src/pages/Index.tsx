@@ -6,8 +6,8 @@ import Footer from '@/components/Footer';
 import FeatureShowcase from '@/components/FeatureShowcase';
 import HomeHeader from '@/components/home/HomeHeader';
 import UrlShortener from '@/components/home/UrlShortener';
-import LandingPagePromo from '@/components/home/LandingPagePromo';
 import HowItWorks from '@/components/home/HowItWorks';
+import LandingPagesSection from '@/components/home/LandingPagesSection';
 
 const Index = () => {
   const [shortenedUrlData, setShortenedUrlData] = useState<UrlData | null>(null);
@@ -31,9 +31,9 @@ const Index = () => {
             fullShortenedUrl={fullShortenedUrl} 
           />
           
-          <LandingPagePromo user={user} />
-
           <HowItWorks />
+          
+          <LandingPagesSection />
         </div>
         
         <FeatureShowcase />
