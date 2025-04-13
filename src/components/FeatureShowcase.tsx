@@ -1,7 +1,7 @@
 
 import React, { useEffect, useState } from 'react';
 import { Card, CardContent } from "@/components/ui/card";
-import { CheckCircle, Clock, Globe, Users, ChartBar, Infinity, ShieldCheck, LayoutGrid } from "lucide-react";
+import { CheckCircle, Clock, Globe, Users, ChartBar, Infinity, ShieldCheck, LayoutGrid, Link, MousePointerClick, FileText } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
 import { getUrlStats } from '@/utils/url/analytics';
 import { Skeleton } from "@/components/ui/skeleton";
@@ -101,9 +101,14 @@ const FeatureShowcase: React.FC = () => {
           />
         </div>
         
-        {/* Stats Section with Enhanced Colors */}
+        {/* Stats Section with Enhanced Colors and Icons */}
         <div className="flex flex-col md:flex-row justify-center gap-6 mb-12">
           <div className="bg-white p-8 rounded-lg shadow-md text-center flex-1 border-t-4 border-brand-purple">
+            <div className="flex justify-center mb-2">
+              <div className="bg-brand-purple/10 p-2 rounded-full">
+                <Link className="h-6 w-6 text-brand-purple" />
+              </div>
+            </div>
             <h3 className="text-lg font-medium text-gray-700">Total Links Created</h3>
             {loading ? (
               <Skeleton className="h-10 w-20 mx-auto mt-2" />
@@ -114,6 +119,11 @@ const FeatureShowcase: React.FC = () => {
             )}
           </div>
           <div className="bg-white p-8 rounded-lg shadow-md text-center flex-1 border-t-4 border-brand-blue">
+            <div className="flex justify-center mb-2">
+              <div className="bg-brand-blue/10 p-2 rounded-full">
+                <MousePointerClick className="h-6 w-6 text-brand-blue" />
+              </div>
+            </div>
             <h3 className="text-lg font-medium text-gray-700">Total Link Clicks</h3>
             {loading ? (
               <Skeleton className="h-10 w-20 mx-auto mt-2" />
@@ -124,6 +134,11 @@ const FeatureShowcase: React.FC = () => {
             )}
           </div>
           <div className="bg-white p-8 rounded-lg shadow-md text-center flex-1 border-t-4 border-green-500">
+            <div className="flex justify-center mb-2">
+              <div className="bg-green-500/10 p-2 rounded-full">
+                <FileText className="h-6 w-6 text-green-600" />
+              </div>
+            </div>
             <h3 className="text-lg font-medium text-gray-700">Landing Pages Created</h3>
             {loading ? (
               <Skeleton className="h-10 w-20 mx-auto mt-2" />
