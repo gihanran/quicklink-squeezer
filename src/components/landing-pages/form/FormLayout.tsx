@@ -64,7 +64,7 @@ const FormLayout: React.FC = () => {
 
       {isEditing && (
         <>
-          {page && <PageAnalytics page={page} links={localLinks} />}
+          {page && page.id && <PageAnalytics page={page as LandingPage} links={localLinks} />}
           
           <LinksCard 
             links={localLinks}

@@ -10,6 +10,7 @@ export interface LandingPage {
   theme_color: string;
   created_at: string;
   updated_at: string;
+  views: number;
 }
 
 export interface LandingPageLink {
@@ -21,6 +22,7 @@ export interface LandingPageLink {
   display_order: number;
   created_at: string;
   updated_at: string;
+  clicks: number;
 }
 
 export interface CreateLandingPageData {
