@@ -156,6 +156,26 @@ const LandingPageView: React.FC = () => {
           ))}
         </div>
 
+        {/* Advertisement section */}
+        <div className="w-full flex justify-center my-6">
+          <div 
+            dangerouslySetInnerHTML={{ 
+              __html: `
+                <script type="text/javascript">
+                  atOptions = {
+                    'key' : '8f16a4e70ba2c3e74ea50c0eef897f95',
+                    'format' : 'iframe',
+                    'height' : 60,
+                    'width' : 468,
+                    'params' : {}
+                  };
+                </script>
+                <script type="text/javascript" src="//www.highperformanceformat.com/8f16a4e70ba2c3e74ea50c0eef897f95/invoke.js"></script>
+              ` 
+            }} 
+          />
+        </div>
+
         <div className="pt-8 text-center">
           <p className="text-sm text-gray-400">
             Powered by <a 
