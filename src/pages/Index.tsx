@@ -8,6 +8,7 @@ import HomeHeader from '@/components/home/HomeHeader';
 import UrlShortener from '@/components/home/UrlShortener';
 import HowItWorks from '@/components/home/HowItWorks';
 import LandingPagesSection from '@/components/home/LandingPagesSection';
+import FAQ from '@/components/home/FAQ';
 
 const Index = () => {
   const [shortenedUrlData, setShortenedUrlData] = useState<UrlData | null>(null);
@@ -37,6 +38,7 @@ const Index = () => {
         </div>
         
         <FeatureShowcase />
+        <FAQ />
       </main>
 
       <Footer />
