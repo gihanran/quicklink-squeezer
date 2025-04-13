@@ -5,6 +5,7 @@ import FormHeader from './FormHeader';
 import PageDetailsCard from './PageDetailsCard';
 import LinksCard from './LinksCard';
 import PageAnalytics from './PageAnalytics';
+import { LandingPage } from '@/types/landingPage';
 
 const FormLayout: React.FC = () => {
   const {
