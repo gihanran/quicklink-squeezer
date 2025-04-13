@@ -75,13 +75,51 @@ export const useLandingPageForm = ({
       
       // Get authenticated user
       const { data: { user } } = await supabase.auth.getUser();
-      if (!user) throw new Error('You must be logged in to upload an image');
+      if (!user) {
+        toast({
+          title: "Authentication required",
+          description: "You must be logged in to upload an image",
+          variant: "destructive"
+        });
+        throw new Error('You must be logged in to upload an image');
+      }
       
-      const url = await uploadProfileImage(files[0], user.id);
-      setProfileImageUrl(url);
+      const file = files[0];
+      const fileExt = file.name.split('.').pop();
+      const fileName = `${user.id}/landing-pages/${Date.now()}.${fileExt}`;
+      
+      const { error: uploadError } = await supabase.storage
+        .from('landing_pages')
+        .upload(fileName, file, { upsert: true });
+        
+      if (uploadError) {
+        console.error('Storage upload error:', uploadError);
+        toast({
+          title: "Upload failed",
+          description: uploadError.message,
+          variant: "destructive"
+        });
+        throw uploadError;
+      }
+      
+      const { data } = supabase.storage
+        .from('landing_pages')
+        .getPublicUrl(fileName);
+        
+      setProfileImageUrl(data.publicUrl);
+      
+      toast({
+        title: "Image uploaded",
+        description: "Your profile image has been uploaded successfully",
+      });
     } catch (error: any) {
       console.error('Error uploading image:', error);
       setError(error.message);
+      toast({
+        title: "Upload failed",
+        description: error.message || "An error occurred while uploading the image",
+        variant: "destructive"
+      });
     } finally {
       setUploading(false);
     }
@@ -89,6 +127,11 @@ export const useLandingPageForm = ({
 
   const handleSave = async () => {
     if (!title) {
+      toast({
+        title: "Missing title",
+        description: "Please provide a title for your landing page",
+        variant: "destructive"
+      });
       return;
     }
 
@@ -105,9 +148,25 @@ export const useLandingPageForm = ({
 
       if (!isEditing) {
         await onSave(updates);
+        toast({
+          title: "Page created",
+          description: "Your landing page has been created successfully"
+        });
       } else {
         await onSave({ ...updates, id: page!.id });
+        toast({
+          title: "Page updated",
+          description: "Your landing page has been updated successfully"
+        });
       }
+    } catch (error: any) {
+      console.error('Error saving landing page:', error);
+      setError(error.message);
+      toast({
+        title: "Save failed",
+        description: error.message || "An error occurred while saving the landing page",
+        variant: "destructive"
+      });
     } finally {
       setSaving(false);
     }
@@ -115,11 +174,21 @@ export const useLandingPageForm = ({
 
   const handleAddLink = async (link: { title: string, url: string }) => {
     if (!link.title || !link.url || !page?.id) {
+      toast({
+        title: "Invalid link",
+        description: "Please provide both title and URL for your link",
+        variant: "destructive"
+      });
       return;
     }
     
     if (localLinks.length >= 5) {
       setError('Maximum of 5 links allowed per landing page');
+      toast({
+        title: "Limit reached",
+        description: "Maximum of 5 links allowed per landing page",
+        variant: "destructive"
+      });
       return;
     }
 
@@ -135,10 +204,19 @@ export const useLandingPageForm = ({
 
       if (newLink) {
         setLocalLinks([...localLinks, newLink]);
+        toast({
+          title: "Link added",
+          description: "Your link has been added successfully"
+        });
       }
     } catch (error: any) {
       console.error('Error adding link:', error);
       setError(error.message);
+      toast({
+        title: "Failed to add link",
+        description: error.message || "An error occurred while adding the link",
+        variant: "destructive"
+      });
     }
   };
 
@@ -147,9 +225,18 @@ export const useLandingPageForm = ({
       setError(null);
       await onUpdateLinkOrder(reorderedLinks);
       setLocalLinks(reorderedLinks);
+      toast({
+        title: "Links reordered",
+        description: "Your links have been reordered successfully"
+      });
     } catch (error: any) {
       console.error('Error reordering links:', error);
       setError(error.message);
+      toast({
+        title: "Failed to reorder links",
+        description: error.message || "An error occurred while reordering links",
+        variant: "destructive"
+      });
     }
   };
 
@@ -178,22 +265,4 @@ export const useLandingPageForm = ({
     handleAddLink,
     handleReorderLinks
   };
-};
-
-// Helper function moved from the service
-const uploadProfileImage = async (file: File, userId: string): Promise<string> => {
-  const fileExt = file.name.split('.').pop();
-  const fileName = `${userId}/landing-pages/${Date.now()}.${fileExt}`;
-  
-  const { error: uploadError } = await supabase.storage
-    .from('landing_pages')
-    .upload(fileName, file, { upsert: true });
-  
-  if (uploadError) throw uploadError;
-  
-  const { data } = supabase.storage
-    .from('landing_pages')
-    .getPublicUrl(fileName);
-  
-  return data.publicUrl;
 };
