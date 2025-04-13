@@ -64,9 +64,12 @@ const LinksForm: React.FC<LinksFormProps> = ({
     onReorderLinks(updatedLinks);
   };
 
+  // Updated to show maximum of 7 links
+  const MAX_LINKS = 7;
+
   return (
     <div className="space-y-6">
-      {links.length < 5 && (
+      {links.length < MAX_LINKS && (
         <div className="grid grid-cols-12 gap-4">
           <div className="col-span-5">
             <Label htmlFor="linkTitle">Link Title (Max 140 characters)</Label>
@@ -134,9 +137,12 @@ const LinksForm: React.FC<LinksFormProps> = ({
                             >
                               <GripVertical className="h-4 w-4" />
                             </div>
-                            <div>
+                            <div className="flex-grow">
                               <p className="font-medium">{link.title}</p>
                               <p className="text-sm text-gray-500 truncate">{link.url}</p>
+                              {typeof link.clicks === 'number' && (
+                                <p className="text-xs text-blue-500 mt-1">{link.clicks} clicks</p>
+                              )}
                             </div>
                           </div>
                           <Button 
@@ -157,9 +163,9 @@ const LinksForm: React.FC<LinksFormProps> = ({
             </Droppable>
           </DragDropContext>
         )}
-        {links.length >= 5 && (
+        {links.length >= MAX_LINKS && (
           <p className="text-sm text-amber-600 mt-2">
-            Maximum limit of 5 links reached.
+            Maximum limit of {MAX_LINKS} links reached.
           </p>
         )}
       </div>

@@ -4,6 +4,7 @@ import { useFormContext } from './FormContext';
 import FormHeader from './FormHeader';
 import PageDetailsCard from './PageDetailsCard';
 import LinksCard from './LinksCard';
+import PageAnalytics from './PageAnalytics';
 
 const FormLayout: React.FC = () => {
   const {
@@ -62,13 +63,17 @@ const FormLayout: React.FC = () => {
       />
 
       {isEditing && (
-        <LinksCard 
-          links={localLinks}
-          onAddLink={handleAddLink}
-          onDeleteLink={onDeleteLink}
-          onReorderLinks={handleReorderLinks}
-          error={error}
-        />
+        <>
+          {page && <PageAnalytics page={page} links={localLinks} />}
+          
+          <LinksCard 
+            links={localLinks}
+            onAddLink={handleAddLink}
+            onDeleteLink={onDeleteLink}
+            onReorderLinks={handleReorderLinks}
+            error={error}
+          />
+        </>
       )}
     </div>
   );

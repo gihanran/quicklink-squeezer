@@ -11,6 +11,7 @@ export type Database = {
     Tables: {
       landing_page_links: {
         Row: {
+          clicks: number
           created_at: string
           display_order: number
           icon: string | null
@@ -21,6 +22,7 @@ export type Database = {
           url: string
         }
         Insert: {
+          clicks?: number
           created_at?: string
           display_order?: number
           icon?: string | null
@@ -31,6 +33,7 @@ export type Database = {
           url: string
         }
         Update: {
+          clicks?: number
           created_at?: string
           display_order?: number
           icon?: string | null
@@ -62,6 +65,7 @@ export type Database = {
           title: string
           updated_at: string
           user_id: string
+          views: number
         }
         Insert: {
           created_at?: string
@@ -74,6 +78,7 @@ export type Database = {
           title: string
           updated_at?: string
           user_id: string
+          views?: number
         }
         Update: {
           created_at?: string
@@ -86,6 +91,7 @@ export type Database = {
           title?: string
           updated_at?: string
           user_id?: string
+          views?: number
         }
         Relationships: []
       }
@@ -283,6 +289,14 @@ export type Database = {
         Returns: {
           count: number
         }[]
+      }
+      increment_landing_page_link_clicks: {
+        Args: { link_id: string }
+        Returns: undefined
+      }
+      increment_landing_page_views: {
+        Args: { page_slug: string }
+        Returns: undefined
       }
       is_admin: {
         Args: Record<PropertyKey, never>

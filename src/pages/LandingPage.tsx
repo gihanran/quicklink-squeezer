@@ -6,6 +6,7 @@ import { LandingPage, LandingPageLink } from '@/types/landingPage';
 import { Button } from '@/components/ui/button';
 import { ExternalLink } from 'lucide-react';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
+import { incrementLinkClicks } from '@/services/landingPageLinkService';
 
 const LandingPageView: React.FC = () => {
   const { slug } = useParams<{ slug: string }>();
@@ -49,6 +50,15 @@ const LandingPageView: React.FC = () => {
         
         setLinks(linksData || []);
 
+        // Increment the view count for this page
+        if (slug) {
+          try {
+            await supabase.rpc('increment_landing_page_views', { page_slug: slug });
+          } catch (viewError) {
+            console.error('Error incrementing page views:', viewError);
+          }
+        }
+
       } catch (err: any) {
         console.error('Error fetching landing page:', err);
         setError(err.message);
@@ -61,6 +71,15 @@ const LandingPageView: React.FC = () => {
       fetchLandingPage();
     }
   }, [slug]);
+
+  const handleLinkClick = async (link: LandingPageLink) => {
+    try {
+      // Track the click
+      await incrementLinkClicks(link.id);
+    } catch (error) {
+      console.error('Error tracking link click:', error);
+    }
+  };
 
   if (loading) {
     return (
@@ -113,6 +132,7 @@ const LandingPageView: React.FC = () => {
           {page.description && (
             <p className="mt-4 text-gray-600 max-w-sm mx-auto">{page.description}</p>
           )}
+          <p className="mt-2 text-xs text-gray-400">{page.views || 0} views</p>
         </div>
 
         <div className="space-y-3">
@@ -123,13 +143,19 @@ const LandingPageView: React.FC = () => {
               target="_blank"
               rel="noopener noreferrer"
               className="block"
+              onClick={() => handleLinkClick(link)}
             >
               <Button
                 variant="outline"
                 className="w-full py-6 flex items-center justify-between hover:bg-gray-50 border-2 transition-all"
                 style={{ borderColor: `${themeColor}40` }}
               >
-                <span className="text-lg font-medium">{link.title}</span>
+                <div className="flex flex-col items-start">
+                  <span className="text-lg font-medium">{link.title}</span>
+                  {link.clicks > 0 && (
+                    <span className="text-xs text-blue-500">{link.clicks} clicks</span>
+                  )}
+                </div>
                 <ExternalLink className="h-4 w-4 opacity-50" />
               </Button>
             </a>

@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { LandingPage, LandingPageLink } from "@/types/landingPage";
 import { supabase } from "@/integrations/supabase/client";
@@ -182,11 +181,11 @@ export const useLandingPageForm = ({
       return;
     }
     
-    if (localLinks.length >= 5) {
-      setError('Maximum of 5 links allowed per landing page');
+    if (localLinks.length >= 7) {
+      setError('Maximum of 7 links allowed per landing page');
       toast({
         title: "Limit reached",
-        description: "Maximum of 5 links allowed per landing page",
+        description: "Maximum of 7 links allowed per landing page",
         variant: "destructive"
       });
       return;
