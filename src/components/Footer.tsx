@@ -1,12 +1,17 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Link2, Github, Twitter, Linkedin, Mail, Heart, FileText, Shield, Cookie } from 'lucide-react';
+import { Link2, Github, Twitter, Linkedin, Mail, Heart, FileText, Shield, Cookie, ChevronDown, ChevronUp } from 'lucide-react';
 import { useAuthState } from '@/hooks/auth';
 import AdBanner from './AdBanner';
 
 const Footer: React.FC = () => {
   const { user } = useAuthState();
+  const [showMoreLinks, setShowMoreLinks] = useState(false);
+  
+  const toggleMoreLinks = () => {
+    setShowMoreLinks(!showMoreLinks);
+  };
   
   return (
     <>
@@ -52,15 +57,32 @@ const Footer: React.FC = () => {
                   </li>
                 )}
                 <li>
-                  <Link to="/affiliate" className="text-gray-300 hover:text-white transition duration-200">
-                    Affiliate Program
-                  </Link>
+                  <button 
+                    onClick={toggleMoreLinks}
+                    className="flex items-center text-gray-300 hover:text-white transition duration-200 focus:outline-none"
+                  >
+                    More Links
+                    {showMoreLinks ? (
+                      <ChevronUp className="h-4 w-4 ml-1" />
+                    ) : (
+                      <ChevronDown className="h-4 w-4 ml-1" />
+                    )}
+                  </button>
                 </li>
-                <li>
-                  <Link to="#" className="text-gray-300 hover:text-white transition duration-200">
-                    Pricing
-                  </Link>
-                </li>
+                {showMoreLinks && (
+                  <>
+                    <li>
+                      <Link to="/affiliate" className="text-gray-300 hover:text-white transition duration-200 pl-4">
+                        Affiliate Program
+                      </Link>
+                    </li>
+                    <li>
+                      <Link to="#" className="text-gray-300 hover:text-white transition duration-200 pl-4">
+                        Pricing
+                      </Link>
+                    </li>
+                  </>
+                )}
               </ul>
             </div>
 
