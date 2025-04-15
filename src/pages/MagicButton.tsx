@@ -1,6 +1,6 @@
 
 import React, { useEffect, useState } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, Link } from 'react-router-dom';
 import { supabase } from "@/integrations/supabase/client";
 import { MagicButton as MagicButtonType } from "@/types/magicButton";
 import { incrementMagicButtonClicks } from "@/services/magicButtonService";
@@ -9,6 +9,7 @@ const MagicButton: React.FC = () => {
   const { buttonId } = useParams<{ buttonId: string }>();
   const navigate = useNavigate();
   const [error, setError] = useState<string>('');
+  const [loading, setLoading] = useState<boolean>(true);
   
   useEffect(() => {
     if (!buttonId) {
@@ -28,7 +29,9 @@ const MagicButton: React.FC = () => {
           .single();
         
         if (error || !data) {
+          console.error('Error fetching magic button:', error);
           setError('Sorry, this magic button does not exist.');
+          setLoading(false);
           return;
         }
         
@@ -101,9 +104,11 @@ const MagicButton: React.FC = () => {
             // Track click on the button
             button.addEventListener('click', async () => {
               try {
-                await fetch('${window.location.origin}/api/magic-button-click/${buttonId}', {
-                  method: 'POST'
-                });
+                const trackUrl = '${window.location.origin}/api/magic-button-click/${buttonId}';
+                console.log('Tracking click with URL:', trackUrl);
+                
+                // Open in a new tab to ensure tracking happens even if user navigates away
+                window.open(trackUrl, '_blank');
               } catch (err) {
                 console.error('Failed to track click', err);
               }
@@ -113,35 +118,52 @@ const MagicButton: React.FC = () => {
         
         // Redirect to the original URL with our script injected
         const newUrl = magicButton.original_url;
-        window.location.href = newUrl;
+        
+        if (newUrl) {
+          // Add script to the current page
+          document.head.appendChild(script);
+          
+          // Redirect to the target URL
+          window.location.href = newUrl;
+        } else {
+          setError('Invalid magic button configuration.');
+          setLoading(false);
+        }
       } catch (err) {
         console.error('Magic button redirect error:', err);
         setError('An error occurred. Please try again.');
+        setLoading(false);
       }
     };
 
     handleRedirect();
   }, [buttonId, navigate]);
 
-  return (
-    <div className="min-h-screen flex flex-col items-center justify-center p-4">
-      {error ? (
-        <div className="text-center">
-          <h1 className="text-2xl font-bold text-red-500 mb-4">Magic Button Not Found</h1>
-          <p className="mb-6">{error}</p>
-          <a 
-            href="/" 
-            className="px-4 py-2 bg-gradient-to-r from-brand-purple to-brand-blue text-white rounded-md hover:opacity-90"
-          >
-            Go back to homepage
-          </a>
-        </div>
-      ) : (
+  if (loading) {
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center p-4">
         <div className="text-center">
           <div className="mb-4 animate-pulse">
             <div className="h-12 w-12 mx-auto border-4 border-brand-purple border-t-transparent rounded-full animate-spin"></div>
           </div>
           <p className="text-xl">Redirecting you to the page...</p>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="min-h-screen flex flex-col items-center justify-center p-4">
+      {error && (
+        <div className="text-center">
+          <h1 className="text-2xl font-bold text-red-500 mb-4">Magic Button Not Found</h1>
+          <p className="mb-6">{error}</p>
+          <Link 
+            to="/" 
+            className="px-4 py-2 bg-gradient-to-r from-brand-purple to-brand-blue text-white rounded-md hover:opacity-90"
+          >
+            Go back to homepage
+          </Link>
         </div>
       )}
     </div>
