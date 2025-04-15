@@ -1,19 +1,19 @@
 
 import React, { useEffect, useState } from 'react';
-import { useParams, useNavigate, Link } from 'react-router-dom';
+import { useParams, Link } from 'react-router-dom';
 import { supabase } from "@/integrations/supabase/client";
 import { MagicButton as MagicButtonType } from "@/types/magicButton";
 import { toast } from "@/hooks/use-toast";
 
 const MagicButton: React.FC = () => {
   const { buttonId } = useParams<{ buttonId: string }>();
-  const navigate = useNavigate();
   const [error, setError] = useState<string>('');
   const [loading, setLoading] = useState<boolean>(true);
   
   useEffect(() => {
     if (!buttonId) {
-      navigate('/');
+      setError('Invalid magic button ID');
+      setLoading(false);
       return;
     }
 
@@ -44,6 +44,20 @@ const MagicButton: React.FC = () => {
         
         const magicButton = data as MagicButtonType;
         console.log('Found magic button data:', magicButton);
+        
+        // Track the click inline - no separate page/redirect needed
+        const newClickCount = (magicButton.clicks || 0) + 1;
+        const { error: updateError } = await supabase
+          .from('magic_buttons')
+          .update({ clicks: newClickCount })
+          .eq('id', buttonId);
+          
+        if (updateError) {
+          console.error('Error tracking click:', updateError);
+          // Continue with redirect even if tracking fails
+        } else {
+          console.log(`Successfully updated click count to ${newClickCount}`);
+        }
         
         // Create the magic button script to inject into the page
         const script = document.createElement('script');
@@ -108,32 +122,23 @@ const MagicButton: React.FC = () => {
             
             // Add to the page
             document.body.appendChild(popup);
-            
-            // Track click on the button
-            button.addEventListener('click', async () => {
-              try {
-                const trackUrl = '${window.location.origin}/api/magic-button-click/${buttonId}';
-                console.log('Tracking click with URL:', trackUrl);
-                
-                // Open in a new tab to ensure tracking happens even if user navigates away
-                window.open(trackUrl, '_blank');
-              } catch (err) {
-                console.error('Failed to track click', err);
-              }
-            });
           }, 3000);
         `;
         
-        // Redirect to the original URL with our script injected
+        // Get the original URL to redirect to
         const newUrl = magicButton.original_url;
         
         if (newUrl) {
           console.log('Redirecting to:', newUrl);
+          
           // Add script to the current page before redirecting
           document.head.appendChild(script);
           
-          // Directly redirect to the target URL
-          window.location.href = newUrl;
+          // Use a small delay before redirecting to ensure script is loaded
+          setTimeout(() => {
+            // Directly redirect to the target URL
+            window.location.replace(newUrl);
+          }, 100);
         } else {
           setError('Invalid magic button configuration.');
           setLoading(false);
@@ -146,7 +151,7 @@ const MagicButton: React.FC = () => {
     };
 
     handleRedirect();
-  }, [buttonId, navigate]);
+  }, [buttonId]);
 
   if (loading) {
     return (
