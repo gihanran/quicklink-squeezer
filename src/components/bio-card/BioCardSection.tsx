@@ -1,111 +1,42 @@
 
-import React, { useState } from 'react';
-import { useLandingPages } from "@/hooks/useLandingPages";
+import React from 'react';
+import { useBioCardSection, BioCardViewState } from "@/hooks/useBioCardSection";
 import BioCardList from "@/components/bio-card/BioCardList";
 import BioCardForm from "@/components/bio-card/BioCardForm";
 import BioCardPreview from "@/components/bio-card/BioCardPreview";
 import TrackingDetailsDialog from "@/components/bio-card/TrackingDetailsDialog";
-import { 
-  AlertDialog, 
-  AlertDialogAction, 
-  AlertDialogCancel, 
-  AlertDialogContent, 
-  AlertDialogDescription, 
-  AlertDialogFooter, 
-  AlertDialogHeader, 
-  AlertDialogTitle
-} from "@/components/ui/alert-dialog";
-import { LandingPage } from "@/types/landingPage";
-
-enum ViewState {
-  LIST,
-  CREATE,
-  EDIT,
-  PREVIEW
-}
+import DeleteConfirmationDialog from "@/components/bio-card/dialogs/DeleteConfirmationDialog";
+import BioCardHeader from "@/components/bio-card/BioCardHeader";
 
 const BioCardSection: React.FC = () => {
-  const [viewState, setViewState] = useState<ViewState>(ViewState.LIST);
-  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
-  const [pageToDelete, setPageToDelete] = useState<LandingPage | null>(null);
-  const [trackingDialogOpen, setTrackingDialogOpen] = useState(false);
-  
   const {
+    viewState,
+    deleteDialogOpen,
+    setDeleteDialogOpen,
+    pageToDelete,
+    trackingDialogOpen,
+    setTrackingDialogOpen,
     landingPages,
     loading,
     selectedPage,
-    setSelectedPage,
     pageLinks,
-    createLandingPage,
-    updateLandingPage,
-    deleteLandingPage,
+    handleCreateNew,
+    handleEdit,
+    handlePreview,
+    handleDelete,
+    handleShowTrackingDetails,
+    confirmDelete,
+    handleSave,
+    handleBack,
     addPageLink,
     updatePageLink,
     deletePageLink,
-    updateLinkOrder,
-    fetchPageLinks
-  } = useLandingPages();
-
-  const handleCreateNew = () => {
-    setSelectedPage(null);
-    setViewState(ViewState.CREATE);
-  };
-
-  const handleEdit = (page: LandingPage) => {
-    setSelectedPage(page);
-    setViewState(ViewState.EDIT);
-  };
-
-  const handlePreview = (page: LandingPage) => {
-    setSelectedPage(page);
-    setViewState(ViewState.PREVIEW);
-  };
-
-  const handleDelete = (page: LandingPage) => {
-    setPageToDelete(page);
-    setDeleteDialogOpen(true);
-  };
-
-  const handleShowTrackingDetails = async (page: LandingPage) => {
-    setSelectedPage(page);
-    // Fetch fresh links data for this page
-    if (page.id) {
-      await fetchPageLinks(page.id);
-    }
-    setTrackingDialogOpen(true);
-  };
-
-  const confirmDelete = async () => {
-    if (pageToDelete) {
-      await deleteLandingPage(pageToDelete.id);
-      setDeleteDialogOpen(false);
-      setPageToDelete(null);
-    }
-  };
-
-  const handleSave = async (pageData: Partial<LandingPage>) => {
-    if (viewState === ViewState.CREATE) {
-      const newPage = await createLandingPage(pageData);
-      if (newPage) {
-        setViewState(ViewState.EDIT);
-        return newPage;
-      }
-    } else {
-      const updatedPage = await updateLandingPage(pageData.id!, pageData);
-      if (updatedPage) {
-        return updatedPage;
-      }
-    }
-    return null;
-  };
-
-  const handleBack = () => {
-    setViewState(ViewState.LIST);
-  };
+    updateLinkOrder
+  } = useBioCardSection();
 
   const renderContent = () => {
     switch (viewState) {
-      case ViewState.LIST:
+      case BioCardViewState.LIST:
         return (
           <BioCardList
             pages={landingPages}
@@ -117,7 +48,7 @@ const BioCardSection: React.FC = () => {
             onShowTrackingDetails={handleShowTrackingDetails}
           />
         );
-      case ViewState.CREATE:
+      case BioCardViewState.CREATE:
         return (
           <BioCardForm
             page={null}
@@ -130,7 +61,7 @@ const BioCardSection: React.FC = () => {
             onBack={handleBack}
           />
         );
-      case ViewState.EDIT:
+      case BioCardViewState.EDIT:
         return (
           <BioCardForm
             page={selectedPage}
@@ -143,7 +74,7 @@ const BioCardSection: React.FC = () => {
             onBack={handleBack}
           />
         );
-      case ViewState.PREVIEW:
+      case BioCardViewState.PREVIEW:
         return (
           <BioCardPreview
             page={selectedPage!}
@@ -159,36 +90,16 @@ const BioCardSection: React.FC = () => {
   return (
     <>
       <div className="space-y-6">
-        <div className="flex flex-col md:flex-row justify-between items-start mb-8">
-          <div>
-            <h1 className="text-3xl font-bold">Bio Card</h1>
-            <p className="text-gray-600">Create and manage simple bio cards with multiple links.</p>
-          </div>
-        </div>
-        
+        <BioCardHeader />
         {renderContent()}
       </div>
 
-      <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Are you sure?</AlertDialogTitle>
-            <AlertDialogDescription>
-              This will permanently delete the bio card "{pageToDelete?.title}" and all its links.
-              This action cannot be undone.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction 
-              className="bg-red-500 hover:bg-red-600"
-              onClick={confirmDelete}
-            >
-              Delete
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+      <DeleteConfirmationDialog
+        open={deleteDialogOpen}
+        onOpenChange={setDeleteDialogOpen}
+        pageToDelete={pageToDelete}
+        onConfirm={confirmDelete}
+      />
 
       <TrackingDetailsDialog
         open={trackingDialogOpen}
