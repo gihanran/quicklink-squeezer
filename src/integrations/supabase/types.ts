@@ -95,6 +95,42 @@ export type Database = {
         }
         Relationships: []
       }
+      magic_buttons: {
+        Row: {
+          button_title: string
+          button_url: string
+          clicks: number
+          created_at: string
+          description: string | null
+          id: string
+          original_url: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          button_title: string
+          button_url: string
+          clicks?: number
+          created_at?: string
+          description?: string | null
+          id?: string
+          original_url: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          button_title?: string
+          button_url?: string
+          clicks?: number
+          created_at?: string
+          description?: string | null
+          id?: string
+          original_url?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       notifications: {
         Row: {
           created_at: string | null
