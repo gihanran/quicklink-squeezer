@@ -1,7 +1,7 @@
 
 import React, { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { incrementMagicButtonClicks } from '@/services/magicButtonService';
+import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/hooks/use-toast';
 
 const MagicButtonTrack: React.FC = () => {
@@ -20,20 +20,52 @@ const MagicButtonTrack: React.FC = () => {
     const trackButtonClick = async () => {
       try {
         console.log(`Tracking click for button ID: ${buttonId}`);
-        const result = await incrementMagicButtonClicks(buttonId);
         
-        if (result) {
-          setSuccess(true);
+        // First get the current click count
+        const { data, error } = await supabase
+          .from('magic_buttons')
+          .select('clicks')
+          .eq('id', buttonId)
+          .maybeSingle();
+        
+        if (error) {
+          console.error('Error getting click count:', error);
+          setError('Failed to track click. An error occurred.');
           setLoading(false);
-          // Show success message but don't close the window automatically
-          toast({
-            title: "Click tracked successfully",
-            description: "You can close this window now."
-          });
-        } else {
+          return;
+        }
+        
+        if (!data) {
+          console.error('Magic button not found with ID:', buttonId);
           setError('Failed to track click. Button may not exist.');
           setLoading(false);
+          return;
         }
+        
+        // Update the click count
+        const newClickCount = (data.clicks || 0) + 1;
+        console.log(`Updating clicks from ${data.clicks} to ${newClickCount}`);
+        
+        const { error: updateError } = await supabase
+          .from('magic_buttons')
+          .update({ clicks: newClickCount })
+          .eq('id', buttonId);
+        
+        if (updateError) {
+          console.error('Error updating click count:', updateError);
+          setError('Failed to track click. An error occurred while updating.');
+          setLoading(false);
+          return;
+        }
+        
+        setSuccess(true);
+        setLoading(false);
+        // Show success message but don't close the window automatically
+        toast({
+          title: "Click tracked successfully",
+          description: "You can close this window now."
+        });
+        
       } catch (error) {
         console.error('Error tracking magic button click:', error);
         setError('An error occurred while tracking the click.');
