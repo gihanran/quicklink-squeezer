@@ -1,10 +1,11 @@
+
 import React from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Link2, ChartBar, Bell, UserCircle, Layout, Wand2 } from "lucide-react";
 import LinkAnalytics from "@/components/LinkAnalytics";
 import NotificationsSection from "@/components/NotificationsSection";
 import ProfileSection from "@/components/ProfileSection";
-import LandingPagesSection from "@/components/landing-pages/LandingPagesSection";
+import BioCardSection from "@/components/bio-card/BioCardSection";
 import MagicButtonsSection from "@/components/magic-button/MagicButtonsSection";
 
 interface DashboardTabNavProps {
@@ -56,7 +57,7 @@ const DashboardTabNav: React.FC<DashboardTabNavProps> = ({ children, links }) =>
 
       
       <TabsContent value="landing-pages">
-        <LandingPagesSection />
+        <BioCardSection />
       </TabsContent>
       
       <TabsContent value="analytics">

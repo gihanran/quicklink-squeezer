@@ -1,10 +1,10 @@
 
 import React, { useState } from 'react';
 import { useLandingPages } from "@/hooks/useLandingPages";
-import LandingPagesList from "@/components/landing-pages/LandingPagesList";
-import LandingPageForm from "@/components/landing-pages/LandingPageForm";
-import LandingPagePreview from "@/components/landing-pages/LandingPagePreview";
-import TrackingDetailsDialog from "@/components/landing-pages/TrackingDetailsDialog";
+import BioCardList from "@/components/bio-card/BioCardList";
+import BioCardForm from "@/components/bio-card/BioCardForm";
+import BioCardPreview from "@/components/bio-card/BioCardPreview";
+import TrackingDetailsDialog from "@/components/bio-card/TrackingDetailsDialog";
 import { 
   AlertDialog, 
   AlertDialogAction, 
@@ -24,7 +24,7 @@ enum ViewState {
   PREVIEW
 }
 
-const LandingPagesSection: React.FC = () => {
+const BioCardSection: React.FC = () => {
   const [viewState, setViewState] = useState<ViewState>(ViewState.LIST);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [pageToDelete, setPageToDelete] = useState<LandingPage | null>(null);
@@ -107,7 +107,7 @@ const LandingPagesSection: React.FC = () => {
     switch (viewState) {
       case ViewState.LIST:
         return (
-          <LandingPagesList
+          <BioCardList
             pages={landingPages}
             loading={loading}
             onCreateNew={handleCreateNew}
@@ -119,7 +119,7 @@ const LandingPagesSection: React.FC = () => {
         );
       case ViewState.CREATE:
         return (
-          <LandingPageForm
+          <BioCardForm
             page={null}
             links={[]}
             onSave={handleSave}
@@ -132,7 +132,7 @@ const LandingPagesSection: React.FC = () => {
         );
       case ViewState.EDIT:
         return (
-          <LandingPageForm
+          <BioCardForm
             page={selectedPage}
             links={pageLinks}
             onSave={handleSave}
@@ -145,7 +145,7 @@ const LandingPagesSection: React.FC = () => {
         );
       case ViewState.PREVIEW:
         return (
-          <LandingPagePreview
+          <BioCardPreview
             page={selectedPage!}
             links={pageLinks}
             onBack={handleBack}
@@ -161,8 +161,8 @@ const LandingPagesSection: React.FC = () => {
       <div className="space-y-6">
         <div className="flex flex-col md:flex-row justify-between items-start mb-8">
           <div>
-            <h1 className="text-3xl font-bold">Landing Pages</h1>
-            <p className="text-gray-600">Create and manage simple landing pages with multiple links.</p>
+            <h1 className="text-3xl font-bold">Bio Card</h1>
+            <p className="text-gray-600">Create and manage simple bio cards with multiple links.</p>
           </div>
         </div>
         
@@ -174,7 +174,7 @@ const LandingPagesSection: React.FC = () => {
           <AlertDialogHeader>
             <AlertDialogTitle>Are you sure?</AlertDialogTitle>
             <AlertDialogDescription>
-              This will permanently delete the landing page "{pageToDelete?.title}" and all its links.
+              This will permanently delete the bio card "{pageToDelete?.title}" and all its links.
               This action cannot be undone.
             </AlertDialogDescription>
           </AlertDialogHeader>
@@ -200,4 +200,4 @@ const LandingPagesSection: React.FC = () => {
   );
 };
 
-export default LandingPagesSection;
+export default BioCardSection;
