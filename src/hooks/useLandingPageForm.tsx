@@ -1,8 +1,10 @@
 
 import { useState, useEffect } from 'react';
 import { LandingPage, LandingPageLink, SocialMediaLink } from "@/types/landingPage";
-import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { useImageUpload } from './useImageUpload';
+import { useFormUtils } from './useFormUtils';
+import { useLinksManagement } from './useLinksManagement';
 
 interface UseLandingPageFormProps {
   page: Partial<LandingPage> | null;
@@ -32,26 +34,18 @@ export const useLandingPageForm = ({
   
   // UI state
   const [saving, setSaving] = useState(false);
-  const [uploading, setUploading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [localLinks, setLocalLinks] = useState<LandingPageLink[]>(links);
-  
   const { toast } = useToast();
+  
+  // Custom hooks
+  const { uploading, error, uploadImage, setError } = useImageUpload();
+  const { generateSlug, validateForm } = useFormUtils();
+  const { localLinks, handleAddLink, handleReorderLinks } = useLinksManagement({
+    links,
+    onAddLink,
+    onUpdateLinkOrder
+  });
+  
   const isEditing = !!page?.id;
-
-  useEffect(() => {
-    setLocalLinks(links);
-  }, [links]);
-
-  // Generate a slug from the title
-  const generateSlug = (title: string) => {
-    return title
-      .toLowerCase()
-      .replace(/[^\w\s-]/g, '')
-      .replace(/\s+/g, '-')
-      .replace(/-+/g, '-')
-      .trim();
-  };
 
   const handleTitleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newTitle = e.target.value;
@@ -69,132 +63,21 @@ export const useLandingPageForm = ({
   };
 
   const handleProfileImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = e.target.files;
-    if (!files || files.length === 0) return;
-    
-    try {
-      setUploading(true);
-      setError(null);
-      
-      // Get authenticated user
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) {
-        toast({
-          title: "Authentication required",
-          description: "You must be logged in to upload an image",
-          variant: "destructive"
-        });
-        throw new Error('You must be logged in to upload an image');
-      }
-      
-      const file = files[0];
-      const fileExt = file.name.split('.').pop();
-      const fileName = `${user.id}/landing-pages/${Date.now()}.${fileExt}`;
-      
-      const { error: uploadError } = await supabase.storage
-        .from('landing_pages')
-        .upload(fileName, file, { upsert: true });
-        
-      if (uploadError) {
-        console.error('Storage upload error:', uploadError);
-        toast({
-          title: "Upload failed",
-          description: uploadError.message,
-          variant: "destructive"
-        });
-        throw uploadError;
-      }
-      
-      const { data } = supabase.storage
-        .from('landing_pages')
-        .getPublicUrl(fileName);
-        
-      setProfileImageUrl(data.publicUrl);
-      
-      toast({
-        title: "Image uploaded",
-        description: "Your profile image has been uploaded successfully",
-      });
-    } catch (error: any) {
-      console.error('Error uploading image:', error);
-      setError(error.message);
-      toast({
-        title: "Upload failed",
-        description: error.message || "An error occurred while uploading the image",
-        variant: "destructive"
-      });
-    } finally {
-      setUploading(false);
+    const imageUrl = await uploadImage(e);
+    if (imageUrl) {
+      setProfileImageUrl(imageUrl);
     }
   };
 
   const handleBackgroundImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = e.target.files;
-    if (!files || files.length === 0) return;
-    
-    try {
-      setUploading(true);
-      setError(null);
-      
-      // Get authenticated user
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) {
-        toast({
-          title: "Authentication required",
-          description: "You must be logged in to upload an image",
-          variant: "destructive"
-        });
-        throw new Error('You must be logged in to upload an image');
-      }
-      
-      const file = files[0];
-      const fileExt = file.name.split('.').pop();
-      const fileName = `${user.id}/landing-pages/backgrounds/${Date.now()}.${fileExt}`;
-      
-      const { error: uploadError } = await supabase.storage
-        .from('landing_pages')
-        .upload(fileName, file, { upsert: true });
-        
-      if (uploadError) {
-        console.error('Storage upload error:', uploadError);
-        toast({
-          title: "Upload failed",
-          description: uploadError.message,
-          variant: "destructive"
-        });
-        throw uploadError;
-      }
-      
-      const { data } = supabase.storage
-        .from('landing_pages')
-        .getPublicUrl(fileName);
-        
-      setBackgroundImageUrl(data.publicUrl);
-      
-      toast({
-        title: "Image uploaded",
-        description: "Your background image has been uploaded successfully",
-      });
-    } catch (error: any) {
-      console.error('Error uploading image:', error);
-      setError(error.message);
-      toast({
-        title: "Upload failed",
-        description: error.message || "An error occurred while uploading the image",
-        variant: "destructive"
-      });
-    } finally {
-      setUploading(false);
+    const imageUrl = await uploadImage(e, 'backgrounds');
+    if (imageUrl) {
+      setBackgroundImageUrl(imageUrl);
     }
   };
 
   const handleSave = async () => {
-    if (!title) {
-      toast({
-        title: "Missing title",
-        description: "Please provide a title for your landing page",
-        variant: "destructive"
-      });
+    if (!validateForm(title, slug, isEditing)) {
       return;
     }
 
@@ -238,71 +121,9 @@ export const useLandingPageForm = ({
     }
   };
 
-  const handleAddLink = async (link: { title: string, url: string }) => {
-    if (!link.title || !link.url || !page?.id) {
-      toast({
-        title: "Invalid link",
-        description: "Please provide both title and URL for your link",
-        variant: "destructive"
-      });
-      return;
-    }
-    
-    if (localLinks.length >= 7) {
-      setError('Maximum of 7 links allowed per landing page');
-      toast({
-        title: "Limit reached",
-        description: "Maximum of 7 links allowed per landing page",
-        variant: "destructive"
-      });
-      return;
-    }
-
-    setError(null);
-    
-    try {
-      const newLink = await onAddLink({
-        landing_page_id: page.id,
-        title: link.title,
-        url: link.url.startsWith('http') ? link.url : `https://${link.url}`,
-        display_order: localLinks.length
-      });
-
-      if (newLink) {
-        setLocalLinks([...localLinks, newLink]);
-        toast({
-          title: "Link added",
-          description: "Your link has been added successfully"
-        });
-      }
-    } catch (error: any) {
-      console.error('Error adding link:', error);
-      setError(error.message);
-      toast({
-        title: "Failed to add link",
-        description: error.message || "An error occurred while adding the link",
-        variant: "destructive"
-      });
-    }
-  };
-
-  const handleReorderLinks = async (reorderedLinks: LandingPageLink[]) => {
-    try {
-      setError(null);
-      await onUpdateLinkOrder(reorderedLinks);
-      setLocalLinks(reorderedLinks);
-      toast({
-        title: "Links reordered",
-        description: "Your links have been reordered successfully"
-      });
-    } catch (error: any) {
-      console.error('Error reordering links:', error);
-      setError(error.message);
-      toast({
-        title: "Failed to reorder links",
-        description: error.message || "An error occurred while reordering links",
-        variant: "destructive"
-      });
+  const addPageLink = async (link: { title: string, url: string }) => {
+    if (page?.id) {
+      return handleAddLink(link, page.id);
     }
   };
 
@@ -335,7 +156,7 @@ export const useLandingPageForm = ({
     handleProfileImageUpload,
     handleBackgroundImageUpload,
     handleSave,
-    handleAddLink,
+    handleAddLink: addPageLink,
     handleReorderLinks
   };
 };

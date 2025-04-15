@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
@@ -84,7 +83,6 @@ const LandingPageView: React.FC = () => {
     }
   }, [slug]);
 
-  // Load advertisement scripts
   useEffect(() => {
     if (!loading && adContainerRef.current) {
       // Create the first script element with atOptions
@@ -188,7 +186,6 @@ const LandingPageView: React.FC = () => {
       className="min-h-screen flex flex-col py-12 px-4 relative"
       style={backgroundStyle as React.CSSProperties}
     >
-      {/* Apply overlay if background image exists */}
       {page.background_image_url && (
         <div className="absolute inset-0 bg-black bg-opacity-40 z-0"></div>
       )}
@@ -220,7 +217,6 @@ const LandingPageView: React.FC = () => {
           )}
         </div>
 
-        {/* Social Media Links */}
         {socialLinks && socialLinks.length > 0 && (
           <div className="flex justify-center gap-4 my-4">
             {socialLinks.map((social, index) => (
@@ -264,7 +260,6 @@ const LandingPageView: React.FC = () => {
           ))}
         </div>
 
-        {/* Advertisement section */}
         <div className="w-full flex justify-center my-6">
           <div ref={adContainerRef} className="ad-container" />
         </div>
