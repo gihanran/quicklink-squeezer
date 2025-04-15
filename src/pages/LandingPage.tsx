@@ -8,6 +8,23 @@ import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { incrementLinkClicks } from '@/services/landingPageLinkService';
 import { Facebook, Instagram, Linkedin, Twitter, Youtube } from 'lucide-react';
 
+interface DatabaseLandingPage {
+  id: string;
+  user_id: string;
+  title: string;
+  description: string | null;
+  slug: string;
+  published: boolean;
+  profile_image_url: string | null;
+  theme_color: string;
+  created_at: string;
+  updated_at: string;
+  views: number;
+  background_image_url?: string | null;
+  button_style?: 'default' | 'rounded' | 'pill' | 'outline' | 'subtle';
+  social_links?: SocialMediaLink[];
+}
+
 const LandingPageView: React.FC = () => {
   const { slug } = useParams<{ slug: string }>();
   const navigate = useNavigate();
@@ -39,13 +56,16 @@ const LandingPageView: React.FC = () => {
           throw pageError;
         }
 
+        // Type the raw data from the database
+        const dbPage = pageData as DatabaseLandingPage;
+
         // Add default values for new fields if they don't exist in the database
         const fullPageData: LandingPage = {
-          ...pageData,
-          background_image_url: pageData.background_image_url || null,
-          button_style: pageData.button_style || 'default',
-          social_links: pageData.social_links || []
-        } as LandingPage;
+          ...dbPage,
+          background_image_url: dbPage.background_image_url || null,
+          button_style: dbPage.button_style || 'default',
+          social_links: dbPage.social_links || []
+        };
         
         setPage(fullPageData);
         setSocialLinks(fullPageData.social_links || []);
@@ -54,7 +74,7 @@ const LandingPageView: React.FC = () => {
         const { data: linksData, error: linksError } = await supabase
           .from('landing_page_links')
           .select('*')
-          .eq('landing_page_id', pageData.id)
+          .eq('landing_page_id', dbPage.id)
           .order('display_order', { ascending: true });
           
         if (linksError) throw linksError;
