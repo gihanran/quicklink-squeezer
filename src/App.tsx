@@ -15,6 +15,8 @@ import PrivacyPolicy from "./pages/PrivacyPolicy";
 import TermsOfService from "./pages/TermsOfService";
 import CookiePolicy from "./pages/CookiePolicy";
 import LandingPage from "./pages/LandingPage";
+import MagicButton from "./pages/MagicButton";
+import MagicButtonTrack from "./pages/MagicButtonTrack";
 import * as TooltipPrimitive from "@radix-ui/react-tooltip";
 
 const queryClient = new QueryClient();
@@ -31,6 +33,8 @@ const App = () => (
             <Route path="/auth" element={<Auth />} />
             <Route path="/s/:shortCode" element={<Redirect />} />
             <Route path="/p/:slug" element={<LandingPage />} />
+            <Route path="/magic/:buttonId" element={<MagicButton />} />
+            <Route path="/api/magic-button-click/:buttonId" element={<MagicButtonTrack />} />
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/admin" element={<Admin />} />
             <Route path="/affiliate" element={<Affiliate />} />
