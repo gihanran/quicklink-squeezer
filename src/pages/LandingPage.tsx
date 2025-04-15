@@ -2,7 +2,7 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
-import { LandingPage, LandingPageLink } from '@/types/landingPage';
+import { LandingPage, LandingPageLink, SocialMediaLink } from '@/types/landingPage';
 import { Button } from '@/components/ui/button';
 import { ExternalLink } from 'lucide-react';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
@@ -14,7 +14,7 @@ const LandingPageView: React.FC = () => {
   const navigate = useNavigate();
   const [page, setPage] = useState<LandingPage | null>(null);
   const [links, setLinks] = useState<LandingPageLink[]>([]);
-  const [socialLinks, setSocialLinks] = useState<any[]>([]);
+  const [socialLinks, setSocialLinks] = useState<SocialMediaLink[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const adContainerRef = useRef<HTMLDivElement>(null);
@@ -40,7 +40,16 @@ const LandingPageView: React.FC = () => {
           throw pageError;
         }
 
-        setPage(pageData);
+        // Add default values for new fields if they don't exist in the database
+        const fullPageData: LandingPage = {
+          ...pageData,
+          background_image_url: pageData.background_image_url || null,
+          button_style: pageData.button_style || 'default',
+          social_links: pageData.social_links || []
+        };
+        
+        setPage(fullPageData);
+        setSocialLinks(fullPageData.social_links || []);
         
         // Fetch links for this landing page
         const { data: linksData, error: linksError } = await supabase
@@ -52,16 +61,6 @@ const LandingPageView: React.FC = () => {
         if (linksError) throw linksError;
         
         setLinks(linksData || []);
-
-        // Fetch social media links
-        // In a real application, you would store these in your database
-        // For this example, we'll mock some social links based on the page ID
-        // In a production app, you would fetch these from a table like landing_page_social_links
-        const mockSocialLinks = [
-          { platform: 'Facebook', url: 'https://facebook.com/profile', icon: 'facebook' },
-          { platform: 'Instagram', url: 'https://instagram.com/profile', icon: 'instagram' }
-        ];
-        setSocialLinks(mockSocialLinks);
 
         // Increment the view count for this page
         if (slug) {
@@ -222,7 +221,7 @@ const LandingPageView: React.FC = () => {
         </div>
 
         {/* Social Media Links */}
-        {socialLinks.length > 0 && (
+        {socialLinks && socialLinks.length > 0 && (
           <div className="flex justify-center gap-4 my-4">
             {socialLinks.map((social, index) => (
               <a 

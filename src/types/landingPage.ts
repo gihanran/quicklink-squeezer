@@ -13,6 +13,7 @@ export interface LandingPage {
   created_at: string;
   updated_at: string;
   views: number;
+  social_links?: SocialMediaLink[];
 }
 
 export interface LandingPageLink {
@@ -42,6 +43,7 @@ export interface CreateLandingPageData {
   background_image_url?: string | null;
   theme_color?: string;
   button_style?: string;
+  social_links?: SocialMediaLink[];
   user_id: string;
 }
 

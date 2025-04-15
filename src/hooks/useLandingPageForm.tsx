@@ -1,5 +1,6 @@
+
 import { useState, useEffect } from 'react';
-import { LandingPage, LandingPageLink } from "@/types/landingPage";
+import { LandingPage, LandingPageLink, SocialMediaLink } from "@/types/landingPage";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 
@@ -24,7 +25,10 @@ export const useLandingPageForm = ({
   const [slug, setSlug] = useState(page?.slug || '');
   const [published, setPublished] = useState(page?.published || false);
   const [profileImageUrl, setProfileImageUrl] = useState(page?.profile_image_url || '');
+  const [backgroundImageUrl, setBackgroundImageUrl] = useState(page?.background_image_url || null);
   const [themeColor, setThemeColor] = useState(page?.theme_color || '#9b87f5');
+  const [buttonStyle, setButtonStyle] = useState(page?.button_style || 'default');
+  const [socialLinks, setSocialLinks] = useState<SocialMediaLink[]>(page?.social_links || []);
   
   // UI state
   const [saving, setSaving] = useState(false);
@@ -124,6 +128,66 @@ export const useLandingPageForm = ({
     }
   };
 
+  const handleBackgroundImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (!files || files.length === 0) return;
+    
+    try {
+      setUploading(true);
+      setError(null);
+      
+      // Get authenticated user
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        toast({
+          title: "Authentication required",
+          description: "You must be logged in to upload an image",
+          variant: "destructive"
+        });
+        throw new Error('You must be logged in to upload an image');
+      }
+      
+      const file = files[0];
+      const fileExt = file.name.split('.').pop();
+      const fileName = `${user.id}/landing-pages/backgrounds/${Date.now()}.${fileExt}`;
+      
+      const { error: uploadError } = await supabase.storage
+        .from('landing_pages')
+        .upload(fileName, file, { upsert: true });
+        
+      if (uploadError) {
+        console.error('Storage upload error:', uploadError);
+        toast({
+          title: "Upload failed",
+          description: uploadError.message,
+          variant: "destructive"
+        });
+        throw uploadError;
+      }
+      
+      const { data } = supabase.storage
+        .from('landing_pages')
+        .getPublicUrl(fileName);
+        
+      setBackgroundImageUrl(data.publicUrl);
+      
+      toast({
+        title: "Image uploaded",
+        description: "Your background image has been uploaded successfully",
+      });
+    } catch (error: any) {
+      console.error('Error uploading image:', error);
+      setError(error.message);
+      toast({
+        title: "Upload failed",
+        description: error.message || "An error occurred while uploading the image",
+        variant: "destructive"
+      });
+    } finally {
+      setUploading(false);
+    }
+  };
+
   const handleSave = async () => {
     if (!title) {
       toast({
@@ -142,7 +206,10 @@ export const useLandingPageForm = ({
         slug,
         published,
         profile_image_url: profileImageUrl || null,
-        theme_color: themeColor
+        background_image_url: backgroundImageUrl,
+        theme_color: themeColor,
+        button_style: buttonStyle as 'default' | 'rounded' | 'pill' | 'outline' | 'subtle',
+        social_links: socialLinks
       };
 
       if (!isEditing) {
@@ -246,7 +313,10 @@ export const useLandingPageForm = ({
     slug,
     published,
     profileImageUrl,
+    backgroundImageUrl,
     themeColor,
+    buttonStyle,
+    socialLinks,
     // UI state
     saving,
     uploading,
@@ -259,7 +329,11 @@ export const useLandingPageForm = ({
     setSlug,
     setPublished,
     setThemeColor,
+    setButtonStyle,
+    setSocialLinks,
+    setBackgroundImageUrl,
     handleProfileImageUpload,
+    handleBackgroundImageUpload,
     handleSave,
     handleAddLink,
     handleReorderLinks

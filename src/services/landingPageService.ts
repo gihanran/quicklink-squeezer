@@ -1,26 +1,22 @@
 
-import { supabase } from "@/integrations/supabase/client";
-import { CreateLandingPageData, LandingPage } from "@/types/landingPage";
+import { supabase } from '@/integrations/supabase/client';
+import { LandingPage, CreateLandingPageData } from '@/types/landingPage';
 
 export const fetchLandingPages = async (): Promise<LandingPage[]> => {
   const { data, error } = await supabase
     .from('landing_pages')
     .select('*')
     .order('created_at', { ascending: false });
-
+    
   if (error) throw error;
-  return data || [];
-};
-
-export const getLandingPageById = async (id: string): Promise<LandingPage> => {
-  const { data, error } = await supabase
-    .from('landing_pages')
-    .select('*')
-    .eq('id', id)
-    .single();
-
-  if (error) throw error;
-  return data;
+  
+  // Add default values for new fields if they don't exist
+  return data.map(page => ({
+    ...page,
+    background_image_url: page.background_image_url || null,
+    button_style: page.button_style || 'default',
+    social_links: page.social_links || []
+  })) as LandingPage[];
 };
 
 export const createLandingPage = async (pageData: CreateLandingPageData): Promise<LandingPage> => {
@@ -29,9 +25,15 @@ export const createLandingPage = async (pageData: CreateLandingPageData): Promis
     .insert(pageData)
     .select()
     .single();
-
+    
   if (error) throw error;
-  return data;
+  
+  return {
+    ...data,
+    background_image_url: data.background_image_url || null,
+    button_style: data.button_style || 'default',
+    social_links: data.social_links || []
+  } as LandingPage;
 };
 
 export const updateLandingPage = async (id: string, updates: Partial<LandingPage>): Promise<LandingPage> => {
@@ -41,33 +43,41 @@ export const updateLandingPage = async (id: string, updates: Partial<LandingPage
     .eq('id', id)
     .select()
     .single();
-
+    
   if (error) throw error;
-  return data;
+  
+  return {
+    ...data,
+    background_image_url: data.background_image_url || null,
+    button_style: data.button_style || 'default',
+    social_links: data.social_links || []
+  } as LandingPage;
 };
 
-export const deleteLandingPage = async (id: string): Promise<void> => {
+export const deleteLandingPage = async (id: string): Promise<boolean> => {
   const { error } = await supabase
     .from('landing_pages')
     .delete()
     .eq('id', id);
-
+    
   if (error) throw error;
+  
+  return true;
 };
 
-export const uploadProfileImage = async (file: File, userId: string): Promise<string> => {
-  const fileExt = file.name.split('.').pop();
-  const fileName = `${userId}/landing-pages/${Date.now()}.${fileExt}`;
-  
-  const { error: uploadError } = await supabase.storage
+export const fetchLandingPageBySlug = async (slug: string): Promise<LandingPage> => {
+  const { data, error } = await supabase
     .from('landing_pages')
-    .upload(fileName, file, { upsert: true });
+    .select('*')
+    .eq('slug', slug)
+    .single();
+    
+  if (error) throw error;
   
-  if (uploadError) throw uploadError;
-  
-  const { data } = supabase.storage
-    .from('landing_pages')
-    .getPublicUrl(fileName);
-  
-  return data.publicUrl;
+  return {
+    ...data,
+    background_image_url: data.background_image_url || null,
+    button_style: data.button_style || 'default',
+    social_links: data.social_links || []
+  } as LandingPage;
 };

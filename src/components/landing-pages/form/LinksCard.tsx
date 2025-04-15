@@ -30,7 +30,7 @@ const LinksCard: React.FC<LinksCardProps> = ({
       <CardHeader>
         <CardTitle>Links</CardTitle>
         <CardDescription>
-          Add links that will appear on your landing page (maximum 5).
+          Add links that will appear on your landing page (maximum 7).
           Drag and drop to reorder links.
         </CardDescription>
       </CardHeader>
