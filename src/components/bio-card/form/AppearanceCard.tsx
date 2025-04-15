@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -11,7 +12,7 @@ type ButtonStyleType = 'default' | 'rounded' | 'pill' | 'outline' | 'subtle';
 interface AppearanceCardProps {
   backgroundImageUrl: string | null;
   themeColor: string;
-  buttonStyle: string;
+  buttonStyle: ButtonStyleType;
   onBackgroundImageChange: (imageUrl: string | null) => void;
   onThemeColorChange: (color: string) => void;
   onButtonStyleChange: (style: ButtonStyleType) => void;
