@@ -123,23 +123,41 @@ export const deleteMagicButton = async (id: string): Promise<boolean> => {
 
 export const incrementMagicButtonClicks = async (id: string): Promise<boolean> => {
   try {
+    // Log the button ID to help with debugging
+    console.log(`Incrementing clicks for magic button ID: ${id}`);
+    
+    // First get the current click count
     const { data, error } = await supabase
       .from('magic_buttons')
       .select('clicks')
       .eq('id', id)
-      .single();
+      .maybeSingle();
     
-    if (error) throw error;
+    if (error) {
+      console.error('Error getting click count:', error);
+      throw error;
+    }
+    
+    if (!data) {
+      console.error('Magic button not found with ID:', id);
+      return false;
+    }
     
     const newClickCount = (data.clicks || 0) + 1;
+    console.log(`Updating clicks from ${data.clicks} to ${newClickCount}`);
     
+    // Update the click count
     const { error: updateError } = await supabase
       .from('magic_buttons')
       .update({ clicks: newClickCount })
       .eq('id', id);
     
-    if (updateError) throw updateError;
+    if (updateError) {
+      console.error('Error updating click count:', updateError);
+      throw updateError;
+    }
     
+    console.log('Successfully updated click count');
     return true;
   } catch (error) {
     console.error('Error incrementing magic button clicks:', error);

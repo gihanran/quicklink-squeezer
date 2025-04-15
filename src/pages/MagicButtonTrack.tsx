@@ -8,6 +8,7 @@ const MagicButtonTrack: React.FC = () => {
   const { buttonId } = useParams<{ buttonId: string }>();
   const [error, setError] = useState<string>('');
   const [loading, setLoading] = useState<boolean>(true);
+  const [success, setSuccess] = useState<boolean>(false);
   
   useEffect(() => {
     if (!buttonId) {
@@ -19,20 +20,16 @@ const MagicButtonTrack: React.FC = () => {
     const trackButtonClick = async () => {
       try {
         console.log(`Tracking click for button ID: ${buttonId}`);
-        const success = await incrementMagicButtonClicks(buttonId);
+        const result = await incrementMagicButtonClicks(buttonId);
         
-        if (success) {
-          // Close the window or redirect back to the original page
-          window.close();
-          // If window.close() doesn't work (e.g., window was opened by script)
-          // we'll show a success message
-          setTimeout(() => {
-            setLoading(false);
-            toast({
-              title: "Click tracked successfully",
-              description: "You can close this window now."
-            });
-          }, 1000);
+        if (result) {
+          setSuccess(true);
+          setLoading(false);
+          // Show success message but don't close the window automatically
+          toast({
+            title: "Click tracked successfully",
+            description: "You can close this window now."
+          });
         } else {
           setError('Failed to track click. Button may not exist.');
           setLoading(false);

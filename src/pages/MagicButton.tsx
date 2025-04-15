@@ -3,7 +3,7 @@ import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { supabase } from "@/integrations/supabase/client";
 import { MagicButton as MagicButtonType } from "@/types/magicButton";
-import { incrementMagicButtonClicks } from "@/services/magicButtonService";
+import { toast } from "@/hooks/use-toast";
 
 const MagicButton: React.FC = () => {
   const { buttonId } = useParams<{ buttonId: string }>();
@@ -26,16 +26,24 @@ const MagicButton: React.FC = () => {
           .from('magic_buttons')
           .select('*')
           .eq('id', buttonId)
-          .single();
+          .maybeSingle();
         
-        if (error || !data) {
+        if (error) {
           console.error('Error fetching magic button:', error);
           setError('Sorry, this magic button does not exist.');
           setLoading(false);
           return;
         }
         
+        if (!data) {
+          console.error('Magic button not found');
+          setError('Sorry, this magic button does not exist.');
+          setLoading(false);
+          return;
+        }
+        
         const magicButton = data as MagicButtonType;
+        console.log('Found magic button data:', magicButton);
         
         // Create the magic button script to inject into the page
         const script = document.createElement('script');
@@ -120,10 +128,11 @@ const MagicButton: React.FC = () => {
         const newUrl = magicButton.original_url;
         
         if (newUrl) {
-          // Add script to the current page
+          console.log('Redirecting to:', newUrl);
+          // Add script to the current page before redirecting
           document.head.appendChild(script);
           
-          // Redirect to the target URL
+          // Directly redirect to the target URL
           window.location.href = newUrl;
         } else {
           setError('Invalid magic button configuration.');
