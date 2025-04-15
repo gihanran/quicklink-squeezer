@@ -15,7 +15,7 @@ interface DashboardTabNavProps {
 const DashboardTabNav: React.FC<DashboardTabNavProps> = ({ children, links }) => {
   return (
     <Tabs defaultValue="links" className="w-full">
-      <TabsList className="grid w-full md:w-auto grid-cols-5 mb-8">
+      <TabsList className="grid w-full md:w-auto grid-cols-4 mb-8">
         <TabsTrigger value="links" className="flex items-center gap-2">
           <Link2 className="h-4 w-4" />
           <span className="hidden md:inline">My Links</span>
@@ -30,10 +30,7 @@ const DashboardTabNav: React.FC<DashboardTabNavProps> = ({ children, links }) =>
           <ChartBar className="h-4 w-4" />
           <span className="hidden md:inline">Analytics</span>
         </TabsTrigger>
-        <TabsTrigger value="notifications" className="flex items-center gap-2">
-          <Bell className="h-4 w-4" />
-          <span className="hidden md:inline">Notifications</span>
-        </TabsTrigger>
+        
         <TabsTrigger id="profile-trigger" value="profile" className="flex items-center gap-2">
           <UserCircle className="h-4 w-4" />
           <span className="hidden md:inline">Profile</span>
@@ -50,10 +47,6 @@ const DashboardTabNav: React.FC<DashboardTabNavProps> = ({ children, links }) =>
       
       <TabsContent value="analytics">
         <LinkAnalytics links={links} />
-      </TabsContent>
-
-      <TabsContent value="notifications">
-        <NotificationsSection />
       </TabsContent>
 
       <TabsContent value="profile">
