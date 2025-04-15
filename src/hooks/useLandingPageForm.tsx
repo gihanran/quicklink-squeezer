@@ -6,6 +6,8 @@ import { useImageUpload } from './useImageUpload';
 import { useFormUtils } from './useFormUtils';
 import { useLinksManagement } from './useLinksManagement';
 
+type ButtonStyleType = 'default' | 'rounded' | 'pill' | 'outline' | 'subtle';
+
 interface UseLandingPageFormProps {
   page: Partial<LandingPage> | null;
   links: LandingPageLink[];
@@ -29,7 +31,9 @@ export const useLandingPageForm = ({
   const [profileImageUrl, setProfileImageUrl] = useState(page?.profile_image_url || '');
   const [backgroundImageUrl, setBackgroundImageUrl] = useState(page?.background_image_url || null);
   const [themeColor, setThemeColor] = useState(page?.theme_color || '#9b87f5');
-  const [buttonStyle, setButtonStyle] = useState(page?.button_style || 'default');
+  const [buttonStyle, setButtonStyle] = useState<ButtonStyleType>(
+    (page?.button_style as ButtonStyleType) || 'default'
+  );
   const [socialLinks, setSocialLinks] = useState<SocialMediaLink[]>(page?.social_links || []);
   
   // UI state
@@ -91,7 +95,7 @@ export const useLandingPageForm = ({
         profile_image_url: profileImageUrl || null,
         background_image_url: backgroundImageUrl,
         theme_color: themeColor,
-        button_style: buttonStyle as 'default' | 'rounded' | 'pill' | 'outline' | 'subtle',
+        button_style: buttonStyle,
         social_links: socialLinks
       };
 

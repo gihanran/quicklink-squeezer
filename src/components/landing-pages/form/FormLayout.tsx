@@ -9,6 +9,8 @@ import PageAnalytics from "./PageAnalytics";
 import SocialMediaLinksCard from "@/components/bio-card/form/SocialMediaLinksCard";
 import AppearanceCard from "@/components/bio-card/form/AppearanceCard";
 
+type ButtonStyleType = 'default' | 'rounded' | 'pill' | 'outline' | 'subtle';
+
 const FormLayout: React.FC = () => {
   const {
     page,
@@ -42,6 +44,11 @@ const FormLayout: React.FC = () => {
     onDeleteLink,
     onBack
   } = useFormContext();
+
+  // Function to safely handle button style changes
+  const handleButtonStyleChange = (style: ButtonStyleType) => {
+    setButtonStyle(style);
+  };
 
   return (
     <div className="space-y-6">
@@ -80,7 +87,7 @@ const FormLayout: React.FC = () => {
             buttonStyle={buttonStyle}
             onBackgroundImageChange={setBackgroundImageUrl}
             onThemeColorChange={setThemeColor}
-            onButtonStyleChange={setButtonStyle}
+            onButtonStyleChange={handleButtonStyleChange}
             handleBackgroundImageUpload={handleBackgroundImageUpload}
             uploading={uploading}
           />

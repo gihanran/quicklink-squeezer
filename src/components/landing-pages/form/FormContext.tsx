@@ -3,6 +3,8 @@ import React, { createContext, useContext } from 'react';
 import { LandingPage, LandingPageLink, SocialMediaLink } from "@/types/landingPage";
 import { useLandingPageForm } from '@/hooks/useLandingPageForm';
 
+type ButtonStyleType = 'default' | 'rounded' | 'pill' | 'outline' | 'subtle';
+
 interface FormContextType {
   page: Partial<LandingPage> | null;
   title: string;
@@ -24,7 +26,7 @@ interface FormContextType {
   setSlug: (value: string) => void;
   setPublished: (value: boolean) => void;
   setThemeColor: (value: string) => void;
-  setButtonStyle: (value: string) => void;
+  setButtonStyle: (value: ButtonStyleType) => void; // Updated type here
   setSocialLinks: (links: SocialMediaLink[]) => void;
   setBackgroundImageUrl: (url: string | null) => void;
   handleProfileImageUpload: (e: React.ChangeEvent<HTMLInputElement>) => void;
@@ -103,7 +105,6 @@ export const FormProvider: React.FC<FormProviderProps> = ({
     onUpdateLinkOrder
   });
 
-  // No need for type wrapper now that we've properly typed the hook's return value
   const value: FormContextType = {
     page,
     title,

@@ -45,7 +45,7 @@ const LandingPageView: React.FC = () => {
           background_image_url: pageData.background_image_url || null,
           button_style: pageData.button_style || 'default',
           social_links: pageData.social_links || []
-        };
+        } as LandingPage;
         
         setPage(fullPageData);
         setSocialLinks(fullPageData.social_links || []);

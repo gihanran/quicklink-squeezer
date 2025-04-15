@@ -14,7 +14,7 @@ interface AppearanceCardProps {
   buttonStyle: string;
   onBackgroundImageChange: (imageUrl: string | null) => void;
   onThemeColorChange: (color: string) => void;
-  onButtonStyleChange: (style: string) => void;
+  onButtonStyleChange: (style: ButtonStyleType) => void;
   handleBackgroundImageUpload: (e: React.ChangeEvent<HTMLInputElement>) => Promise<void>;
   uploading: boolean;
 }
@@ -39,10 +39,9 @@ export const AppearanceCard: React.FC<AppearanceCardProps> = ({
     });
   };
 
-  // Ensure we only pass valid button style values
   const handleButtonStyleChange = (value: string) => {
     if (value === 'default' || value === 'rounded' || value === 'pill' || value === 'outline' || value === 'subtle') {
-      onButtonStyleChange(value);
+      onButtonStyleChange(value as ButtonStyleType);
     }
   };
 
@@ -52,7 +51,6 @@ export const AppearanceCard: React.FC<AppearanceCardProps> = ({
         <CardTitle>Appearance</CardTitle>
       </CardHeader>
       <CardContent className="space-y-6">
-        {/* Theme Color Section */}
         <div>
           <Label htmlFor="theme-color">Theme Color</Label>
           <div className="flex items-center gap-2 mt-1.5">
@@ -73,7 +71,6 @@ export const AppearanceCard: React.FC<AppearanceCardProps> = ({
           </div>
         </div>
 
-        {/* Background Image Section */}
         <div>
           <Label>Background Image</Label>
           <div className="mt-1.5 space-y-3">
@@ -108,7 +105,6 @@ export const AppearanceCard: React.FC<AppearanceCardProps> = ({
           </div>
         </div>
 
-        {/* Button Style Section */}
         <div>
           <Label>Button Style</Label>
           <RadioGroup 
