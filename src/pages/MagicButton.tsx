@@ -1,6 +1,6 @@
 
 import React, { useEffect, useState } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useParams, Link, useNavigate } from 'react-router-dom';
 import { supabase } from "@/integrations/supabase/client";
 import { MagicButton as MagicButtonType } from "@/types/magicButton";
 import { toast } from "@/hooks/use-toast";
@@ -13,6 +13,7 @@ const MagicButton: React.FC = () => {
   const [loading, setLoading] = useState<boolean>(true);
   const [magicButton, setMagicButton] = useState<MagicButtonType | null>(null);
   const [showPopup, setShowPopup] = useState<boolean>(false);
+  const navigate = useNavigate();
   
   useEffect(() => {
     if (!buttonId) {
@@ -67,10 +68,13 @@ const MagicButton: React.FC = () => {
         
         setLoading(false);
         
-        // Show popup after 3 seconds
-        setTimeout(() => {
-          setShowPopup(true);
-        }, 3000);
+        // If original URL exists, redirect to it after a slight delay
+        if (data.original_url) {
+          // Stay on the page, just show popup after 3 seconds
+          setTimeout(() => {
+            setShowPopup(true);
+          }, 3000);
+        }
         
       } catch (err) {
         console.error('Magic button error:', err);
@@ -80,10 +84,16 @@ const MagicButton: React.FC = () => {
     };
 
     fetchMagicButton();
-  }, [buttonId]);
+  }, [buttonId, navigate]);
 
   const handleClosePopup = () => {
     setShowPopup(false);
+  };
+
+  const handleRedirect = () => {
+    if (magicButton?.original_url) {
+      window.location.href = magicButton.original_url;
+    }
   };
 
   if (loading) {
@@ -116,18 +126,36 @@ const MagicButton: React.FC = () => {
     );
   }
 
+  // Show a button to redirect to the original URL
+  if (!magicButton?.original_url) {
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center p-4">
+        <div className="text-center">
+          <h1 className="text-2xl font-bold mb-4">Ready to Continue</h1>
+          <p className="mb-6">Click the button below to continue to your destination.</p>
+          <button 
+            onClick={handleRedirect}
+            className="px-4 py-2 bg-gradient-to-r from-brand-purple to-brand-blue text-white rounded-md hover:opacity-90"
+          >
+            Continue
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="flex flex-col min-h-screen">
-      {/* Embedded content */}
-      <div className="flex-grow w-full">
-        {magicButton?.original_url && (
-          <iframe 
-            src={magicButton.original_url} 
-            className="w-full h-full min-h-screen" 
-            title="Original content"
-            sandbox="allow-same-origin allow-scripts allow-popups allow-forms"
-          />
-        )}
+      {/* Main content */}
+      <div className="text-center p-4 min-h-screen flex flex-col items-center justify-center">
+        <h1 className="text-2xl font-bold mb-4">Ready to continue to {magicButton.original_url}</h1>
+        <p className="mb-6">Click the button below to visit the original URL.</p>
+        <button 
+          onClick={handleRedirect}
+          className="px-4 py-2 bg-gradient-to-r from-brand-purple to-brand-blue text-white rounded-md hover:opacity-90"
+        >
+          Go to Original Content
+        </button>
       </div>
       
       {/* Magic Button Popup */}
