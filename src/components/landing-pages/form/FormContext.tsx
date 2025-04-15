@@ -103,6 +103,13 @@ export const FormProvider: React.FC<FormProviderProps> = ({
     onUpdateLinkOrder
   });
 
+  // Fix for the type mismatch - wrap the setButtonStyle function to adapt the types
+  const handleButtonStyleChange = (value: string) => {
+    if (value === 'default' || value === 'rounded' || value === 'pill' || value === 'outline' || value === 'subtle') {
+      setButtonStyle(value);
+    }
+  };
+
   const value: FormContextType = {
     page,
     title,
@@ -124,7 +131,7 @@ export const FormProvider: React.FC<FormProviderProps> = ({
     setSlug,
     setPublished,
     setThemeColor,
-    setButtonStyle,
+    setButtonStyle: handleButtonStyleChange, // Use the wrapper function here
     setSocialLinks,
     setBackgroundImageUrl,
     handleProfileImageUpload,

@@ -38,6 +38,13 @@ export const AppearanceCard: React.FC<AppearanceCardProps> = ({
     });
   };
 
+  // Ensure we only pass valid button style values
+  const handleButtonStyleChange = (value: string) => {
+    if (value === 'default' || value === 'rounded' || value === 'pill' || value === 'outline' || value === 'subtle') {
+      onButtonStyleChange(value);
+    }
+  };
+
   return (
     <Card className="mb-6">
       <CardHeader>
@@ -105,7 +112,7 @@ export const AppearanceCard: React.FC<AppearanceCardProps> = ({
           <Label>Button Style</Label>
           <RadioGroup 
             value={buttonStyle} 
-            onValueChange={onButtonStyleChange}
+            onValueChange={handleButtonStyleChange}
             className="mt-2 grid grid-cols-2 sm:grid-cols-5 gap-2"
           >
             <div className="flex flex-col items-center gap-2">

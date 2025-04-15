@@ -17,7 +17,10 @@ const FormLayout: React.FC = () => {
     slug,
     published,
     profileImageUrl,
+    backgroundImageUrl,
     themeColor,
+    buttonStyle,
+    socialLinks,
     saving,
     uploading,
     error,
@@ -28,31 +31,17 @@ const FormLayout: React.FC = () => {
     setSlug,
     setPublished,
     setThemeColor,
+    setButtonStyle,
+    setSocialLinks,
+    setBackgroundImageUrl,
     handleProfileImageUpload,
+    handleBackgroundImageUpload,
     handleSave,
     handleAddLink,
     handleReorderLinks,
     onDeleteLink,
     onBack
   } = useFormContext();
-
-  // Default values for background image and button style
-  const backgroundImageUrl = page?.background_image_url || null;
-  const buttonStyle = page?.button_style || 'default';
-  // Social links from the page or empty array
-  const socialLinks = page?.social_links || [];
-
-  // Mock function for background image upload - should be implemented in context
-  const handleBackgroundImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    console.log("Background image upload not fully implemented");
-    // This should be implemented in the form context
-  };
-
-  // Mock function for social links change - should be implemented in context
-  const setSocialLinks = (links: any) => {
-    console.log("Setting social links not fully implemented", links);
-    // This should be implemented in the form context
-  };
 
   return (
     <div className="space-y-6">
@@ -89,9 +78,9 @@ const FormLayout: React.FC = () => {
             backgroundImageUrl={backgroundImageUrl}
             themeColor={themeColor}
             buttonStyle={buttonStyle}
-            onBackgroundImageChange={(url) => console.log("Background changed:", url)}
+            onBackgroundImageChange={setBackgroundImageUrl}
             onThemeColorChange={setThemeColor}
-            onButtonStyleChange={(style) => console.log("Button style changed:", style)}
+            onButtonStyleChange={setButtonStyle}
             handleBackgroundImageUpload={handleBackgroundImageUpload}
             uploading={uploading}
           />
