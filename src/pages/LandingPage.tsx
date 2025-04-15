@@ -7,12 +7,14 @@ import { Button } from '@/components/ui/button';
 import { ExternalLink } from 'lucide-react';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { incrementLinkClicks } from '@/services/landingPageLinkService';
+import { Facebook, Instagram, Linkedin, Twitter, Youtube } from 'lucide-react';
 
 const LandingPageView: React.FC = () => {
   const { slug } = useParams<{ slug: string }>();
   const navigate = useNavigate();
   const [page, setPage] = useState<LandingPage | null>(null);
   const [links, setLinks] = useState<LandingPageLink[]>([]);
+  const [socialLinks, setSocialLinks] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const adContainerRef = useRef<HTMLDivElement>(null);
@@ -50,6 +52,16 @@ const LandingPageView: React.FC = () => {
         if (linksError) throw linksError;
         
         setLinks(linksData || []);
+
+        // Fetch social media links
+        // In a real application, you would store these in your database
+        // For this example, we'll mock some social links based on the page ID
+        // In a production app, you would fetch these from a table like landing_page_social_links
+        const mockSocialLinks = [
+          { platform: 'Facebook', url: 'https://facebook.com/profile', icon: 'facebook' },
+          { platform: 'Instagram', url: 'https://instagram.com/profile', icon: 'instagram' }
+        ];
+        setSocialLinks(mockSocialLinks);
 
         // Increment the view count for this page
         if (slug) {
@@ -112,6 +124,40 @@ const LandingPageView: React.FC = () => {
     }
   };
 
+  const getSocialIcon = (platform: string) => {
+    switch (platform.toLowerCase()) {
+      case 'facebook':
+        return <Facebook size={20} />;
+      case 'instagram':
+        return <Instagram size={20} />;
+      case 'linkedin':
+        return <Linkedin size={20} />;
+      case 'twitter':
+        return <Twitter size={20} />;
+      case 'youtube':
+        return <Youtube size={20} />;
+      default:
+        return <ExternalLink size={20} />;
+    }
+  };
+
+  const getButtonClasses = (buttonStyle: string = 'default') => {
+    const baseClasses = "w-full py-6 flex items-center justify-between hover:bg-gray-50 border-2 transition-all";
+    
+    switch (buttonStyle) {
+      case 'rounded':
+        return `${baseClasses} rounded-lg`;
+      case 'pill':
+        return `${baseClasses} rounded-full`;
+      case 'outline':
+        return `${baseClasses} bg-transparent`;
+      case 'subtle':
+        return `${baseClasses} bg-transparent border-opacity-30`;
+      default:
+        return `${baseClasses}`;
+    }
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -131,16 +177,24 @@ const LandingPageView: React.FC = () => {
   }
 
   const themeColor = page.theme_color || '#9b87f5';
+  const backgroundStyle = page.background_image_url 
+    ? { backgroundImage: `url(${page.background_image_url})`, backgroundSize: 'cover', backgroundPosition: 'center' } 
+    : { 
+        '--theme-color': themeColor,
+        background: `linear-gradient(to bottom, white, ${themeColor}10)`
+      };
 
   return (
     <div 
-      className="min-h-screen flex flex-col bg-gradient-to-b from-white to-gray-100 py-12 px-4"
-      style={{ 
-        '--theme-color': themeColor,
-        background: `linear-gradient(to bottom, white, ${themeColor}10)`
-      } as React.CSSProperties}
+      className="min-h-screen flex flex-col py-12 px-4 relative"
+      style={backgroundStyle as React.CSSProperties}
     >
-      <div className="max-w-md w-full mx-auto space-y-8">
+      {/* Apply overlay if background image exists */}
+      {page.background_image_url && (
+        <div className="absolute inset-0 bg-black bg-opacity-40 z-0"></div>
+      )}
+      
+      <div className="max-w-md w-full mx-auto space-y-8 relative z-10">
         <div className="text-center">
           {page.profile_image_url && (
             <div className="flex justify-center mb-6">
@@ -153,17 +207,37 @@ const LandingPageView: React.FC = () => {
             </div>
           )}
           <h1 
-            className="text-4xl font-bold bg-clip-text text-transparent"
-            style={{ 
+            className={`text-4xl font-bold ${page.background_image_url ? 'text-white' : 'bg-clip-text text-transparent'}`}
+            style={!page.background_image_url ? { 
               backgroundImage: `linear-gradient(to right, ${themeColor}, ${themeColor}CC)` 
-            }}
+            } : {}}
           >
             {page.title}
           </h1>
           {page.description && (
-            <p className="mt-4 text-gray-600 max-w-sm mx-auto">{page.description}</p>
+            <p className={`mt-4 max-w-sm mx-auto ${page.background_image_url ? 'text-white text-opacity-90' : 'text-gray-600'}`}>
+              {page.description}
+            </p>
           )}
         </div>
+
+        {/* Social Media Links */}
+        {socialLinks.length > 0 && (
+          <div className="flex justify-center gap-4 my-4">
+            {socialLinks.map((social, index) => (
+              <a 
+                key={index}
+                href={social.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className={`p-2 rounded-full ${page.background_image_url ? 'bg-white text-gray-800' : 'bg-gray-100 hover:bg-gray-200'} transition-colors`}
+                style={{ color: themeColor }}
+              >
+                {getSocialIcon(social.platform)}
+              </a>
+            ))}
+          </div>
+        )}
 
         <div className="space-y-3">
           {links.map((link) => (
@@ -176,9 +250,13 @@ const LandingPageView: React.FC = () => {
               onClick={() => handleLinkClick(link)}
             >
               <Button
-                variant="outline"
-                className="w-full py-6 flex items-center justify-between hover:bg-gray-50 border-2 transition-all"
-                style={{ borderColor: `${themeColor}40` }}
+                variant={page.button_style === 'outline' ? 'outline' : page.button_style === 'subtle' ? 'ghost' : 'outline'}
+                className={getButtonClasses(page.button_style)}
+                style={{ 
+                  borderColor: `${themeColor}40`,
+                  color: page.background_image_url ? 'white' : undefined,
+                  backgroundColor: page.background_image_url ? 'rgba(0,0,0,0.3)' : undefined
+                }}
               >
                 <span className="text-lg font-medium">{link.title}</span>
                 <ExternalLink className="h-4 w-4 opacity-50" />
@@ -193,11 +271,11 @@ const LandingPageView: React.FC = () => {
         </div>
 
         <div className="pt-8 text-center">
-          <p className="text-sm text-gray-400">
+          <p className={`text-sm ${page.background_image_url ? 'text-white text-opacity-70' : 'text-gray-400'}`}>
             Powered by <a 
               href="/" 
               className="hover:underline"
-              style={{ color: themeColor }}
+              style={{ color: page.background_image_url ? 'white' : themeColor }}
             >
               Shortit
             </a>

@@ -1,81 +1,103 @@
 
-import React from 'react';
-import { useFormContext } from './FormContext';
-import FormHeader from './FormHeader';
-import PageDetailsCard from './PageDetailsCard';
-import LinksCard from './LinksCard';
-import PageAnalytics from './PageAnalytics';
-import { LandingPage } from '@/types/landingPage';
+import React from "react";
+import { useFormContext } from "./FormContext";
+import FormHeader from "./FormHeader";
+import FormFooter from "./FormFooter";
+import PageDetailsCard from "./PageDetailsCard";
+import LinksCard from "./LinksCard";
+import PageAnalytics from "./PageAnalytics";
+import SocialMediaLinksCard from "@/components/bio-card/form/SocialMediaLinksCard";
+import AppearanceCard from "@/components/bio-card/form/AppearanceCard";
 
 const FormLayout: React.FC = () => {
   const {
     page,
-    title,
-    description,
-    slug,
-    published,
-    profileImageUrl,
-    themeColor,
-    saving,
-    uploading,
-    error,
-    localLinks,
-    isEditing,
-    setTitle,
-    setDescription,
-    setSlug,
-    setPublished,
-    setThemeColor,
-    handleProfileImageUpload,
-    handleSave,
-    handleAddLink,
-    handleReorderLinks,
-    onDeleteLink,
-    onBack
+    links,
+    formState: {
+      title,
+      description,
+      slug,
+      published,
+      profileImageUrl,
+      backgroundImageUrl,
+      themeColor,
+      buttonStyle,
+      socialLinks,
+      saving,
+      uploading,
+      error,
+    },
+    handlers: {
+      setTitle,
+      setDescription,
+      setSlug,
+      setPublished,
+      setThemeColor,
+      setButtonStyle,
+      setSocialLinks,
+      handleProfileImageUpload,
+      handleBackgroundImageUpload,
+      handleSave,
+      handleAddLink,
+      handleReorderLinks
+    }
   } = useFormContext();
 
   return (
     <div className="space-y-6">
-      <FormHeader 
-        isEditing={isEditing} 
-        error={error} 
-        onBack={onBack} 
-      />
+      <FormHeader />
 
-      <PageDetailsCard 
-        page={page}
-        title={title}
-        setTitle={setTitle}
-        description={description}
-        setDescription={setDescription}
-        slug={slug}
-        setSlug={setSlug}
-        published={published}
-        setPublished={setPublished}
-        profileImageUrl={profileImageUrl}
-        themeColor={themeColor}
-        setThemeColor={setThemeColor}
-        uploading={uploading}
-        error={error}
-        handleProfileImageUpload={handleProfileImageUpload}
-        handleSave={handleSave}
-        saving={saving}
-        onCancel={onBack}
-      />
-
-      {isEditing && (
-        <>
-          {page && page.id && <PageAnalytics page={page as LandingPage} links={localLinks} />}
-          
-          <LinksCard 
-            links={localLinks}
-            onAddLink={handleAddLink}
-            onDeleteLink={onDeleteLink}
-            onReorderLinks={handleReorderLinks}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="md:col-span-2 space-y-6">
+          <PageDetailsCard
+            title={title}
+            description={description}
+            slug={slug}
+            published={published}
+            profileImageUrl={profileImageUrl}
+            setTitle={setTitle}
+            setDescription={setDescription}
+            setSlug={setSlug}
+            setPublished={setPublished}
+            handleProfileImageUpload={handleProfileImageUpload}
+            uploading={uploading}
             error={error}
           />
-        </>
-      )}
+
+          <AppearanceCard
+            backgroundImageUrl={backgroundImageUrl}
+            themeColor={themeColor}
+            buttonStyle={buttonStyle}
+            onBackgroundImageChange={(url) => page?.id && url !== undefined ? setBackgroundImageUrl(url) : null}
+            onThemeColorChange={setThemeColor}
+            onButtonStyleChange={setButtonStyle}
+            handleBackgroundImageUpload={handleBackgroundImageUpload}
+            uploading={uploading}
+          />
+          
+          {page?.id && (
+            <>
+              <SocialMediaLinksCard 
+                socialLinks={socialLinks || []} 
+                onSocialLinksChange={setSocialLinks} 
+              />
+              
+              <LinksCard
+                pageId={page.id}
+                links={links}
+                onAddLink={handleAddLink}
+                onUpdateOrder={handleReorderLinks}
+              />
+            </>
+          )}
+        </div>
+
+        <div className="md:col-span-1 space-y-6">
+          {page?.id && <PageAnalytics page={page} links={links} />}
+        </div>
+      </div>
+
+      <FormFooter saving={saving} onSave={handleSave} />
     </div>
   );
 };

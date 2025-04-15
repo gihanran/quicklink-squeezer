@@ -1,6 +1,6 @@
 
 import { useState, useEffect } from 'react';
-import { LandingPage, LandingPageLink } from "@/types/landingPage";
+import { LandingPage, LandingPageLink, SocialMediaLink } from "@/types/landingPage";
 import { useToast } from "@/hooks/use-toast";
 import { useProfileImageUpload } from './useProfileImageUpload';
 import { useFormValidation } from './useFormValidation';
@@ -27,7 +27,10 @@ export const useBioCardForm = ({
   const [slug, setSlug] = useState(page?.slug || '');
   const [published, setPublished] = useState(page?.published || false);
   const [profileImageUrl, setProfileImageUrl] = useState(page?.profile_image_url || '');
+  const [backgroundImageUrl, setBackgroundImageUrl] = useState(page?.background_image_url || '');
   const [themeColor, setThemeColor] = useState(page?.theme_color || '#9b87f5');
+  const [buttonStyle, setButtonStyle] = useState(page?.button_style || 'default');
+  const [socialLinks, setSocialLinks] = useState<SocialMediaLink[]>([]);
   
   // UI state
   const [saving, setSaving] = useState(false);
@@ -64,6 +67,13 @@ export const useBioCardForm = ({
     }
   };
 
+  const handleBackgroundImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const imageUrl = await uploadProfileImage(e);
+    if (imageUrl) {
+      setBackgroundImageUrl(imageUrl);
+    }
+  };
+
   const handleSave = async () => {
     if (!validatePageSave(title)) return;
 
@@ -75,7 +85,9 @@ export const useBioCardForm = ({
         slug,
         published,
         profile_image_url: profileImageUrl || null,
-        theme_color: themeColor
+        background_image_url: backgroundImageUrl || null,
+        theme_color: themeColor,
+        button_style: buttonStyle
       };
 
       if (!isEditing) {
@@ -160,7 +172,10 @@ export const useBioCardForm = ({
     slug,
     published,
     profileImageUrl,
+    backgroundImageUrl,
     themeColor,
+    buttonStyle,
+    socialLinks,
     // UI state
     saving,
     uploading,
@@ -173,7 +188,10 @@ export const useBioCardForm = ({
     setSlug,
     setPublished,
     setThemeColor,
+    setButtonStyle,
+    setSocialLinks,
     handleProfileImageUpload,
+    handleBackgroundImageUpload,
     handleSave,
     handleAddLink,
     handleReorderLinks
