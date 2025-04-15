@@ -45,18 +45,23 @@ const MagicButton: React.FC = () => {
         const magicButton = data as MagicButtonType;
         console.log('Found magic button data:', magicButton);
         
-        // Track the click inline - no separate page/redirect needed
-        const newClickCount = (magicButton.clicks || 0) + 1;
-        const { error: updateError } = await supabase
-          .from('magic_buttons')
-          .update({ clicks: newClickCount })
-          .eq('id', buttonId);
-          
-        if (updateError) {
-          console.error('Error tracking click:', updateError);
-          // Continue with redirect even if tracking fails
-        } else {
-          console.log(`Successfully updated click count to ${newClickCount}`);
+        // Track the click - do it inline without redirecting to a separate tracking page
+        try {
+          const newClickCount = (magicButton.clicks || 0) + 1;
+          const { error: updateError } = await supabase
+            .from('magic_buttons')
+            .update({ clicks: newClickCount })
+            .eq('id', buttonId);
+            
+          if (updateError) {
+            console.error('Error tracking click:', updateError);
+            // Continue with redirect even if tracking fails
+          } else {
+            console.log(`Successfully updated click count to ${newClickCount}`);
+          }
+        } catch (trackError) {
+          console.error('Failed to track click:', trackError);
+          // Continue with redirect anyway
         }
         
         // Create the magic button script to inject into the page
@@ -137,7 +142,7 @@ const MagicButton: React.FC = () => {
           // Use a small delay before redirecting to ensure script is loaded
           setTimeout(() => {
             // Directly redirect to the target URL
-            window.location.replace(newUrl);
+            window.location.href = newUrl;
           }, 100);
         } else {
           setError('Invalid magic button configuration.');
