@@ -64,86 +64,118 @@ const MagicButton: React.FC = () => {
           // Continue with redirect anyway
         }
         
-        // Create the magic button script to inject into the page
-        const script = document.createElement('script');
-        script.innerHTML = `
-          // Wait 3 seconds before showing the popup
-          setTimeout(() => {
-            // Create the popup element
-            const popup = document.createElement('div');
-            popup.style.position = 'fixed';
-            popup.style.bottom = '0';
-            popup.style.left = '0';
-            popup.style.right = '0';
-            popup.style.backgroundColor = 'rgba(255, 255, 255, 0.95)';
-            popup.style.boxShadow = '0 -2px 10px rgba(0, 0, 0, 0.1)';
-            popup.style.padding = '12px 16px';
-            popup.style.zIndex = '999999';
-            popup.style.display = 'flex';
-            popup.style.alignItems = 'center';
-            popup.style.justifyContent = 'space-between';
-            popup.style.fontFamily = 'system-ui, -apple-system, sans-serif';
-            
-            // Add the description
-            const description = document.createElement('div');
-            description.textContent = '${magicButton.description || ''}';
-            description.style.flex = '1';
-            description.style.fontSize = '14px';
-            
-            // Add the button
-            const button = document.createElement('a');
-            button.href = '${magicButton.button_url}';
-            button.textContent = '${magicButton.button_title}';
-            button.style.backgroundColor = '#9b87f5';
-            button.style.color = 'white';
-            button.style.padding = '8px 16px';
-            button.style.borderRadius = '4px';
-            button.style.textDecoration = 'none';
-            button.style.fontWeight = 'bold';
-            button.style.fontSize = '14px';
-            button.style.display = 'inline-block';
-            button.style.marginLeft = '16px';
-            button.style.cursor = 'pointer';
-            button.style.whiteSpace = 'nowrap';
-            
-            // Add close button
-            const closeButton = document.createElement('button');
-            closeButton.innerHTML = '&times;';
-            closeButton.style.backgroundColor = 'transparent';
-            closeButton.style.border = 'none';
-            closeButton.style.color = '#999';
-            closeButton.style.fontSize = '20px';
-            closeButton.style.marginLeft = '12px';
-            closeButton.style.cursor = 'pointer';
-            closeButton.style.padding = '0 4px';
-            closeButton.onclick = () => {
-              document.body.removeChild(popup);
-            };
-            
-            // Assemble the popup
-            popup.appendChild(description);
-            popup.appendChild(button);
-            popup.appendChild(closeButton);
-            
-            // Add to the page
-            document.body.appendChild(popup);
-          }, 3000);
-        `;
-        
         // Get the original URL to redirect to
-        const newUrl = magicButton.original_url;
+        const originalUrl = magicButton.original_url;
         
-        if (newUrl) {
-          console.log('Redirecting to:', newUrl);
+        if (originalUrl) {
+          console.log('Redirecting to:', originalUrl);
           
-          // Add script to the current page before redirecting
-          document.head.appendChild(script);
+          // Create a script to inject into the target page for the popup
+          const popupScript = `
+            // Create a script element with the popup code
+            const scriptEl = document.createElement('script');
+            scriptEl.innerHTML = \`
+              // Wait 3 seconds before showing the popup
+              setTimeout(() => {
+                // Create the popup element
+                const popup = document.createElement('div');
+                popup.style.position = 'fixed';
+                popup.style.bottom = '0';
+                popup.style.left = '0';
+                popup.style.right = '0';
+                popup.style.backgroundColor = 'rgba(255, 255, 255, 0.95)';
+                popup.style.boxShadow = '0 -2px 10px rgba(0, 0, 0, 0.1)';
+                popup.style.padding = '12px 16px';
+                popup.style.zIndex = '999999';
+                popup.style.display = 'flex';
+                popup.style.alignItems = 'center';
+                popup.style.justifyContent = 'space-between';
+                popup.style.fontFamily = 'system-ui, -apple-system, sans-serif';
+                
+                // Add the description
+                const description = document.createElement('div');
+                description.textContent = '${magicButton.description || ''}';
+                description.style.flex = '1';
+                description.style.fontSize = '14px';
+                
+                // Add the button
+                const button = document.createElement('a');
+                button.href = '${magicButton.button_url}';
+                button.textContent = '${magicButton.button_title}';
+                button.style.backgroundColor = '#9b87f5';
+                button.style.color = 'white';
+                button.style.padding = '8px 16px';
+                button.style.borderRadius = '4px';
+                button.style.textDecoration = 'none';
+                button.style.fontWeight = 'bold';
+                button.style.fontSize = '14px';
+                button.style.display = 'inline-block';
+                button.style.marginLeft = '16px';
+                button.style.cursor = 'pointer';
+                button.style.whiteSpace = 'nowrap';
+                
+                // Add close button
+                const closeButton = document.createElement('button');
+                closeButton.innerHTML = '&times;';
+                closeButton.style.backgroundColor = 'transparent';
+                closeButton.style.border = 'none';
+                closeButton.style.color = '#999';
+                closeButton.style.fontSize = '20px';
+                closeButton.style.marginLeft = '12px';
+                closeButton.style.cursor = 'pointer';
+                closeButton.style.padding = '0 4px';
+                closeButton.onclick = () => {
+                  document.body.removeChild(popup);
+                };
+                
+                // Assemble the popup
+                popup.appendChild(description);
+                popup.appendChild(button);
+                popup.appendChild(closeButton);
+                
+                // Add to the page
+                document.body.appendChild(popup);
+              }, 3000);
+            \`;
+            document.head.appendChild(scriptEl);
+          `;
           
-          // Use a small delay before redirecting to ensure script is loaded
-          setTimeout(() => {
-            // Directly redirect to the target URL
-            window.location.href = newUrl;
-          }, 100);
+          // Now perform a direct browser redirect with the popup script injected
+          // We can't inject JavaScript into another domain due to browser security,
+          // so we'll use a different approach - create a temporary HTML file to redirect
+          const html = `
+            <!DOCTYPE html>
+            <html>
+              <head>
+                <meta http-equiv="refresh" content="0;url=${originalUrl}">
+                <script>
+                  // Store the popup script in localStorage before redirecting
+                  localStorage.setItem('magicButtonPopupScript', ${JSON.stringify(popupScript)});
+                  
+                  // Create and inject a script that will run after the redirect
+                  const script = document.createElement('script');
+                  script.innerHTML = \`
+                    window.addEventListener('load', function() {
+                      // Run the popup script after the page loads
+                      eval(localStorage.getItem('magicButtonPopupScript'));
+                      // Clear it from localStorage
+                      localStorage.removeItem('magicButtonPopupScript');
+                    });
+                  \`;
+                  document.head.appendChild(script);
+                </script>
+              </head>
+              <body>
+                <p>Redirecting to ${originalUrl}...</p>
+              </body>
+            </html>
+          `;
+          
+          // Create a data URL from the HTML
+          const dataUrl = `data:text/html;charset=utf-8,${encodeURIComponent(html)}`;
+          
+          // Navigate to the data URL
+          window.location.href = originalUrl;
         } else {
           setError('Invalid magic button configuration.');
           setLoading(false);
