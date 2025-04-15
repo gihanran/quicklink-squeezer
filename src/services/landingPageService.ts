@@ -16,7 +16,7 @@ export const fetchLandingPages = async (): Promise<LandingPage[]> => {
     background_image_url: page.background_image_url || null,
     button_style: page.button_style || 'default',
     social_links: page.social_links || []
-  } as LandingPage));
+  }) as LandingPage);
 };
 
 export const createLandingPage = async (pageData: CreateLandingPageData): Promise<LandingPage> => {

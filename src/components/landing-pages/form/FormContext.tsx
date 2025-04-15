@@ -13,7 +13,7 @@ interface FormContextType {
   published: boolean;
   profileImageUrl: string;
   themeColor: string;
-  buttonStyle: string;
+  buttonStyle: ButtonStyleType;
   socialLinks: SocialMediaLink[];
   backgroundImageUrl: string | null;
   saving: boolean;
@@ -26,7 +26,7 @@ interface FormContextType {
   setSlug: (value: string) => void;
   setPublished: (value: boolean) => void;
   setThemeColor: (value: string) => void;
-  setButtonStyle: (value: ButtonStyleType) => void; // Updated type here
+  setButtonStyle: (value: ButtonStyleType) => void;
   setSocialLinks: (links: SocialMediaLink[]) => void;
   setBackgroundImageUrl: (url: string | null) => void;
   handleProfileImageUpload: (e: React.ChangeEvent<HTMLInputElement>) => void;
