@@ -7,7 +7,7 @@ import FeatureShowcase from '@/components/FeatureShowcase';
 import HomeHeader from '@/components/home/HomeHeader';
 import UrlShortener from '@/components/home/UrlShortener';
 import HowItWorks from '@/components/home/HowItWorks';
-import LandingPagesSection from '@/components/home/LandingPagesSection';
+import BioCardSection from '@/components/home/LandingPagesSection';
 import FAQ from '@/components/home/FAQ';
 
 const Index = () => {
@@ -34,7 +34,7 @@ const Index = () => {
           
           <HowItWorks />
           
-          <LandingPagesSection />
+          <BioCardSection />
         </div>
         
         <FeatureShowcase />

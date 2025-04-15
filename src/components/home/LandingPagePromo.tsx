@@ -5,31 +5,31 @@ import { Link2, LayoutGrid, BarChart2 } from "lucide-react";
 import { User } from '@supabase/supabase-js';
 import { supabase } from "@/integrations/supabase/client";
 
-interface LandingPagePromoProps {
+interface BioCardPromoProps {
   user: User | null;
 }
 
-const LandingPagePromo: React.FC<LandingPagePromoProps> = ({ user }) => {
-  const [landingPagesCount, setLandingPagesCount] = useState<number>(0);
+const BioCardPromo: React.FC<BioCardPromoProps> = ({ user }) => {
+  const [bioCardsCount, setBioCardsCount] = useState<number>(0);
   const [loading, setLoading] = useState<boolean>(true);
 
   useEffect(() => {
-    const fetchLandingPagesCount = async () => {
+    const fetchBioCardsCount = async () => {
       try {
         const { count, error } = await supabase
           .from('landing_pages')
           .select('*', { count: 'exact', head: true });
 
         if (error) throw error;
-        setLandingPagesCount(count || 0);
+        setBioCardsCount(count || 0);
       } catch (error) {
-        console.error('Error fetching landing pages count:', error);
+        console.error('Error fetching bio cards count:', error);
       } finally {
         setLoading(false);
       }
     };
 
-    fetchLandingPagesCount();
+    fetchBioCardsCount();
   }, []);
 
   return (
@@ -37,16 +37,16 @@ const LandingPagePromo: React.FC<LandingPagePromoProps> = ({ user }) => {
       <div className="flex items-center justify-between mb-6">
         <div>
           <h2 className="text-2xl font-bold bg-gradient-to-r from-brand-purple to-brand-blue bg-clip-text text-transparent">
-            Create Beautiful Landing Pages
+            Create Beautiful Bio Cards
           </h2>
           <p className="text-gray-700 mt-2">
-            Design and publish customized landing pages to showcase all your important links in one place
+            Design and publish customized bio cards to showcase all your important links in one place
           </p>
         </div>
         <div className="bg-white p-4 rounded-lg shadow-sm">
           <div className="text-center">
-            <span className="text-3xl font-bold text-brand-purple">{loading ? '...' : landingPagesCount}</span>
-            <p className="text-sm text-gray-600">Landing Pages Created</p>
+            <span className="text-3xl font-bold text-brand-purple">{loading ? '...' : bioCardsCount}</span>
+            <p className="text-sm text-gray-600">Bio Cards Created</p>
           </div>
         </div>
       </div>
@@ -100,4 +100,4 @@ const LandingPagePromo: React.FC<LandingPagePromoProps> = ({ user }) => {
   );
 };
 
-export default LandingPagePromo;
+export default BioCardPromo;

@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from 'react';
 import { Card, CardContent } from "@/components/ui/card";
 import { CheckCircle, Clock, Globe, Users, ChartBar, Infinity, ShieldCheck, LayoutGrid, Link, MousePointerClick, FileText } from "lucide-react";
@@ -11,7 +10,7 @@ const FeatureShowcase: React.FC = () => {
   const [stats, setStats] = useState({
     linksCreated: 0,
     totalClicks: 0,
-    landingPagesCount: 0
+    bioCardsCount: 0
   });
   const [loading, setLoading] = useState(true);
   
@@ -20,8 +19,8 @@ const FeatureShowcase: React.FC = () => {
       try {
         const fetchedStats = await getUrlStats();
         
-        // Fetch landing pages count
-        const { count: landingPagesCount, error } = await supabase
+        // Fetch bio cards count
+        const { count: bioCardsCount, error } = await supabase
           .from('landing_pages')
           .select('*', { count: 'exact', head: true });
           
@@ -30,7 +29,7 @@ const FeatureShowcase: React.FC = () => {
         setStats({
           linksCreated: fetchedStats.totalLinks,
           totalClicks: fetchedStats.totalClicks,
-          landingPagesCount: landingPagesCount || 0
+          bioCardsCount: bioCardsCount || 0
         });
       } catch (error) {
         console.error('Error fetching stats:', error);
@@ -54,7 +53,6 @@ const FeatureShowcase: React.FC = () => {
           </p>
         </div>
         
-        {/* Features Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
           <FeatureCard
             icon={<Clock className="h-6 w-6 text-brand-purple" />}
@@ -101,7 +99,6 @@ const FeatureShowcase: React.FC = () => {
           />
         </div>
         
-        {/* Stats Section with Enhanced Colors and Icons */}
         <div className="flex flex-col md:flex-row justify-center gap-6 mb-12">
           <div className="bg-white p-8 rounded-lg shadow-md text-center flex-1 border-t-4 border-brand-purple">
             <div className="flex justify-center mb-2">
@@ -139,12 +136,12 @@ const FeatureShowcase: React.FC = () => {
                 <FileText className="h-6 w-6 text-green-600" />
               </div>
             </div>
-            <h3 className="text-lg font-medium text-gray-700">Landing Pages Created</h3>
+            <h3 className="text-lg font-medium text-gray-700">Bio Cards Created</h3>
             {loading ? (
               <Skeleton className="h-10 w-20 mx-auto mt-2" />
             ) : (
               <p className="text-4xl font-bold text-green-600 mt-2 bg-gradient-to-r from-green-600 to-green-500/70 bg-clip-text text-transparent">
-                {stats.landingPagesCount.toLocaleString()}
+                {stats.bioCardsCount.toLocaleString()}
               </p>
             )}
           </div>
@@ -154,7 +151,6 @@ const FeatureShowcase: React.FC = () => {
   );
 };
 
-// Helper component for feature cards
 const FeatureCard: React.FC<{
   icon: React.ReactNode;
   title: string;
@@ -171,7 +167,6 @@ const FeatureCard: React.FC<{
   );
 };
 
-// Helper component for feature list items
 const FeatureItem: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   return (
     <li className="flex items-start">
