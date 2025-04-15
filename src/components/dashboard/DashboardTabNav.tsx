@@ -1,9 +1,8 @@
 
 import React from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Link2, ChartBar, Bell, UserCircle, Layout } from "lucide-react";
+import { Link2, ChartBar, UserCircle, Layout } from "lucide-react";
 import LinkAnalytics from "@/components/LinkAnalytics";
-import NotificationsSection from "@/components/NotificationsSection";
 import ProfileSection from "@/components/ProfileSection";
 import BioCardSection from "@/components/bio-card/BioCardSection";
 
