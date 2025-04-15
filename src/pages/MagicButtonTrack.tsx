@@ -1,20 +1,28 @@
 
 import React from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useParams, useNavigate } from 'react-router-dom';
+import { useEffect } from 'react';
 
-// This component is now deprecated as tracking is handled directly in the MagicButton component
 const MagicButtonTrack: React.FC = () => {
+  const { buttonId } = useParams<{ buttonId: string }>();
+  const navigate = useNavigate();
+  
+  useEffect(() => {
+    // Redirect to the main magic button page
+    if (buttonId) {
+      navigate(`/magic/${buttonId}`, { replace: true });
+    } else {
+      navigate("/", { replace: true });
+    }
+  }, [buttonId, navigate]);
+
   return (
     <div className="min-h-screen flex items-center justify-center p-4">
       <div className="text-center">
-        <h1 className="text-2xl font-bold text-amber-500 mb-4">Deprecated</h1>
-        <p className="mb-6">This page is no longer in use. Tracking is now handled directly.</p>
-        <Link 
-          to="/" 
-          className="px-4 py-2 bg-gradient-to-r from-brand-purple to-brand-blue text-white rounded-md hover:opacity-90"
-        >
-          Go back to homepage
-        </Link>
+        <div className="mb-4 animate-pulse">
+          <div className="h-12 w-12 mx-auto border-4 border-brand-purple border-t-transparent rounded-full animate-spin"></div>
+        </div>
+        <p className="text-xl">Redirecting...</p>
       </div>
     </div>
   );
