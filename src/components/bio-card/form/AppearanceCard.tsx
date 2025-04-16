@@ -40,11 +40,14 @@ export const AppearanceCard: React.FC<AppearanceCardProps> = ({
     });
   };
 
+  // Function to safely handle button style changes
   const handleButtonStyleChange = (value: string) => {
     if (value === 'default' || value === 'rounded' || value === 'pill' || value === 'outline' || value === 'subtle') {
       onButtonStyleChange(value as ButtonStyleType);
     }
   };
+
+  console.log("Current button style:", buttonStyle); // Debug log to check current button style
 
   return (
     <Card className="mb-6">

@@ -38,6 +38,8 @@ export const fetchLandingPages = async (): Promise<LandingPage[]> => {
 };
 
 export const createLandingPage = async (pageData: CreateLandingPageData): Promise<LandingPage> => {
+  console.log("Creating landing page with data:", pageData); // Debug log
+  
   const { data, error } = await supabase
     .from('landing_pages')
     .insert(pageData)
@@ -57,6 +59,8 @@ export const createLandingPage = async (pageData: CreateLandingPageData): Promis
 };
 
 export const updateLandingPage = async (id: string, updates: Partial<LandingPage>): Promise<LandingPage> => {
+  console.log("Updating landing page with id:", id, "and updates:", updates); // Debug log
+  
   const { data, error } = await supabase
     .from('landing_pages')
     .update(updates)

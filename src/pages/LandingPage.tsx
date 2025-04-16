@@ -56,6 +56,7 @@ const LandingPageView: React.FC = () => {
         }
 
         const dbPage = pageData as DatabaseLandingPage;
+        console.log("Fetched page data:", dbPage); // Debug log
 
         const fullPageData: LandingPage = {
           ...dbPage,
@@ -66,6 +67,7 @@ const LandingPageView: React.FC = () => {
         
         setPage(fullPageData);
         setSocialLinks(fullPageData.social_links || []);
+        console.log("Button style set to:", fullPageData.button_style); // Debug log
         
         const { data: linksData, error: linksError } = await supabase
           .from('landing_page_links')
@@ -150,6 +152,8 @@ const LandingPageView: React.FC = () => {
   };
 
   const getButtonClasses = (buttonStyle: string = 'default') => {
+    console.log("Getting button classes for style:", buttonStyle); // Debug log
+    
     const baseClasses = "w-full py-6 flex items-center justify-between hover:bg-gray-50 border-2 transition-all";
     
     switch (buttonStyle) {

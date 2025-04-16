@@ -29,7 +29,9 @@ export const useLandingPageForm = ({
   const [profileImageUrl, setProfileImageUrl] = useState(page?.profile_image_url || '');
   const [backgroundImageUrl, setBackgroundImageUrl] = useState(page?.background_image_url || null);
   const [themeColor, setThemeColor] = useState(page?.theme_color || '#9b87f5');
-  const [buttonStyle, setButtonStyle] = useState(page?.button_style || 'default');
+  const [buttonStyle, setButtonStyle] = useState<'default' | 'rounded' | 'pill' | 'outline' | 'subtle'>(
+    page?.button_style || 'default'
+  );
   const [socialLinks, setSocialLinks] = useState<SocialMediaLink[]>(page?.social_links || []);
   
   // UI state
