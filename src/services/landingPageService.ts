@@ -1,6 +1,6 @@
 
 import { supabase } from '@/integrations/supabase/client';
-import { LandingPage, CreateLandingPageData } from '@/types/landingPage';
+import { LandingPage, CreateLandingPageData, SocialMediaLink } from '@/types/landingPage';
 
 // Define a database interface that matches what's coming from Supabase
 interface DatabaseLandingPage {
@@ -17,7 +17,7 @@ interface DatabaseLandingPage {
   views: number;
   background_image_url?: string | null;
   button_style?: 'default' | 'rounded' | 'pill' | 'outline' | 'subtle';
-  social_links?: any[];
+  social_links?: SocialMediaLink[];
 }
 
 export const fetchLandingPages = async (): Promise<LandingPage[]> => {

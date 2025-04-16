@@ -41,7 +41,6 @@ const LandingPageView: React.FC = () => {
         setLoading(true);
         setError(null);
         
-        // Fetch landing page by slug
         const { data: pageData, error: pageError } = await supabase
           .from('landing_pages')
           .select('*')
@@ -56,10 +55,8 @@ const LandingPageView: React.FC = () => {
           throw pageError;
         }
 
-        // Type the raw data from the database
         const dbPage = pageData as DatabaseLandingPage;
 
-        // Add default values for new fields if they don't exist in the database
         const fullPageData: LandingPage = {
           ...dbPage,
           background_image_url: dbPage.background_image_url || null,
@@ -70,7 +67,6 @@ const LandingPageView: React.FC = () => {
         setPage(fullPageData);
         setSocialLinks(fullPageData.social_links || []);
         
-        // Fetch links for this landing page
         const { data: linksData, error: linksError } = await supabase
           .from('landing_page_links')
           .select('*')
@@ -81,7 +77,6 @@ const LandingPageView: React.FC = () => {
         
         setLinks(linksData || []);
 
-        // Increment the view count for this page
         if (slug) {
           try {
             await supabase.rpc('increment_landing_page_views', { page_slug: slug });
@@ -105,7 +100,6 @@ const LandingPageView: React.FC = () => {
 
   useEffect(() => {
     if (!loading && adContainerRef.current) {
-      // Create the first script element with atOptions
       const atOptionsScript = document.createElement('script');
       atOptionsScript.type = 'text/javascript';
       atOptionsScript.text = `
@@ -118,12 +112,10 @@ const LandingPageView: React.FC = () => {
         };
       `;
       
-      // Create the second script element that loads the ad
       const adScript = document.createElement('script');
       adScript.type = 'text/javascript';
       adScript.src = '//www.highperformanceformat.com/8f16a4e70ba2c3e74ea50c0eef897f95/invoke.js';
       
-      // Clear any existing content
       if (adContainerRef.current) {
         adContainerRef.current.innerHTML = '';
         adContainerRef.current.appendChild(atOptionsScript);
@@ -134,7 +126,6 @@ const LandingPageView: React.FC = () => {
 
   const handleLinkClick = async (link: LandingPageLink) => {
     try {
-      // Track the click
       await incrementLinkClicks(link.id);
     } catch (error) {
       console.error('Error tracking link click:', error);
