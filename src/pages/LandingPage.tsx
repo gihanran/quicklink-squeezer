@@ -52,7 +52,7 @@ const LandingPageView: React.FC = () => {
         
         setLinks(linksData || []);
 
-        // Fetch social media links
+        // Fetch social media links with type assertion
         const { data: socialLinksData, error: socialLinksError } = await supabase
           .from('social_media_links')
           .select('*')
@@ -60,7 +60,7 @@ const LandingPageView: React.FC = () => {
           .order('display_order', { ascending: true });
 
         if (socialLinksError) throw socialLinksError;
-        setSocialLinks(socialLinksData as SocialMediaLink[] || []);
+        setSocialLinks((socialLinksData || []) as SocialMediaLink[]);
 
         if (slug) {
           try {

@@ -6,6 +6,7 @@ import {
 } from '@/types/landingPage';
 
 export const fetchSocialMediaLinks = async (landingPageId: string): Promise<SocialMediaLink[]> => {
+  // Since the table isn't in the TypeScript types yet, we need to use a type assertion
   const { data, error } = await supabase
     .from('social_media_links')
     .select('*')
@@ -13,10 +14,13 @@ export const fetchSocialMediaLinks = async (landingPageId: string): Promise<Soci
     .order('display_order', { ascending: true });
 
   if (error) throw error;
-  return data || [];
+  
+  // Use type assertion to tell TypeScript these are SocialMediaLink objects
+  return (data || []) as SocialMediaLink[];
 };
 
 export const addSocialMediaLink = async (linkData: CreateSocialMediaLinkData): Promise<SocialMediaLink> => {
+  // Again, use type assertion for the table name
   const { data, error } = await supabase
     .from('social_media_links')
     .insert(linkData)
@@ -24,7 +28,8 @@ export const addSocialMediaLink = async (linkData: CreateSocialMediaLinkData): P
     .single();
 
   if (error) throw error;
-  return data;
+  
+  return data as SocialMediaLink;
 };
 
 export const updateSocialMediaLink = async (id: string, updates: Partial<SocialMediaLink>): Promise<SocialMediaLink> => {
@@ -36,7 +41,8 @@ export const updateSocialMediaLink = async (id: string, updates: Partial<SocialM
     .single();
 
   if (error) throw error;
-  return data;
+  
+  return data as SocialMediaLink;
 };
 
 export const deleteSocialMediaLink = async (id: string): Promise<void> => {
