@@ -1,17 +1,20 @@
 
 import React from 'react';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
+import { cn } from '@/lib/utils';
 
 interface PageHeaderProps {
   title: string;
   description?: string | null;
   profileImageUrl: string | null;
+  hasBackground?: boolean;
 }
 
 const PageHeader: React.FC<PageHeaderProps> = ({ 
   title, 
   description, 
-  profileImageUrl
+  profileImageUrl,
+  hasBackground = false
 }) => {
   return (
     <div className="text-center">
@@ -25,11 +28,17 @@ const PageHeader: React.FC<PageHeaderProps> = ({
           </Avatar>
         </div>
       )}
-      <h1 className="text-4xl font-bold text-gray-900">
+      <h1 className={cn(
+        "text-4xl font-bold",
+        hasBackground ? "text-white" : "text-gray-900"
+      )}>
         {title}
       </h1>
       {description && (
-        <p className="mt-4 max-w-sm mx-auto text-gray-600">
+        <p className={cn(
+          "mt-4 max-w-sm mx-auto",
+          hasBackground ? "text-gray-200" : "text-gray-600"
+        )}>
           {description}
         </p>
       )}
@@ -38,3 +47,4 @@ const PageHeader: React.FC<PageHeaderProps> = ({
 };
 
 export default PageHeader;
+

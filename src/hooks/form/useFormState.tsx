@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { LandingPage } from "@/types/landingPage";
 import { generateSlugFromTitle } from '@/utils/slugUtils';
@@ -15,6 +14,8 @@ export const useFormState = ({ page, isEditing }: UseFormStateProps) => {
   const [slug, setSlug] = useState(page?.slug || '');
   const [published, setPublished] = useState(page?.published || false);
   const [profileImageUrl, setProfileImageUrl] = useState(page?.profile_image_url || '');
+  const [backgroundImageUrl, setBackgroundImageUrl] = useState(page?.background_image_url || '');
+  const [backgroundOverlay, setBackgroundOverlay] = useState(page?.background_overlay ?? 0.5);
   
   // UI state
   const [saving, setSaving] = useState(false);
@@ -41,6 +42,8 @@ export const useFormState = ({ page, isEditing }: UseFormStateProps) => {
     slug,
     published,
     profileImageUrl,
+    backgroundImageUrl,
+    backgroundOverlay,
     saving,
     // State setters
     setTitle: handleTitleChange,
@@ -48,6 +51,8 @@ export const useFormState = ({ page, isEditing }: UseFormStateProps) => {
     setSlug,
     setPublished,
     setProfileImageUrl,
+    setBackgroundImageUrl,
+    setBackgroundOverlay,
     setSaving
   };
 };

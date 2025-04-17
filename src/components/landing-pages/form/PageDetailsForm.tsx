@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
@@ -7,8 +6,8 @@ import { Switch } from "@/components/ui/switch";
 import { Upload } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Slider } from "@/components/ui/slider";
 import { LandingPage } from "@/types/landingPage";
-import { toast } from "@/hooks/use-toast";
 
 interface PageDetailsFormProps {
   page: Partial<LandingPage> | null;
@@ -26,6 +25,10 @@ interface PageDetailsFormProps {
   handleProfileImageUpload: (e: React.ChangeEvent<HTMLInputElement>) => void;
   handleTitleChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   handleDescriptionChange: (e: React.ChangeEvent<HTMLTextAreaElement>) => void;
+  backgroundImageUrl: string;
+  backgroundOverlay: number;
+  handleBackgroundImageUpload: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  setBackgroundOverlay: (value: number) => void;
 }
 
 const PageDetailsForm: React.FC<PageDetailsFormProps> = ({
@@ -41,8 +44,11 @@ const PageDetailsForm: React.FC<PageDetailsFormProps> = ({
   handleProfileImageUpload,
   handleTitleChange,
   handleDescriptionChange,
+  backgroundImageUrl,
+  backgroundOverlay,
+  handleBackgroundImageUpload,
+  setBackgroundOverlay,
 }) => {
-  // Handle slug change directly since it's a simple string value
   const handleSlugChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSlug(e.target.value);
   };
@@ -120,6 +126,63 @@ const PageDetailsForm: React.FC<PageDetailsFormProps> = ({
         <p className="text-sm text-gray-500">
           This will be the URL of your landing page: /p/{slug || 'my-landing-page'}
         </p>
+      </div>
+
+      <div className="space-y-2">
+        <Label>Background Image</Label>
+        <div className="mt-2">
+          {backgroundImageUrl ? (
+            <div className="relative w-full h-48 rounded-lg overflow-hidden">
+              <img
+                src={backgroundImageUrl}
+                alt="Background"
+                className="w-full h-full object-cover"
+              />
+              <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-50 opacity-0 hover:opacity-100 transition-opacity">
+                <div className="relative">
+                  <Button size="icon" className="bg-primary hover:bg-primary/90">
+                    <Upload className="h-4 w-4 text-white" />
+                  </Button>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={handleBackgroundImageUpload}
+                    className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                  />
+                </div>
+              </div>
+            </div>
+          ) : (
+            <div className="relative">
+              <Button
+                variant="outline"
+                className="w-full h-48 border-dashed"
+              >
+                <Upload className="h-6 w-6 mr-2" />
+                Upload Background Image
+              </Button>
+              <input
+                type="file"
+                accept="image/*"
+                onChange={handleBackgroundImageUpload}
+                className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+              />
+            </div>
+          )}
+        </div>
+        
+        {backgroundImageUrl && (
+          <div className="space-y-2 mt-4">
+            <Label>Background Overlay Opacity</Label>
+            <Slider
+              value={[backgroundOverlay]}
+              onValueChange={([value]) => setBackgroundOverlay(value)}
+              max={1}
+              step={0.1}
+              className="mt-2"
+            />
+          </div>
+        )}
       </div>
 
       <div className="flex items-center space-x-2 pt-4">

@@ -55,6 +55,8 @@ export type Database = {
       }
       landing_pages: {
         Row: {
+          background_image_url: string | null
+          background_overlay: number | null
           created_at: string
           description: string | null
           id: string
@@ -67,6 +69,8 @@ export type Database = {
           views: number
         }
         Insert: {
+          background_image_url?: string | null
+          background_overlay?: number | null
           created_at?: string
           description?: string | null
           id?: string
@@ -79,6 +83,8 @@ export type Database = {
           views?: number
         }
         Update: {
+          background_image_url?: string | null
+          background_overlay?: number | null
           created_at?: string
           description?: string | null
           id?: string

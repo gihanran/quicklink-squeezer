@@ -93,13 +93,33 @@ const LandingPageView: React.FC = () => {
     return <ErrorState />;
   }
 
+  const containerStyle = page.background_image_url ? {
+    backgroundImage: `url(${page.background_image_url})`,
+    backgroundSize: 'cover',
+    backgroundPosition: 'center',
+    backgroundRepeat: 'no-repeat',
+  } : {};
+
+  const overlayOpacity = page.background_overlay ?? 0.5;
+
   return (
-    <div className="min-h-screen flex flex-col py-12 px-4">
-      <div className="max-w-md w-full mx-auto space-y-8">
+    <div 
+      className="min-h-screen flex flex-col py-12 px-4 relative"
+      style={containerStyle}
+    >
+      {page.background_image_url && (
+        <div 
+          className="absolute inset-0 bg-black"
+          style={{ opacity: overlayOpacity }}
+        />
+      )}
+      
+      <div className="max-w-md w-full mx-auto space-y-8 relative z-10">
         <PageHeader 
           title={page.title}
           description={page.description}
           profileImageUrl={page.profile_image_url}
+          hasBackground={!!page.background_image_url}
         />
 
         <PageLinks links={links} />
@@ -115,3 +135,4 @@ const LandingPageView: React.FC = () => {
 };
 
 export default LandingPageView;
+
