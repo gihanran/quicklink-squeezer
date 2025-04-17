@@ -15,8 +15,8 @@ export const fetchSocialMediaLinks = async (landingPageId: string): Promise<Soci
 
   if (error) throw error;
   
-  // Explicitly cast the data to the expected type
-  return (data || []) as SocialMediaLink[];
+  // First convert to unknown, then to the expected type for safer type casting
+  return (data || []) as unknown as SocialMediaLink[];
 };
 
 export const addSocialMediaLink = async (linkData: CreateSocialMediaLinkData): Promise<SocialMediaLink> => {
@@ -29,7 +29,8 @@ export const addSocialMediaLink = async (linkData: CreateSocialMediaLinkData): P
 
   if (error) throw error;
   
-  return data as SocialMediaLink;
+  // First convert to unknown, then to the expected type
+  return data as unknown as SocialMediaLink;
 };
 
 export const updateSocialMediaLink = async (id: string, updates: Partial<SocialMediaLink>): Promise<SocialMediaLink> => {
@@ -42,7 +43,8 @@ export const updateSocialMediaLink = async (id: string, updates: Partial<SocialM
 
   if (error) throw error;
   
-  return data as SocialMediaLink;
+  // First convert to unknown, then to the expected type
+  return data as unknown as SocialMediaLink;
 };
 
 export const deleteSocialMediaLink = async (id: string): Promise<void> => {
