@@ -1,21 +1,21 @@
-
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
-import { LandingPage, LandingPageLink } from '@/types/landingPage';
+import { LandingPage, LandingPageLink, SocialMediaLink } from '@/types/landingPage';
 
-// Component imports
 import LoadingState from '@/components/landing-page/LoadingState';
 import ErrorState from '@/components/landing-page/ErrorState';
 import PageHeader from '@/components/landing-page/PageHeader';
 import PageLinks from '@/components/landing-page/PageLinks';
 import AdContainer from '@/components/landing-page/AdContainer';
 import PageFooter from '@/components/landing-page/PageFooter';
+import SocialLinks from '@/components/landing-page/SocialLinks';
 
 const LandingPageView: React.FC = () => {
   const { slug } = useParams<{ slug: string }>();
   const [page, setPage] = useState<LandingPage | null>(null);
   const [links, setLinks] = useState<LandingPageLink[]>([]);
+  const [socialLinks, setSocialLinks] = useState<SocialMediaLink[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -50,6 +50,15 @@ const LandingPageView: React.FC = () => {
         if (linksError) throw linksError;
         
         setLinks(linksData || []);
+
+        const { data: socialLinksData, error: socialLinksError } = await supabase
+          .from('social_media_links')
+          .select('*')
+          .eq('landing_page_id', pageData.id)
+          .order('display_order', { ascending: true });
+
+        if (socialLinksError) throw socialLinksError;
+        setSocialLinks(socialLinksData || []);
 
         if (slug) {
           try {
@@ -90,6 +99,8 @@ const LandingPageView: React.FC = () => {
         />
 
         <PageLinks links={links} />
+        
+        <SocialLinks links={socialLinks} />
 
         <AdContainer />
 

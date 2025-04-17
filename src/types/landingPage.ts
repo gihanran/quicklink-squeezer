@@ -1,4 +1,3 @@
-
 export interface LandingPage {
   id: string;
   user_id: string;
@@ -24,6 +23,16 @@ export interface LandingPageLink {
   clicks: number;
 }
 
+export interface SocialMediaLink {
+  id: string;
+  landing_page_id: string;
+  platform: string;
+  url: string;
+  display_order: number;
+  created_at: string;
+  updated_at: string;
+}
+
 export interface CreateLandingPageData {
   title: string;
   description?: string | null;
@@ -38,5 +47,12 @@ export interface CreateLandingPageLinkData {
   title: string;
   url: string;
   icon?: string | null;
+  display_order: number;
+}
+
+export interface CreateSocialMediaLinkData {
+  landing_page_id: string;
+  platform: string;
+  url: string;
   display_order: number;
 }
