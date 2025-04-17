@@ -1,16 +1,10 @@
 
 import React from 'react';
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import PageDetailsForm from './PageDetailsForm';
-import FormFooter from './FormFooter';
+import { Card } from "@/components/ui/card";
 import { LandingPage } from "@/types/landingPage";
+import PageDetailsCardHeader from './card/PageDetailsCardHeader';
+import PageDetailsCardContent from './card/PageDetailsCardContent';
+import PageDetailsCardFooter from './card/PageDetailsCardFooter';
 
 interface PageDetailsCardProps {
   page: Partial<LandingPage> | null;
@@ -36,7 +30,7 @@ interface PageDetailsCardProps {
 }
 
 const PageDetailsCard: React.FC<PageDetailsCardProps> = ({
-  page, 
+  page,
   title,
   setTitle,
   description,
@@ -59,43 +53,35 @@ const PageDetailsCard: React.FC<PageDetailsCardProps> = ({
 }) => {
   return (
     <Card>
-      <CardHeader>
-        <CardTitle>Page Details</CardTitle>
-        <CardDescription>
-          Configure how your landing page will appear to visitors.
-        </CardDescription>
-      </CardHeader>
-      <CardContent>
-        <PageDetailsForm
-          page={page}
-          title={title}
-          setTitle={setTitle}
-          description={description}
-          setDescription={setDescription}
-          slug={slug}
-          setSlug={setSlug}
-          published={published}
-          setPublished={setPublished}
-          profileImageUrl={profileImageUrl}
-          backgroundImageUrl={backgroundImageUrl}
-          backgroundOverlay={backgroundOverlay}
-          uploading={uploading}
-          error={error}
-          handleProfileImageUpload={handleProfileImageUpload}
-          handleBackgroundImageUpload={handleBackgroundImageUpload}
-          handleTitleChange={setTitle}
-          handleDescriptionChange={setDescription}
-          setBackgroundOverlay={setBackgroundOverlay}
-        />
-      </CardContent>
-      <CardFooter>
-        <FormFooter 
-          onCancel={onCancel} 
-          onSave={handleSave} 
-          saving={saving} 
-          disabled={!title || !slug} 
-        />
-      </CardFooter>
+      <PageDetailsCardHeader />
+      <PageDetailsCardContent
+        page={page}
+        title={title}
+        description={description}
+        slug={slug}
+        published={published}
+        profileImageUrl={profileImageUrl}
+        backgroundImageUrl={backgroundImageUrl}
+        backgroundOverlay={backgroundOverlay}
+        uploading={uploading}
+        error={error}
+        setTitle={setTitle}
+        setDescription={setDescription}
+        setSlug={setSlug}
+        setPublished={setPublished}
+        setBackgroundOverlay={setBackgroundOverlay}
+        handleProfileImageUpload={handleProfileImageUpload}
+        handleBackgroundImageUpload={handleBackgroundImageUpload}
+        handleTitleChange={setTitle}
+        handleDescriptionChange={setDescription}
+      />
+      <PageDetailsCardFooter
+        onCancel={onCancel}
+        onSave={handleSave}
+        saving={saving}
+        title={title}
+        slug={slug}
+      />
     </Card>
   );
 };
