@@ -44,7 +44,7 @@ const PageAnalytics: React.FC<PageAnalyticsProps> = ({ page, links }) => {
                   <XAxis dataKey="name" tick={{ fontSize: 12 }} height={60} tickFormatter={(value) => value.length > 10 ? `${value.substring(0, 10)}...` : value} />
                   <YAxis allowDecimals={false} />
                   <Tooltip />
-                  <Bar dataKey="clicks" fill={page.theme_color || "#9b87f5"} radius={[4, 4, 0, 0]} />
+                  <Bar dataKey="clicks" fill="#9b87f5" radius={[4, 4, 0, 0]} />
                 </BarChart>
               </ResponsiveContainer>
             </div>
