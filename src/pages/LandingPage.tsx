@@ -39,7 +39,8 @@ const LandingPageView: React.FC = () => {
           throw pageError;
         }
 
-        setPage(pageData);
+        // Cast the data to match our updated LandingPage type
+        setPage(pageData as LandingPage);
         
         const { data: linksData, error: linksError } = await supabase
           .from('landing_page_links')

@@ -4,9 +4,7 @@ import { useFormState } from "./form/useFormState";
 import { useImageUploadHandlers } from "./form/useImageUploadHandlers";
 import { useLinkOperations } from "./form/useLinkOperations";
 import { useSaveHandler } from "./form/useSaveHandler";
-import { useSocialLinks } from "./form/useSocialLinks";
 import { usePublishState } from "./form/usePublishState";
-import { useThemeSettings } from "./form/useThemeSettings";
 import { useUIState } from "./form/useUIState";
 
 interface UseLandingPageFormProps {
@@ -32,27 +30,17 @@ export const useLandingPageForm = ({
     description, 
     slug, 
     profileImageUrl, 
-    backgroundImageUrl,
     setTitle,
     setDescription,
     setSlug,
-    setProfileImageUrl,
-    setBackgroundImageUrl
+    setProfileImageUrl
   } = useFormState({ page, isEditing });
   
-  const { socialLinks, setSocialLinks } = useSocialLinks(page?.social_links);
   const { published, setPublished } = usePublishState(page?.published);
-  const { themeColor, buttonStyle, setThemeColor, setButtonStyle } = useThemeSettings(
-    page?.theme_color,
-    page?.button_style
-  );
   const { saving, error, setSaving, setError } = useUIState();
   
   // Image upload handlers
-  const imageHandlers = useImageUploadHandlers(
-    setProfileImageUrl,
-    setBackgroundImageUrl
-  );
+  const { uploading, error: uploadError, handleProfileImageUpload } = useImageUploadHandlers(setProfileImageUrl);
   
   // Link operations
   const linkOps = useLinkOperations({
@@ -69,10 +57,6 @@ export const useLandingPageForm = ({
     slug,
     published,
     profileImageUrl,
-    backgroundImageUrl,
-    themeColor,
-    buttonStyle,
-    socialLinks,
     saving
   };
   
@@ -90,14 +74,10 @@ export const useLandingPageForm = ({
     slug,
     published,
     profileImageUrl,
-    backgroundImageUrl,
-    themeColor,
-    buttonStyle,
-    socialLinks,
     // UI state
     saving,
-    uploading: imageHandlers.uploading,
-    error: saveHandler.error || imageHandlers.error || linkOps.error || error,
+    uploading,
+    error: saveHandler.error || uploadError || linkOps.error || error,
     localLinks: linkOps.localLinks,
     isEditing: saveHandler.isEditing,
     // State setters
@@ -106,15 +86,10 @@ export const useLandingPageForm = ({
     setSlug,
     setPublished,
     setProfileImageUrl,
-    setBackgroundImageUrl,
-    setThemeColor,
-    setButtonStyle,
-    setSocialLinks,
     setSaving,
     setError,
     // Image handlers
-    handleProfileImageUpload: imageHandlers.handleProfileImageUpload,
-    handleBackgroundImageUpload: imageHandlers.handleBackgroundImageUpload,
+    handleProfileImageUpload,
     // Save handler
     handleSave: saveHandler.handleSave,
     // Link operations

@@ -23,8 +23,6 @@ interface PageDetailsCardProps {
   published: boolean;
   setPublished: (value: boolean) => void;
   profileImageUrl: string;
-  themeColor: string;
-  setThemeColor: (value: string) => void;
   uploading: boolean;
   error: string | null;
   handleProfileImageUpload: (e: React.ChangeEvent<HTMLInputElement>) => void;
@@ -44,8 +42,6 @@ const PageDetailsCard: React.FC<PageDetailsCardProps> = ({
   published,
   setPublished,
   profileImageUrl,
-  themeColor,
-  setThemeColor,
   uploading,
   error,
   handleProfileImageUpload,
@@ -73,8 +69,6 @@ const PageDetailsCard: React.FC<PageDetailsCardProps> = ({
           published={published}
           setPublished={setPublished}
           profileImageUrl={profileImageUrl}
-          themeColor={themeColor}
-          setThemeColor={setThemeColor}
           uploading={uploading}
           error={error}
           handleProfileImageUpload={handleProfileImageUpload}

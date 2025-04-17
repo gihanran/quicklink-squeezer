@@ -21,24 +21,12 @@ interface PageDetailsFormProps {
   published: boolean;
   setPublished: (value: boolean) => void;
   profileImageUrl: string;
-  themeColor: string;
-  setThemeColor: (value: string) => void;
   uploading: boolean;
   error: string | null;
   handleProfileImageUpload: (e: React.ChangeEvent<HTMLInputElement>) => void;
   handleTitleChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   handleDescriptionChange: (e: React.ChangeEvent<HTMLTextAreaElement>) => void;
 }
-
-const themeColors = [
-  { name: 'Purple', value: '#9b87f5' },
-  { name: 'Blue', value: '#3b82f6' },
-  { name: 'Green', value: '#22c55e' },
-  { name: 'Red', value: '#ef4444' },
-  { name: 'Orange', value: '#f97316' },
-  { name: 'Pink', value: '#ec4899' },
-  { name: 'Teal', value: '#14b8a6' },
-];
 
 const PageDetailsForm: React.FC<PageDetailsFormProps> = ({
   page,
@@ -47,11 +35,9 @@ const PageDetailsForm: React.FC<PageDetailsFormProps> = ({
   slug,
   published,
   profileImageUrl,
-  themeColor,
+  uploading,
   setSlug,
   setPublished,
-  setThemeColor,
-  uploading,
   handleProfileImageUpload,
   handleTitleChange,
   handleDescriptionChange,
@@ -134,22 +120,6 @@ const PageDetailsForm: React.FC<PageDetailsFormProps> = ({
         <p className="text-sm text-gray-500">
           This will be the URL of your landing page: /p/{slug || 'my-landing-page'}
         </p>
-      </div>
-
-      <div className="space-y-2 pt-4">
-        <Label>Theme Color</Label>
-        <div className="flex flex-wrap gap-2">
-          {themeColors.map(color => (
-            <button
-              key={color.value}
-              className={`w-8 h-8 rounded-full border-2 ${themeColor === color.value ? 'border-black' : 'border-transparent'}`}
-              style={{ backgroundColor: color.value }}
-              onClick={() => setThemeColor(color.value)}
-              type="button"
-              aria-label={`Select ${color.name} theme`}
-            />
-          ))}
-        </div>
       </div>
 
       <div className="flex items-center space-x-2 pt-4">

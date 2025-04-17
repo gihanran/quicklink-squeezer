@@ -16,6 +16,7 @@ const FormLayout: React.FC = () => {
     published,
     profileImageUrl,
     saving,
+    uploading,
     error,
     localLinks: links,
     isEditing,
@@ -55,6 +56,7 @@ const FormLayout: React.FC = () => {
             handleProfileImageUpload={handleProfileImageUpload}
             handleSave={handleSave}
             saving={saving}
+            uploading={uploading}
             error={error}
             onCancel={onBack}
           />

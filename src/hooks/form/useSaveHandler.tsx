@@ -11,10 +11,6 @@ interface UseSaveHandlerProps {
     slug: string;
     published: boolean;
     profileImageUrl: string;
-    backgroundImageUrl: string | null;
-    themeColor: string;
-    buttonStyle: 'default' | 'rounded' | 'pill' | 'outline' | 'subtle';
-    socialLinks: any[];
   };
   onSave: (page: Partial<LandingPage>) => Promise<LandingPage | null>;
   setSaving: (saving: boolean) => void;
@@ -41,10 +37,6 @@ export const useSaveHandler = ({
         slug: formState.slug,
         published: formState.published,
         profile_image_url: formState.profileImageUrl || null,
-        background_image_url: formState.backgroundImageUrl || null,
-        theme_color: formState.themeColor,
-        button_style: formState.buttonStyle,
-        social_links: formState.socialLinks
       };
 
       if (!isEditing) {
