@@ -1,9 +1,6 @@
-
 import React, { createContext, useContext } from 'react';
-import { LandingPage, LandingPageLink, SocialMediaLink } from "@/types/landingPage";
+import { LandingPage, LandingPageLink } from "@/types/landingPage";
 import { useLandingPageForm } from '@/hooks/useLandingPageForm';
-
-type ButtonStyleType = 'default' | 'rounded' | 'pill' | 'outline' | 'subtle';
 
 interface FormContextType {
   page: Partial<LandingPage> | null;
@@ -12,10 +9,6 @@ interface FormContextType {
   slug: string;
   published: boolean;
   profileImageUrl: string;
-  themeColor: string;
-  buttonStyle: ButtonStyleType;
-  socialLinks: SocialMediaLink[];
-  backgroundImageUrl: string | null;
   saving: boolean;
   uploading: boolean;
   error: string | null;
@@ -25,12 +18,7 @@ interface FormContextType {
   setDescription: (e: React.ChangeEvent<HTMLTextAreaElement>) => void;
   setSlug: (value: string) => void;
   setPublished: (value: boolean) => void;
-  setThemeColor: (value: string) => void;
-  setButtonStyle: (value: ButtonStyleType) => void;
-  setSocialLinks: (links: SocialMediaLink[]) => void;
-  setBackgroundImageUrl: (url: string | null) => void;
   handleProfileImageUpload: (e: React.ChangeEvent<HTMLInputElement>) => void;
-  handleBackgroundImageUpload: (e: React.ChangeEvent<HTMLInputElement>) => Promise<void>;
   handleSave: () => void;
   handleAddLink: (link: { title: string, url: string }) => void;
   handleReorderLinks: (links: LandingPageLink[]) => Promise<void>;
@@ -75,10 +63,6 @@ export const FormProvider: React.FC<FormProviderProps> = ({
     slug,
     published,
     profileImageUrl,
-    backgroundImageUrl,
-    themeColor,
-    buttonStyle,
-    socialLinks,
     saving,
     uploading,
     error,
@@ -88,12 +72,7 @@ export const FormProvider: React.FC<FormProviderProps> = ({
     setDescription,
     setSlug,
     setPublished,
-    setThemeColor,
-    setButtonStyle,
-    setSocialLinks,
-    setBackgroundImageUrl,
     handleProfileImageUpload,
-    handleBackgroundImageUpload,
     handleSave,
     handleAddLink,
     handleReorderLinks
@@ -112,10 +91,6 @@ export const FormProvider: React.FC<FormProviderProps> = ({
     slug,
     published,
     profileImageUrl,
-    themeColor,
-    buttonStyle,
-    socialLinks,
-    backgroundImageUrl,
     saving,
     uploading,
     error,
@@ -125,12 +100,7 @@ export const FormProvider: React.FC<FormProviderProps> = ({
     setDescription,
     setSlug,
     setPublished,
-    setThemeColor,
-    setButtonStyle,
-    setSocialLinks,
-    setBackgroundImageUrl,
     handleProfileImageUpload,
-    handleBackgroundImageUpload,
     handleSave,
     handleAddLink,
     handleReorderLinks,

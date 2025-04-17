@@ -6,10 +6,6 @@ import FormFooter from "./FormFooter";
 import PageDetailsCard from "./PageDetailsCard";
 import LinksCard from "./LinksCard";
 import PageAnalytics from "./PageAnalytics";
-import SocialMediaLinksCard from "@/components/bio-card/form/SocialMediaLinksCard";
-import AppearanceCard from "@/components/bio-card/form/AppearanceCard";
-
-type ButtonStyleType = 'default' | 'rounded' | 'pill' | 'outline' | 'subtle';
 
 const FormLayout: React.FC = () => {
   const {
@@ -19,12 +15,7 @@ const FormLayout: React.FC = () => {
     slug,
     published,
     profileImageUrl,
-    backgroundImageUrl,
-    themeColor,
-    buttonStyle,
-    socialLinks,
     saving,
-    uploading,
     error,
     localLinks: links,
     isEditing,
@@ -32,23 +23,13 @@ const FormLayout: React.FC = () => {
     setDescription,
     setSlug,
     setPublished,
-    setThemeColor,
-    setButtonStyle,
-    setSocialLinks,
-    setBackgroundImageUrl,
     handleProfileImageUpload,
-    handleBackgroundImageUpload,
     handleSave,
     handleAddLink,
     handleReorderLinks,
     onDeleteLink,
     onBack
   } = useFormContext();
-
-  // Function to safely handle button style changes
-  const handleButtonStyleChange = (style: ButtonStyleType) => {
-    setButtonStyle(style);
-  };
 
   return (
     <div className="space-y-6">
@@ -67,46 +48,25 @@ const FormLayout: React.FC = () => {
             slug={slug}
             published={published}
             profileImageUrl={profileImageUrl}
-            themeColor={themeColor}
             setTitle={setTitle}
             setDescription={setDescription}
             setSlug={setSlug}
             setPublished={setPublished}
-            setThemeColor={setThemeColor}
             handleProfileImageUpload={handleProfileImageUpload}
             handleSave={handleSave}
             saving={saving}
-            uploading={uploading}
             error={error}
             onCancel={onBack}
           />
-
-          <AppearanceCard
-            backgroundImageUrl={backgroundImageUrl}
-            themeColor={themeColor}
-            buttonStyle={buttonStyle}
-            onBackgroundImageChange={setBackgroundImageUrl}
-            onThemeColorChange={setThemeColor}
-            onButtonStyleChange={handleButtonStyleChange}
-            handleBackgroundImageUpload={handleBackgroundImageUpload}
-            uploading={uploading}
-          />
           
           {page?.id && (
-            <>
-              <SocialMediaLinksCard 
-                socialLinks={socialLinks || []} 
-                onSocialLinksChange={setSocialLinks} 
-              />
-              
-              <LinksCard
-                links={links}
-                onAddLink={handleAddLink}
-                onDeleteLink={onDeleteLink}
-                onReorderLinks={handleReorderLinks}
-                error={error}
-              />
-            </>
+            <LinksCard
+              links={links}
+              onAddLink={handleAddLink}
+              onDeleteLink={onDeleteLink}
+              onReorderLinks={handleReorderLinks}
+              error={error}
+            />
           )}
         </div>
 

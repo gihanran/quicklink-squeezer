@@ -7,34 +7,9 @@ import { incrementLinkClicks } from '@/services/landingPageLinkService';
 
 interface PageLinksProps {
   links: LandingPageLink[];
-  buttonStyle?: 'default' | 'rounded' | 'pill' | 'outline' | 'subtle';
-  themeColor: string;
-  hasBackgroundImage: boolean;
 }
 
-const PageLinks: React.FC<PageLinksProps> = ({ 
-  links, 
-  buttonStyle = 'default',
-  themeColor,
-  hasBackgroundImage
-}) => {
-  const getButtonClasses = (style: string = 'default') => {
-    const baseClasses = "w-full py-6 flex items-center justify-between hover:bg-gray-50 border-2 transition-all";
-    
-    switch (style) {
-      case 'rounded':
-        return `${baseClasses} rounded-lg`;
-      case 'pill':
-        return `${baseClasses} rounded-full`;
-      case 'outline':
-        return `${baseClasses} bg-transparent`;
-      case 'subtle':
-        return `${baseClasses} bg-transparent border-opacity-30`;
-      default:
-        return `${baseClasses}`;
-    }
-  };
-
+const PageLinks: React.FC<PageLinksProps> = ({ links }) => {
   const handleLinkClick = async (link: LandingPageLink) => {
     try {
       await incrementLinkClicks(link.id);
@@ -59,13 +34,8 @@ const PageLinks: React.FC<PageLinksProps> = ({
           onClick={() => handleLinkClick(link)}
         >
           <Button
-            variant={buttonStyle === 'outline' ? 'outline' : buttonStyle === 'subtle' ? 'ghost' : 'outline'}
-            className={getButtonClasses(buttonStyle)}
-            style={{ 
-              borderColor: `${themeColor}40`,
-              color: hasBackgroundImage ? 'white' : undefined,
-              backgroundColor: hasBackgroundImage ? 'rgba(0,0,0,0.3)' : undefined
-            }}
+            variant="outline"
+            className="w-full py-6 flex items-center justify-between hover:bg-gray-50 transition-all"
           >
             <span className="text-lg font-medium">{link.title}</span>
             <ExternalLink className="h-4 w-4 opacity-50" />

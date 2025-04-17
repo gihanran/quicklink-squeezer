@@ -1,6 +1,6 @@
 
-import { useState, useEffect } from 'react';
-import { LandingPage, SocialMediaLink } from "@/types/landingPage";
+import { useState } from 'react';
+import { LandingPage } from "@/types/landingPage";
 import { generateSlugFromTitle } from '@/utils/slugUtils';
 
 interface UseFormStateProps {
@@ -15,22 +15,9 @@ export const useFormState = ({ page, isEditing }: UseFormStateProps) => {
   const [slug, setSlug] = useState(page?.slug || '');
   const [published, setPublished] = useState(page?.published || false);
   const [profileImageUrl, setProfileImageUrl] = useState(page?.profile_image_url || '');
-  const [backgroundImageUrl, setBackgroundImageUrl] = useState(page?.background_image_url || null);
-  const [themeColor, setThemeColor] = useState(page?.theme_color || '#9b87f5');
-  const [buttonStyle, setButtonStyle] = useState<'default' | 'rounded' | 'pill' | 'outline' | 'subtle'>(
-    page?.button_style || 'default'
-  );
-  const [socialLinks, setSocialLinks] = useState<SocialMediaLink[]>(page?.social_links || []);
   
   // UI state
   const [saving, setSaving] = useState(false);
-
-  // Update social links when page changes
-  useEffect(() => {
-    if (page?.social_links) {
-      setSocialLinks(page.social_links);
-    }
-  }, [page?.social_links]);
 
   const handleTitleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newTitle = e.target.value;
@@ -54,10 +41,6 @@ export const useFormState = ({ page, isEditing }: UseFormStateProps) => {
     slug,
     published,
     profileImageUrl,
-    backgroundImageUrl,
-    themeColor,
-    buttonStyle,
-    socialLinks,
     saving,
     // State setters
     setTitle: handleTitleChange,
@@ -65,10 +48,6 @@ export const useFormState = ({ page, isEditing }: UseFormStateProps) => {
     setSlug,
     setPublished,
     setProfileImageUrl,
-    setBackgroundImageUrl,
-    setThemeColor,
-    setButtonStyle,
-    setSocialLinks,
     setSaving
   };
 };
