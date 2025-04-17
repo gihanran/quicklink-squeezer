@@ -52,15 +52,17 @@ const LandingPageView: React.FC = () => {
         
         setLinks(linksData || []);
 
-        // Fetch social media links with type assertion
-        const { data: socialLinksData, error: socialLinksError } = await supabase
-          .from('social_media_links')
+        // Properly handle the social media links table with type assertions
+        const { data: socialLinksData, error: socialLinksError } = await (supabase
+          .from('social_media_links' as any)
           .select('*')
           .eq('landing_page_id', pageData.id)
-          .order('display_order', { ascending: true });
+          .order('display_order', { ascending: true }));
 
         if (socialLinksError) throw socialLinksError;
-        setSocialLinks((socialLinksData || []) as SocialMediaLink[]);
+        
+        // Cast the result to the appropriate type
+        setSocialLinks((socialLinksData || []) as unknown as SocialMediaLink[]);
 
         if (slug) {
           try {
