@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { SocialMediaLink } from '@/types/landingPage';
 import { Button } from "@/components/ui/button";
@@ -16,7 +15,7 @@ import {
 interface SocialLinksProps {
   links: SocialMediaLink[];
   onLinkClick?: (link: SocialMediaLink) => void;
-  variant?: 'default' | 'outline' | 'ghost' | 'soft' | 'gradient';
+  variant?: 'default' | 'outline' | 'ghost' | 'secondary' | 'soft' | 'gradient';
   size?: 'default' | 'sm' | 'lg' | 'icon';
   shape?: 'default' | 'round' | 'pill';
 }
@@ -29,6 +28,15 @@ const platformIcons: Record<string, React.ComponentType> = {
   youtube: Youtube,
   github: Github,
   website: Globe
+};
+
+const variantMap = {
+  default: 'default',
+  outline: 'outline',
+  ghost: 'ghost',
+  secondary: 'secondary',
+  soft: 'secondary',
+  gradient: 'default'
 };
 
 const buttonStyles = {
@@ -68,13 +76,14 @@ const SocialLinks: React.FC<SocialLinksProps> = ({
         return (
           <Button
             key={link.id}
-            variant={variant === 'default' ? 'ghost' : variant}
+            variant={variantMap[variant] as 'default' | 'outline' | 'ghost' | 'secondary'}
             size={size}
             onClick={() => handleClick(link)}
             className={cn(
               buttonStyles[variant],
               shapeStyles[shape],
-              "transition-all duration-200"
+              "transition-all duration-200",
+              variant === 'gradient' && "bg-gradient-to-r from-brand-purple to-brand-blue text-white hover:opacity-90"
             )}
           >
             <IconComponent className={cn(
