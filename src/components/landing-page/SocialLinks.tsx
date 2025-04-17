@@ -2,6 +2,7 @@
 import React from 'react';
 import { SocialMediaLink } from '@/types/landingPage';
 import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 import { 
   Facebook, 
   Twitter, 
@@ -15,6 +16,9 @@ import {
 interface SocialLinksProps {
   links: SocialMediaLink[];
   onLinkClick?: (link: SocialMediaLink) => void;
+  variant?: 'default' | 'outline' | 'ghost' | 'soft' | 'gradient';
+  size?: 'default' | 'sm' | 'lg' | 'icon';
+  shape?: 'default' | 'round' | 'pill';
 }
 
 const platformIcons: Record<string, React.ComponentType> = {
@@ -27,7 +31,27 @@ const platformIcons: Record<string, React.ComponentType> = {
   website: Globe
 };
 
-const SocialLinks: React.FC<SocialLinksProps> = ({ links, onLinkClick }) => {
+const buttonStyles = {
+  default: "",
+  outline: "border border-gray-200 hover:bg-gray-50",
+  ghost: "hover:bg-gray-100",
+  soft: "bg-gray-100 hover:bg-gray-200 text-gray-800",
+  gradient: "bg-gradient-to-r from-brand-purple to-brand-blue text-white hover:opacity-90"
+};
+
+const shapeStyles = {
+  default: "rounded-md",
+  round: "rounded-full",
+  pill: "rounded-full px-6"
+};
+
+const SocialLinks: React.FC<SocialLinksProps> = ({ 
+  links, 
+  onLinkClick,
+  variant = 'default',
+  size = 'icon',
+  shape = 'round'
+}) => {
   if (!links || links.length === 0) return null;
 
   const handleClick = (link: SocialMediaLink) => {
@@ -44,12 +68,19 @@ const SocialLinks: React.FC<SocialLinksProps> = ({ links, onLinkClick }) => {
         return (
           <Button
             key={link.id}
-            variant="ghost"
-            size="icon"
+            variant={variant === 'default' ? 'ghost' : variant}
+            size={size}
             onClick={() => handleClick(link)}
-            className="rounded-full hover:bg-gray-100"
+            className={cn(
+              buttonStyles[variant],
+              shapeStyles[shape],
+              "transition-all duration-200"
+            )}
           >
-            <IconComponent className="h-5 w-5 text-gray-600" />
+            <IconComponent className={cn(
+              "h-5 w-5",
+              variant !== 'gradient' ? "text-gray-600" : "text-white"
+            )} />
           </Button>
         );
       })}
