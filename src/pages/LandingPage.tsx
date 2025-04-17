@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
@@ -51,6 +52,7 @@ const LandingPageView: React.FC = () => {
         
         setLinks(linksData || []);
 
+        // Fetch social media links
         const { data: socialLinksData, error: socialLinksError } = await supabase
           .from('social_media_links')
           .select('*')
@@ -58,7 +60,7 @@ const LandingPageView: React.FC = () => {
           .order('display_order', { ascending: true });
 
         if (socialLinksError) throw socialLinksError;
-        setSocialLinks(socialLinksData || []);
+        setSocialLinks(socialLinksData as SocialMediaLink[] || []);
 
         if (slug) {
           try {
