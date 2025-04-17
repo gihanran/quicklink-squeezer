@@ -30,17 +30,26 @@ export const useLandingPageForm = ({
     description, 
     slug, 
     profileImageUrl, 
+    backgroundImageUrl,
+    backgroundOverlay,
     setTitle,
     setDescription,
     setSlug,
-    setProfileImageUrl
+    setProfileImageUrl,
+    setBackgroundImageUrl,
+    setBackgroundOverlay
   } = useFormState({ page, isEditing });
   
   const { published, setPublished } = usePublishState(page?.published);
   const { saving, error, setSaving, setError } = useUIState();
   
   // Image upload handlers
-  const { uploading, error: uploadError, handleProfileImageUpload } = useImageUploadHandlers(setProfileImageUrl);
+  const { 
+    uploading, 
+    error: uploadError, 
+    handleProfileImageUpload,
+    handleBackgroundImageUpload 
+  } = useImageUploadHandlers(setProfileImageUrl, setBackgroundImageUrl);
   
   // Link operations
   const linkOps = useLinkOperations({
@@ -57,6 +66,8 @@ export const useLandingPageForm = ({
     slug,
     published,
     profileImageUrl,
+    backgroundImageUrl,
+    backgroundOverlay,
     saving
   };
   
@@ -74,6 +85,8 @@ export const useLandingPageForm = ({
     slug,
     published,
     profileImageUrl,
+    backgroundImageUrl,
+    backgroundOverlay,
     // UI state
     saving,
     uploading,
@@ -86,10 +99,13 @@ export const useLandingPageForm = ({
     setSlug,
     setPublished,
     setProfileImageUrl,
+    setBackgroundImageUrl,
+    setBackgroundOverlay,
     setSaving,
     setError,
     // Image handlers
     handleProfileImageUpload,
+    handleBackgroundImageUpload,
     // Save handler
     handleSave: saveHandler.handleSave,
     // Link operations

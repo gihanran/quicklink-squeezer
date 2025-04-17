@@ -15,6 +15,8 @@ const FormLayout: React.FC = () => {
     slug,
     published,
     profileImageUrl,
+    backgroundImageUrl,
+    backgroundOverlay,
     saving,
     uploading,
     error,
@@ -24,7 +26,9 @@ const FormLayout: React.FC = () => {
     setDescription,
     setSlug,
     setPublished,
+    setBackgroundOverlay,
     handleProfileImageUpload,
+    handleBackgroundImageUpload,
     handleSave,
     handleAddLink,
     handleReorderLinks,
@@ -49,11 +53,15 @@ const FormLayout: React.FC = () => {
             slug={slug}
             published={published}
             profileImageUrl={profileImageUrl}
+            backgroundImageUrl={backgroundImageUrl}
+            backgroundOverlay={backgroundOverlay}
             setTitle={setTitle}
             setDescription={setDescription}
             setSlug={setSlug}
             setPublished={setPublished}
+            setBackgroundOverlay={setBackgroundOverlay}
             handleProfileImageUpload={handleProfileImageUpload}
+            handleBackgroundImageUpload={handleBackgroundImageUpload}
             handleSave={handleSave}
             saving={saving}
             uploading={uploading}

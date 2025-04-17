@@ -23,9 +23,13 @@ interface PageDetailsCardProps {
   published: boolean;
   setPublished: (value: boolean) => void;
   profileImageUrl: string;
+  backgroundImageUrl: string;
+  backgroundOverlay: number;
   uploading: boolean;
   error: string | null;
   handleProfileImageUpload: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  handleBackgroundImageUpload: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  setBackgroundOverlay: (value: number) => void;
   handleSave: () => void;
   saving: boolean;
   onCancel: () => void;
@@ -42,9 +46,13 @@ const PageDetailsCard: React.FC<PageDetailsCardProps> = ({
   published,
   setPublished,
   profileImageUrl,
+  backgroundImageUrl,
+  backgroundOverlay,
   uploading,
   error,
   handleProfileImageUpload,
+  handleBackgroundImageUpload,
+  setBackgroundOverlay,
   handleSave,
   saving,
   onCancel
@@ -69,11 +77,15 @@ const PageDetailsCard: React.FC<PageDetailsCardProps> = ({
           published={published}
           setPublished={setPublished}
           profileImageUrl={profileImageUrl}
+          backgroundImageUrl={backgroundImageUrl}
+          backgroundOverlay={backgroundOverlay}
           uploading={uploading}
           error={error}
           handleProfileImageUpload={handleProfileImageUpload}
+          handleBackgroundImageUpload={handleBackgroundImageUpload}
           handleTitleChange={setTitle}
           handleDescriptionChange={setDescription}
+          setBackgroundOverlay={setBackgroundOverlay}
         />
       </CardContent>
       <CardFooter>

@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 import { LandingPage } from "@/types/landingPage";
 import { generateSlugFromTitle } from '@/utils/slugUtils';

@@ -10,6 +10,8 @@ interface FormContextType {
   slug: string;
   published: boolean;
   profileImageUrl: string;
+  backgroundImageUrl: string;
+  backgroundOverlay: number;
   saving: boolean;
   uploading: boolean;
   error: string | null;
@@ -19,7 +21,9 @@ interface FormContextType {
   setDescription: (e: React.ChangeEvent<HTMLTextAreaElement>) => void;
   setSlug: (value: string) => void;
   setPublished: (value: boolean) => void;
+  setBackgroundOverlay: (value: number) => void;
   handleProfileImageUpload: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  handleBackgroundImageUpload: (e: React.ChangeEvent<HTMLInputElement>) => void;
   handleSave: () => void;
   handleAddLink: (link: { title: string, url: string }) => void;
   handleReorderLinks: (links: LandingPageLink[]) => Promise<void>;
@@ -64,6 +68,8 @@ export const FormProvider: React.FC<FormProviderProps> = ({
     slug,
     published,
     profileImageUrl,
+    backgroundImageUrl,
+    backgroundOverlay,
     saving,
     uploading,
     error,
@@ -73,7 +79,9 @@ export const FormProvider: React.FC<FormProviderProps> = ({
     setDescription,
     setSlug,
     setPublished,
+    setBackgroundOverlay,
     handleProfileImageUpload,
+    handleBackgroundImageUpload,
     handleSave,
     handleAddLink,
     handleReorderLinks
@@ -92,6 +100,8 @@ export const FormProvider: React.FC<FormProviderProps> = ({
     slug,
     published,
     profileImageUrl,
+    backgroundImageUrl,
+    backgroundOverlay,
     saving,
     uploading,
     error,
@@ -101,7 +111,9 @@ export const FormProvider: React.FC<FormProviderProps> = ({
     setDescription,
     setSlug,
     setPublished,
+    setBackgroundOverlay,
     handleProfileImageUpload,
+    handleBackgroundImageUpload,
     handleSave,
     handleAddLink,
     handleReorderLinks,

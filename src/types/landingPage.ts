@@ -7,6 +7,8 @@ export interface LandingPage {
   slug: string;
   published: boolean;
   profile_image_url: string | null;
+  background_image_url: string | null;
+  background_overlay: number | null;
   created_at: string;
   updated_at: string;
   views: number;

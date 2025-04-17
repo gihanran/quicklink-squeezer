@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
@@ -20,14 +21,14 @@ interface PageDetailsFormProps {
   published: boolean;
   setPublished: (value: boolean) => void;
   profileImageUrl: string;
+  backgroundImageUrl: string;
+  backgroundOverlay: number;
   uploading: boolean;
   error: string | null;
   handleProfileImageUpload: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  handleBackgroundImageUpload: (e: React.ChangeEvent<HTMLInputElement>) => void;
   handleTitleChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   handleDescriptionChange: (e: React.ChangeEvent<HTMLTextAreaElement>) => void;
-  backgroundImageUrl: string;
-  backgroundOverlay: number;
-  handleBackgroundImageUpload: (e: React.ChangeEvent<HTMLInputElement>) => void;
   setBackgroundOverlay: (value: number) => void;
 }
 
@@ -38,16 +39,16 @@ const PageDetailsForm: React.FC<PageDetailsFormProps> = ({
   slug,
   published,
   profileImageUrl,
+  backgroundImageUrl,
+  backgroundOverlay,
   uploading,
   setSlug,
   setPublished,
   handleProfileImageUpload,
+  handleBackgroundImageUpload,
   handleTitleChange,
   handleDescriptionChange,
-  backgroundImageUrl,
-  backgroundOverlay,
-  handleBackgroundImageUpload,
-  setBackgroundOverlay,
+  setBackgroundOverlay
 }) => {
   const handleSlugChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSlug(e.target.value);
