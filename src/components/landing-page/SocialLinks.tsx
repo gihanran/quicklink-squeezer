@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { SocialMediaLink } from '@/types/landingPage';
 import { Button } from "@/components/ui/button";
