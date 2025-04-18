@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { UrlData } from '@/utils/url';
 import { useAuthState } from '@/hooks/auth';
 import Footer from '@/components/Footer';
@@ -14,6 +14,15 @@ const Index = () => {
   const [shortenedUrlData, setShortenedUrlData] = useState<UrlData | null>(null);
   const [fullShortenedUrl, setFullShortenedUrl] = useState<string>('');
   const { user } = useAuthState();
+
+  // Update document title and meta description for SEO
+  useEffect(() => {
+    document.title = "Shortit - Simple & Free URL Shortener with Landing Pages";
+    const metaDescription = document.querySelector('meta[name="description"]');
+    if (metaDescription) {
+      metaDescription.setAttribute("content", "Create short, memorable links and beautiful landing pages instantly with Shortit. Professional URL shortener with analytics, custom domains, and link management.");
+    }
+  }, []);
 
   const handleUrlShortened = (urlData: UrlData, fullUrl: string) => {
     setShortenedUrlData(urlData);
