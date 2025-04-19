@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/componen
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
-import { X } from 'lucide-react';
+import { X, Facebook, Instagram, Twitter, Linkedin, Camera } from 'lucide-react';
 import { Label } from '@/components/ui/label';
 import { useAuthState } from '@/hooks/auth';
 import { useToast } from '@/hooks/use-toast';
@@ -13,6 +13,7 @@ import { HexColorPicker } from 'react-colorful';
 import LinksList from './LinksList';
 import SocialLinksList from './SocialLinksList';
 import type { BioCard } from '@/types/bioCardTypes';
+import { useBioCardImageUpload } from '@/hooks/useBioCardImageUpload';
 
 interface BioCardFormProps {
   onClose: () => void;
@@ -39,6 +40,7 @@ const BioCardForm: React.FC<BioCardFormProps> = ({
 
   const { user } = useAuthState();
   const { toast } = useToast();
+  const { uploadImage, uploading } = useBioCardImageUpload();
 
   const handleDescriptionChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     const text = e.target.value;
@@ -59,35 +61,11 @@ const BioCardForm: React.FC<BioCardFormProps> = ({
   const handleProfileImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
     if (!files || files.length === 0) return;
-
-    try {
-      const file = files[0];
-      const fileExt = file.name.split('.').pop();
-      const fileName = `${user!.id}/bio_cards/${Date.now()}.${fileExt}`;
-
-      const { error } = await supabase.storage
-        .from('bio_cards')
-        .upload(fileName, file, { upsert: true });
-
-      if (error) throw error;
-
-      const { data } = supabase.storage
-        .from('bio_cards')
-        .getPublicUrl(fileName);
-
-      setProfileImageUrl(data.publicUrl);
-      
-      toast({
-        title: 'Image uploaded',
-        description: 'Your profile image has been uploaded successfully',
-      });
-    } catch (error: any) {
-      console.error('Error uploading image:', error);
-      toast({
-        title: 'Upload failed',
-        description: error.message || 'An error occurred while uploading the image',
-        variant: 'destructive'
-      });
+    
+    const file = files[0];
+    const imageUrl = await uploadImage(file, 'profile');
+    if (imageUrl) {
+      setProfileImageUrl(imageUrl);
     }
   };
 
@@ -113,13 +91,14 @@ const BioCardForm: React.FC<BioCardFormProps> = ({
     try {
       setSaving(true);
 
-      // Check if slug is already taken
-      if (!initialData) {
+      // Check if slug is already taken (but not by this card)
+      if (!initialData || initialData.slug !== slug) {
         const { data: existingCard } = await (supabase as any)
           .from('bio_cards')
           .select('id')
           .eq('slug', slug)
-          .single();
+          .neq('id', initialData?.id || '')
+          .maybeSingle();
 
         if (existingCard) {
           toast({
@@ -164,11 +143,17 @@ const BioCardForm: React.FC<BioCardFormProps> = ({
         cardId = data[0].id;
       }
 
-      // Save links
+      // Delete existing links and social links if editing
       if (initialData) {
         // Delete existing links
         await (supabase as any)
           .from('bio_card_links')
+          .delete()
+          .eq('bio_card_id', initialData.id);
+          
+        // Delete existing social links
+        await (supabase as any)
+          .from('bio_card_social_links')
           .delete()
           .eq('bio_card_id', initialData.id);
       }
@@ -223,6 +208,21 @@ const BioCardForm: React.FC<BioCardFormProps> = ({
       });
     } finally {
       setSaving(false);
+    }
+  };
+  
+  const getSocialIcon = (platform: string) => {
+    switch(platform.toLowerCase()) {
+      case 'facebook':
+        return <Facebook className="h-4 w-4 mr-2" />;
+      case 'instagram':
+        return <Instagram className="h-4 w-4 mr-2" />;
+      case 'twitter':
+        return <Twitter className="h-4 w-4 mr-2" />;
+      case 'linkedin':
+        return <Linkedin className="h-4 w-4 mr-2" />;
+      default:
+        return null;
     }
   };
 
@@ -287,22 +287,28 @@ const BioCardForm: React.FC<BioCardFormProps> = ({
               <div>
                 <Label htmlFor="profileImage">Profile Image</Label>
                 <div className="flex items-center gap-4 mt-1">
-                  {profileImageUrl && (
-                    <div className="h-16 w-16 rounded-full overflow-hidden border border-gray-200">
+                  <div className="h-16 w-16 rounded-full overflow-hidden border border-gray-200 flex items-center justify-center bg-gray-100">
+                    {profileImageUrl ? (
                       <img 
                         src={profileImageUrl} 
                         alt="Profile" 
                         className="h-full w-full object-cover"
                       />
-                    </div>
-                  )}
-                  <input
-                    type="file"
-                    id="profileImage"
-                    accept="image/*"
-                    onChange={handleProfileImageUpload}
-                    className="text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-primary file:text-white hover:file:bg-primary/90"
-                  />
+                    ) : (
+                      <Camera className="h-6 w-6 text-gray-400" />
+                    )}
+                  </div>
+                  <div className="flex-1">
+                    <input
+                      type="file"
+                      id="profileImage"
+                      accept="image/*"
+                      onChange={handleProfileImageUpload}
+                      className="text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-primary file:text-white hover:file:bg-primary/90"
+                      disabled={uploading}
+                    />
+                    {uploading && <p className="text-xs text-gray-500 mt-1">Uploading...</p>}
+                  </div>
                 </div>
               </div>
             </div>
@@ -400,6 +406,7 @@ const BioCardForm: React.FC<BioCardFormProps> = ({
               links={socialLinks} 
               setLinks={setSocialLinks}
               maxLinks={5}
+              getSocialIcon={getSocialIcon}
             />
           </div>
         </div>

@@ -9,7 +9,7 @@ export const useBioCardImageUpload = () => {
   const { toast } = useToast();
   const { user } = useAuthState();
 
-  const uploadImage = async (file: File): Promise<string | null> => {
+  const uploadImage = async (file: File, type: 'profile' | 'background'): Promise<string | null> => {
     if (!user) {
       toast({
         title: 'Authentication required',
@@ -23,7 +23,7 @@ export const useBioCardImageUpload = () => {
       setUploading(true);
 
       const fileExt = file.name.split('.').pop();
-      const fileName = `${user.id}/bio_cards/${Date.now()}.${fileExt}`;
+      const fileName = `${user.id}/bio_cards/${type}_${Date.now()}.${fileExt}`;
 
       const { error } = await supabase.storage
         .from('bio_cards')
@@ -37,15 +37,15 @@ export const useBioCardImageUpload = () => {
 
       toast({
         title: 'Image uploaded',
-        description: 'Your profile image has been uploaded successfully',
+        description: `Your ${type} image has been uploaded successfully`,
       });
 
       return data.publicUrl;
     } catch (error: any) {
-      console.error('Error uploading image:', error);
+      console.error(`Error uploading ${type} image:`, error);
       toast({
         title: 'Upload failed',
-        description: error.message || 'An error occurred while uploading the image',
+        description: error.message || `An error occurred while uploading the ${type} image`,
         variant: 'destructive'
       });
       return null;

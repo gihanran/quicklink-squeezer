@@ -1,7 +1,8 @@
+
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
-import { Link as LinkIcon, ExternalLink } from 'lucide-react';
+import { ExternalLink, Facebook, Instagram, Twitter, Linkedin } from 'lucide-react';
 import NotFound from './NotFound';
 import type { BioCard, BioCardLink, BioCardSocialLink } from '@/types/bioCardTypes';
 
@@ -84,8 +85,18 @@ const BioCardView: React.FC = () => {
   }
 
   const getSocialIcon = (platform: string) => {
-    // This would be better with actual icons for each platform
-    return <LinkIcon className="h-5 w-5" />;
+    switch(platform.toLowerCase()) {
+      case 'facebook':
+        return <Facebook className="h-5 w-5" />;
+      case 'instagram':
+        return <Instagram className="h-5 w-5" />;
+      case 'twitter':
+        return <Twitter className="h-5 w-5" />;
+      case 'linkedin':
+        return <Linkedin className="h-5 w-5" />;
+      default:
+        return <ExternalLink className="h-5 w-5" />;
+    }
   };
 
   return (
@@ -157,15 +168,15 @@ const BioCardView: React.FC = () => {
                 target="_blank"
                 rel="noopener noreferrer"
                 onClick={() => handleLinkClick(link.id)}
-                className="block w-full text-center py-3 px-4 text-white shadow hover:opacity-90 transition-opacity"
+                className="block w-full text-center py-2 px-3 text-white shadow hover:opacity-90 transition-opacity text-sm"
                 style={buttonStyles}
               >
                 <div className="flex items-center justify-center">
                   <span>{link.title}</span>
-                  <ExternalLink className="ml-2 h-4 w-4" />
+                  <ExternalLink className="ml-2 h-3 w-3" />
                 </div>
                 {link.description && (
-                  <div className="text-sm mt-1 opacity-90">{link.description}</div>
+                  <div className="text-xs mt-1 opacity-90">{link.description}</div>
                 )}
               </a>
             );
