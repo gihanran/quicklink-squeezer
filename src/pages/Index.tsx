@@ -7,7 +7,6 @@ import FeatureShowcase from '@/components/FeatureShowcase';
 import HomeHeader from '@/components/home/HomeHeader';
 import UrlShortener from '@/components/home/UrlShortener';
 import HowItWorks from '@/components/home/HowItWorks';
-import BioCardSection from '@/components/home/LandingPagesSection';
 import FAQ from '@/components/home/FAQ';
 
 const Index = () => {
@@ -17,10 +16,10 @@ const Index = () => {
 
   // Update document title and meta description for SEO
   useEffect(() => {
-    document.title = "Shortit - Simple & Free URL Shortener with Landing Pages";
+    document.title = "Shortit - Simple & Free URL Shortener";
     const metaDescription = document.querySelector('meta[name="description"]');
     if (metaDescription) {
-      metaDescription.setAttribute("content", "Create short, memorable links and beautiful landing pages instantly with Shortit. Professional URL shortener with analytics, custom domains, and link management.");
+      metaDescription.setAttribute("content", "Create short, memorable links instantly with Shortit. Professional URL shortener with analytics, custom domains, and link management.");
     }
   }, []);
 
@@ -42,8 +41,6 @@ const Index = () => {
           />
           
           <HowItWorks />
-          
-          <BioCardSection />
         </div>
         
         <FeatureShowcase />

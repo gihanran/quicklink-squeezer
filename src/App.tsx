@@ -14,7 +14,6 @@ import Affiliate from "./pages/Affiliate";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
 import TermsOfService from "./pages/TermsOfService";
 import CookiePolicy from "./pages/CookiePolicy";
-import LandingPage from "./pages/LandingPage";
 import * as TooltipPrimitive from "@radix-ui/react-tooltip";
 import React from "react"; // Add explicit React import
 
@@ -34,7 +33,6 @@ const App = () => {
                 <Route path="/" element={<Index />} />
                 <Route path="/auth" element={<Auth />} />
                 <Route path="/s/:shortCode" element={<Redirect />} />
-                <Route path="/p/:slug" element={<LandingPage />} />
                 <Route path="/dashboard" element={<Dashboard />} />
                 <Route path="/admin" element={<Admin />} />
                 <Route path="/affiliate" element={<Affiliate />} />

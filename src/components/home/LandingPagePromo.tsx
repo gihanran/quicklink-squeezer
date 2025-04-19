@@ -3,7 +3,6 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Link2, LayoutGrid, BarChart2 } from "lucide-react";
 import { User } from '@supabase/supabase-js';
-import { supabase } from "@/integrations/supabase/client";
 
 interface BioCardPromoProps {
   user: User | null;
@@ -11,26 +10,7 @@ interface BioCardPromoProps {
 
 const BioCardPromo: React.FC<BioCardPromoProps> = ({ user }) => {
   const [bioCardsCount, setBioCardsCount] = useState<number>(0);
-  const [loading, setLoading] = useState<boolean>(true);
-
-  useEffect(() => {
-    const fetchBioCardsCount = async () => {
-      try {
-        const { count, error } = await supabase
-          .from('landing_pages')
-          .select('*', { count: 'exact', head: true });
-
-        if (error) throw error;
-        setBioCardsCount(count || 0);
-      } catch (error) {
-        console.error('Error fetching bio cards count:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchBioCardsCount();
-  }, []);
+  const [loading, setLoading] = useState<boolean>(false); // Changed to false since we're not loading data
 
   return (
     <div className="mt-12 bg-gradient-to-r from-brand-purple/10 to-brand-blue/10 p-6 rounded-lg shadow-md">
@@ -45,7 +25,7 @@ const BioCardPromo: React.FC<BioCardPromoProps> = ({ user }) => {
         </div>
         <div className="bg-white p-4 rounded-lg shadow-sm">
           <div className="text-center">
-            <span className="text-3xl font-bold text-brand-purple">{loading ? '...' : bioCardsCount}</span>
+            <span className="text-3xl font-bold text-brand-purple">0</span>
             <p className="text-sm text-gray-600">Bio Cards Created</p>
           </div>
         </div>

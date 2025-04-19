@@ -19,17 +19,11 @@ const FeatureShowcase: React.FC = () => {
       try {
         const fetchedStats = await getUrlStats();
         
-        // Fetch bio cards count
-        const { count: bioCardsCount, error } = await supabase
-          .from('landing_pages')
-          .select('*', { count: 'exact', head: true });
-          
-        if (error) throw error;
-        
+        // Since the landing_pages table has been removed, we set bioCardsCount to 0
         setStats({
           linksCreated: fetchedStats.totalLinks,
           totalClicks: fetchedStats.totalClicks,
-          bioCardsCount: bioCardsCount || 0
+          bioCardsCount: 0
         });
       } catch (error) {
         console.error('Error fetching stats:', error);

@@ -1,7 +1,6 @@
 
 import { useState } from 'react';
 import { useToast } from "@/hooks/use-toast";
-import { LandingPageLink } from "@/types/landingPage";
 
 export const useFormValidation = () => {
   const [error, setError] = useState<string | null>(null);
@@ -9,31 +8,34 @@ export const useFormValidation = () => {
 
   const validatePageSave = (title: string) => {
     if (!title) {
+      setError("Title is required");
       toast({
-        title: "Missing title",
-        description: "Please provide a title for your bio card",
+        title: "Validation Error",
+        description: "Title is required",
         variant: "destructive"
       });
       return false;
     }
+    setError(null);
     return true;
   };
 
-  const validateLinkAdd = (link: { title: string, url: string }, pageId: string | undefined, currentLinks: LandingPageLink[]) => {
-    if (!link.title || !link.url || !pageId) {
+  const validateLinkAdd = (link: any, pageId?: string, existingLinks?: any[]) => {
+    if (!link.title) {
+      setError("Link title is required");
       toast({
-        title: "Invalid link",
-        description: "Please provide both title and URL for your link",
+        title: "Missing title",
+        description: "Please provide a title for your link",
         variant: "destructive"
       });
       return false;
     }
-    
-    if (currentLinks.length >= 7) {
-      setError('Maximum of 7 links allowed per bio card');
+
+    if (!link.url) {
+      setError("Link URL is required");
       toast({
-        title: "Limit reached",
-        description: "Maximum of 7 links allowed per bio card",
+        title: "Missing URL",
+        description: "Please provide a URL for your link",
         variant: "destructive"
       });
       return false;
