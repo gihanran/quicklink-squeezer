@@ -4,6 +4,7 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "@/hooks/auth";
+import React from "react"; // Ensure React is imported first
 
 import Index from "./pages/Index";
 import Redirect from "./pages/Redirect";
@@ -18,7 +19,6 @@ import CookiePolicy from "./pages/CookiePolicy";
 import BioCardDashboard from "./pages/BioCardDashboard";
 import BioCardView from "./pages/BioCardView";
 import * as TooltipPrimitive from "@radix-ui/react-tooltip";
-import React from "react"; // Add explicit React import
 
 // Create a new QueryClient instance
 const queryClient = new QueryClient();
