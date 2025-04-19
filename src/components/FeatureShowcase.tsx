@@ -1,172 +1,92 @@
-import React, { useEffect, useState } from 'react';
-import { Card, CardContent } from "@/components/ui/card";
-import { CheckCircle, Clock, Globe, Users, ChartBar, Infinity, ShieldCheck, LayoutGrid, Link, MousePointerClick, FileText } from "lucide-react";
-import { Progress } from "@/components/ui/progress";
-import { getUrlStats } from '@/utils/url/analytics';
-import { Skeleton } from "@/components/ui/skeleton";
-import { supabase } from "@/integrations/supabase/client";
+
+import React from 'react';
+import { Link } from 'react-router-dom';
+import { ArrowRight, BarChart2, Link2, Smartphone } from 'lucide-react';
+import BioCardSection from './home/LandingPagesSection';
+import { useAuthState } from '@/hooks/auth';
+import { Button } from './ui/button';
 
 const FeatureShowcase: React.FC = () => {
-  const [stats, setStats] = useState({
-    linksCreated: 0,
-    totalClicks: 0,
-    bioCardsCount: 0
-  });
-  const [loading, setLoading] = useState(true);
-  
-  useEffect(() => {
-    const fetchStats = async () => {
-      try {
-        const fetchedStats = await getUrlStats();
-        
-        // Since the landing_pages table has been removed, we set bioCardsCount to 0
-        setStats({
-          linksCreated: fetchedStats.totalLinks,
-          totalClicks: fetchedStats.totalClicks,
-          bioCardsCount: 0
-        });
-      } catch (error) {
-        console.error('Error fetching stats:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
-    
-    fetchStats();
-  }, []);
+  const { user } = useAuthState();
   
   return (
-    <div className="w-full py-16 bg-gray-50">
-      <div className="container max-w-4xl mx-auto px-4">
+    <div className="py-16 bg-white border-t border-gray-100">
+      <div className="container max-w-6xl mx-auto px-4">
         <div className="text-center mb-12">
-          <h2 className="text-3xl font-bold bg-gradient-to-r from-brand-purple to-brand-blue bg-clip-text text-transparent">
-            Powerful Features For Everyone
-          </h2>
-          <p className="mt-4 text-lg text-gray-600 max-w-2xl mx-auto">
-            Create short links, track clicks, and analyze your audience - all in one place
+          <h2 className="text-3xl font-bold mb-4">Everything You Need For Effective Link Management</h2>
+          <p className="text-lg text-gray-600 max-w-3xl mx-auto">
+            Shortit provides all the tools you need to create, manage, and track your links in one place
           </p>
         </div>
-        
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
-          <FeatureCard
-            icon={<Clock className="h-6 w-6 text-brand-purple" />}
-            title="Link Expiration"
-            description="Links expire after 3 months with visual progress tracking"
-          >
-            <div className="mt-2">
-              <div className="flex justify-between text-xs mb-1">
-                <span>2 months left</span>
-                <span>67%</span>
-              </div>
-              <Progress value={67} className="h-2" />
+
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10 mb-16">
+          {/* Feature 1: Link Management */}
+          <div className="bg-white rounded-xl p-6 shadow-md hover:shadow-lg transition-shadow border border-gray-100">
+            <div className="bg-gradient-to-r from-blue-500 to-purple-600 h-12 w-12 rounded-lg flex items-center justify-center text-white mb-5">
+              <Link2 size={24} />
             </div>
-          </FeatureCard>
-          
-          <FeatureCard
-            icon={<ChartBar className="h-6 w-6 text-brand-blue" />}
-            title="Click Analytics"
-            description="Track clicks, geography, devices, and more"
-          />
-          
-          <FeatureCard
-            icon={<ShieldCheck className="h-6 w-6 text-brand-purple" />}
-            title="Secure Links"
-            description="All links are secure and protected from spam"
-          />
-          
-          <FeatureCard
-            icon={<Globe className="h-6 w-6 text-brand-blue" />}
-            title="Geographic Data"
-            description="See where your clicks are coming from around the world"
-          />
-          
-          <FeatureCard
-            icon={<Users className="h-6 w-6 text-brand-purple" />}
-            title="Social Login"
-            description="Easy registration with Google and other social media accounts"
-          />
-          
-          <FeatureCard
-            icon={<LayoutGrid className="h-6 w-6 text-brand-blue" />}
-            title="Landing Pages"
-            description="Create beautiful landing pages for all your links"
-          />
+            <h3 className="text-xl font-bold mb-3">Link Management</h3>
+            <p className="text-gray-600 mb-4">
+              Create short, branded links that are easy to share and remember. Customize your links with descriptive titles.
+            </p>
+            <Link to="/auth" className="text-blue-600 hover:text-blue-800 inline-flex items-center group">
+              Start creating links
+              <ArrowRight size={16} className="ml-1 transform group-hover:translate-x-1 transition-transform" />
+            </Link>
+          </div>
+
+          {/* Feature 2: Analytics */}
+          <div className="bg-white rounded-xl p-6 shadow-md hover:shadow-lg transition-shadow border border-gray-100">
+            <div className="bg-gradient-to-r from-green-500 to-teal-500 h-12 w-12 rounded-lg flex items-center justify-center text-white mb-5">
+              <BarChart2 size={24} />
+            </div>
+            <h3 className="text-xl font-bold mb-3">Link Analytics</h3>
+            <p className="text-gray-600 mb-4">
+              Track link performance with detailed analytics. Monitor clicks, referrers, and geographical data to optimize your campaigns.
+            </p>
+            <Link to="/auth" className="text-green-600 hover:text-green-800 inline-flex items-center group">
+              Explore analytics
+              <ArrowRight size={16} className="ml-1 transform group-hover:translate-x-1 transition-transform" />
+            </Link>
+          </div>
+
+          {/* Feature 3: Mobile Friendly */}
+          <div className="bg-white rounded-xl p-6 shadow-md hover:shadow-lg transition-shadow border border-gray-100">
+            <div className="bg-gradient-to-r from-pink-500 to-red-500 h-12 w-12 rounded-lg flex items-center justify-center text-white mb-5">
+              <Smartphone size={24} />
+            </div>
+            <h3 className="text-xl font-bold mb-3">Mobile Ready</h3>
+            <p className="text-gray-600 mb-4">
+              Fully responsive design ensures your links work perfectly on all devices. Create and manage links on the go.
+            </p>
+            <Link to="/auth" className="text-pink-600 hover:text-pink-800 inline-flex items-center group">
+              Try on any device
+              <ArrowRight size={16} className="ml-1 transform group-hover:translate-x-1 transition-transform" />
+            </Link>
+          </div>
         </div>
-        
-        <div className="flex flex-col md:flex-row justify-center gap-6 mb-12">
-          <div className="bg-white p-8 rounded-lg shadow-md text-center flex-1 border-t-4 border-brand-purple">
-            <div className="flex justify-center mb-2">
-              <div className="bg-brand-purple/10 p-2 rounded-full">
-                <Link className="h-6 w-6 text-brand-purple" />
-              </div>
-            </div>
-            <h3 className="text-lg font-medium text-gray-700">Total Links Created</h3>
-            {loading ? (
-              <Skeleton className="h-10 w-20 mx-auto mt-2" />
-            ) : (
-              <p className="text-4xl font-bold text-brand-purple mt-2 bg-gradient-to-r from-brand-purple to-brand-purple/70 bg-clip-text text-transparent">
-                {stats.linksCreated.toLocaleString()}
-              </p>
-            )}
-          </div>
-          <div className="bg-white p-8 rounded-lg shadow-md text-center flex-1 border-t-4 border-brand-blue">
-            <div className="flex justify-center mb-2">
-              <div className="bg-brand-blue/10 p-2 rounded-full">
-                <MousePointerClick className="h-6 w-6 text-brand-blue" />
-              </div>
-            </div>
-            <h3 className="text-lg font-medium text-gray-700">Total Link Clicks</h3>
-            {loading ? (
-              <Skeleton className="h-10 w-20 mx-auto mt-2" />
-            ) : (
-              <p className="text-4xl font-bold text-brand-blue mt-2 bg-gradient-to-r from-brand-blue to-brand-blue/70 bg-clip-text text-transparent">
-                {stats.totalClicks.toLocaleString()}
-              </p>
-            )}
-          </div>
-          <div className="bg-white p-8 rounded-lg shadow-md text-center flex-1 border-t-4 border-green-500">
-            <div className="flex justify-center mb-2">
-              <div className="bg-green-500/10 p-2 rounded-full">
-                <FileText className="h-6 w-6 text-green-600" />
-              </div>
-            </div>
-            <h3 className="text-lg font-medium text-gray-700">Bio Cards Created</h3>
-            {loading ? (
-              <Skeleton className="h-10 w-20 mx-auto mt-2" />
-            ) : (
-              <p className="text-4xl font-bold text-green-600 mt-2 bg-gradient-to-r from-green-600 to-green-500/70 bg-clip-text text-transparent">
-                {stats.bioCardsCount.toLocaleString()}
-              </p>
-            )}
-          </div>
+
+        {/* Bio Card Section */}
+        <BioCardSection />
+
+        {/* CTA Section */}
+        <div className="text-center mt-12">
+          <h3 className="text-2xl font-bold mb-4">Ready to take control of your links?</h3>
+          <p className="text-lg text-gray-600 mb-6 max-w-2xl mx-auto">
+            Join thousands of users who use Shortit to create, track, and manage their links.
+          </p>
+          <Button
+            asChild
+            size="lg"
+            className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-medium py-2 px-6 rounded-lg transition-all"
+          >
+            <Link to={user ? "/dashboard" : "/auth"}>
+              {user ? "Go to Dashboard" : "Get Started for Free"}
+            </Link>
+          </Button>
         </div>
       </div>
     </div>
-  );
-};
-
-const FeatureCard: React.FC<{
-  icon: React.ReactNode;
-  title: string;
-  description: string;
-  children?: React.ReactNode;
-}> = ({ icon, title, description, children }) => {
-  return (
-    <div className="bg-white p-6 rounded-lg shadow-md hover:shadow-lg transition-all">
-      <div className="mb-4">{icon}</div>
-      <h3 className="text-lg font-semibold mb-2">{title}</h3>
-      <p className="text-gray-600 text-sm mb-2">{description}</p>
-      {children}
-    </div>
-  );
-};
-
-const FeatureItem: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  return (
-    <li className="flex items-start">
-      <CheckCircle className="h-5 w-5 text-brand-purple mr-2 shrink-0 mt-0.5" />
-      <span>{children}</span>
-    </li>
   );
 };
 
