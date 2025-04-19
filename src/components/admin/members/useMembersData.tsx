@@ -1,18 +1,19 @@
 
 import { useState, useEffect, useCallback } from 'react';
-import { supabase } from "@/integrations/supabase/client";
-import { useToast } from "@/hooks/use-toast";
-import { Member, MemberStats } from './types';
+import { supabase } from '@/integrations/supabase/client';
+import { useToast } from '@/hooks/use-toast';
 
 export const useMembersData = () => {
-  const [members, setMembers] = useState<Member[]>([]);
-  const [memberStats, setMemberStats] = useState<Record<string, MemberStats>>({});
+  const [members, setMembers] = useState<any[]>([]);
+  const [memberStats, setMemberStats] = useState<Record<string, { links: number, clicks: number, bioCards: number }>>({});
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
-  const [searchTerm, setSearchTerm] = useState("");
-  const [editMember, setEditMember] = useState<Member | null>(null);
-  const [editLimit, setEditLimit] = useState<number>(0);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [editMember, setEditMember] = useState<any>(null);
+  const [editLimit, setEditLimit] = useState<number>(10);
+  const [editBioCardLimit, setEditBioCardLimit] = useState<number>(25);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [isBioCardDialogOpen, setIsBioCardDialogOpen] = useState(false);
   const { toast } = useToast();
 
   const fetchMembers = useCallback(async () => {
@@ -20,120 +21,108 @@ export const useMembersData = () => {
       setLoading(true);
       const { data, error } = await supabase
         .from('profiles')
-        .select('*');
+        .select('*')
+        .order('created_at', { ascending: false });
 
-      if (error) throw error;
-
-      if (data) {
-        console.log("Fetched members:", data.length);
-        setMembers(data as Member[]);
-        fetchMemberStats(data as Member[]);
+      if (error) {
+        throw error;
       }
-    } catch (error) {
+
+      setMembers(data || []);
+
+      // Fetch stats for each member
+      const stats: Record<string, { links: number, clicks: number, bioCards: number }> = {};
+      
+      for (const member of data || []) {
+        // Fetch link count and total clicks
+        const { data: linksData } = await supabase
+          .from('short_urls')
+          .select('id, visits')
+          .eq('user_id', member.id);
+
+        const linkCount = linksData?.length || 0;
+        const totalClicks = linksData?.reduce((sum, link) => sum + (link.visits || 0), 0) || 0;
+        
+        // Fetch bio cards count
+        const { data: bioCardsData } = await supabase
+          .from('bio_cards')
+          .select('id')
+          .eq('user_id', member.id);
+        
+        const bioCardsCount = bioCardsData?.length || 0;
+
+        stats[member.id] = { 
+          links: linkCount, 
+          clicks: totalClicks,
+          bioCards: bioCardsCount
+        };
+      }
+
+      setMemberStats(stats);
+    } catch (error: any) {
       console.error('Error fetching members:', error);
       toast({
-        title: "Error loading members",
-        description: "Could not load member data",
-        variant: "destructive"
+        title: 'Error',
+        description: 'Failed to fetch members',
+        variant: 'destructive'
       });
     } finally {
       setLoading(false);
     }
   }, [toast]);
 
-  const fetchMemberStats = async (members: Member[]) => {
-    try {
-      // Fetch link counts and click counts for each member
-      const stats: Record<string, MemberStats> = {};
-      
-      // Get start of current month
-      const startOfMonth = new Date();
-      startOfMonth.setDate(1);
-      startOfMonth.setHours(0, 0, 0, 0);
-
-      for (const member of members) {
-        // Get link count
-        const { data: linkData, error: linkError } = await supabase
-          .from('short_urls')
-          .select('id, visits')
-          .eq('user_id', member.id);
-
-        if (linkError) throw linkError;
-
-        // Get monthly link count
-        const { count: monthlyCount, error: monthlyError } = await supabase
-          .from('short_urls')
-          .select('*', { count: 'exact', head: true })
-          .eq('user_id', member.id)
-          .gte('created_at', startOfMonth.toISOString());
-        
-        if (monthlyError) throw monthlyError;
-
-        const linkCount = linkData?.length || 0;
-        const clickCount = linkData?.reduce((sum, link) => sum + (link.visits || 0), 0) || 0;
-        const linksThisMonth = monthlyCount || 0;
-
-        stats[member.id] = {
-          id: member.id,
-          linkCount,
-          clickCount,
-          linksThisMonth
-        };
-      }
-
-      setMemberStats(stats);
-    } catch (error) {
-      console.error('Error fetching member stats:', error);
-    }
-  };
+  useEffect(() => {
+    fetchMembers();
+  }, [fetchMembers]);
 
   const refreshData = async () => {
     setRefreshing(true);
     await fetchMembers();
     setRefreshing(false);
-    toast({
-      description: "Member data refreshed"
-    });
   };
 
-  const toggleMemberStatus = async (member: Member) => {
+  const toggleMemberStatus = async (id: string, isActive: boolean) => {
     try {
-      const newStatus = !member.is_active;
-      
       const { error } = await supabase
         .from('profiles')
-        .update({ is_active: newStatus })
-        .eq('id', member.id);
+        .update({ is_active: isActive })
+        .eq('id', id);
 
       if (error) throw error;
 
-      setMembers(members.map(m => 
-        m.id === member.id ? { ...m, is_active: newStatus } : m
+      setMembers(members.map(member => 
+        member.id === id ? { ...member, is_active: isActive } : member
       ));
 
       toast({
-        title: `Member ${newStatus ? 'activated' : 'deactivated'}`,
-        description: `${member.email} has been ${newStatus ? 'activated' : 'deactivated'}`,
+        title: 'Status updated',
+        description: `User has been ${isActive ? 'activated' : 'deactivated'}`
       });
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error toggling member status:', error);
       toast({
-        title: "Error updating member",
-        description: "Could not update member status",
-        variant: "destructive"
+        title: 'Error',
+        description: 'Failed to update user status',
+        variant: 'destructive'
       });
     }
   };
 
-  const openEditLimitDialog = (member: Member) => {
+  const openEditLimitDialog = (member: any) => {
     setEditMember(member);
-    setEditLimit(member.link_limit);
+    setEditLimit(member.link_limit || 10);
     setIsDialogOpen(true);
+  };
+
+  const openBioCardLimitDialog = (member: any) => {
+    setEditMember(member);
+    setEditBioCardLimit(member.bio_card_limit || 25);
+    setIsBioCardDialogOpen(true);
   };
 
   const updateLinkLimit = async () => {
     if (!editMember) return;
-    
+
     try {
       const { error } = await supabase
         .from('profiles')
@@ -142,41 +131,77 @@ export const useMembersData = () => {
 
       if (error) throw error;
 
-      setMembers(members.map(m => 
-        m.id === editMember.id ? { ...m, link_limit: editLimit } : m
+      // Update local state
+      setMembers(members.map(member => 
+        member.id === editMember.id ? { ...member, link_limit: editLimit } : member
       ));
 
       toast({
-        title: "Link limit updated",
-        description: `${editMember.email}'s link limit has been updated to ${editLimit}`,
+        title: 'Link limit updated',
+        description: `User's link limit has been updated to ${editLimit}`
       });
 
       setIsDialogOpen(false);
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error updating link limit:', error);
       toast({
-        title: "Error updating limit",
-        description: "Could not update member's link limit",
-        variant: "destructive"
+        title: 'Error',
+        description: 'Failed to update link limit',
+        variant: 'destructive'
       });
     }
   };
 
-  useEffect(() => {
-    fetchMembers();
-  }, [fetchMembers]);
+  const updateBioCardLimit = async () => {
+    if (!editMember) return;
 
+    try {
+      const { error } = await supabase
+        .from('profiles')
+        .update({ bio_card_limit: editBioCardLimit })
+        .eq('id', editMember.id);
+
+      if (error) throw error;
+
+      // Update local state
+      setMembers(members.map(member => 
+        member.id === editMember.id ? { ...member, bio_card_limit: editBioCardLimit } : member
+      ));
+
+      toast({
+        title: 'Bio card limit updated',
+        description: `User's bio card limit has been updated to ${editBioCardLimit}`
+      });
+
+      setIsBioCardDialogOpen(false);
+    } catch (error: any) {
+      console.error('Error updating bio card limit:', error);
+      toast({
+        title: 'Error',
+        description: 'Failed to update bio card limit',
+        variant: 'destructive'
+      });
+    }
+  };
+
+  // Filter members based on search term
   const filteredMembers = members.filter(member => {
-    const searchLower = searchTerm.toLowerCase();
-    return (
-      member.email?.toLowerCase().includes(searchLower) || 
-      member.full_name?.toLowerCase().includes(searchLower) ||
-      member.country?.toLowerCase().includes(searchLower)
-    );
+    const searchable = [
+      member.email,
+      member.full_name,
+      member.first_name,
+      member.last_name,
+    ]
+      .filter(Boolean)
+      .join(' ')
+      .toLowerCase();
+
+    return searchable.includes(searchTerm.toLowerCase());
   });
 
   return {
     members,
+    filteredMembers,
     memberStats,
     loading,
     refreshing,
@@ -185,13 +210,17 @@ export const useMembersData = () => {
     editMember,
     editLimit,
     setEditLimit,
+    editBioCardLimit,
+    setEditBioCardLimit,
     isDialogOpen,
     setIsDialogOpen,
-    fetchMembers,
+    isBioCardDialogOpen,
+    setIsBioCardDialogOpen,
     refreshData,
     toggleMemberStatus,
     openEditLimitDialog,
+    openBioCardLimitDialog,
     updateLinkLimit,
-    filteredMembers
+    updateBioCardLimit
   };
 };

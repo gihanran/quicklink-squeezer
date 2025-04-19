@@ -4,6 +4,7 @@ import { useMembersData } from './members/useMembersData';
 import SearchBar from './members/SearchBar';
 import MembersTable from './members/MembersTable';
 import EditLimitDialog from './members/EditLimitDialog';
+import BioCardLimitDialog from './members/BioCardLimitDialog';
 
 const MembersList = () => {
   const {
@@ -16,11 +17,17 @@ const MembersList = () => {
     setEditLimit,
     isDialogOpen,
     setIsDialogOpen,
+    isBioCardDialogOpen,
+    setIsBioCardDialogOpen,
+    editBioCardLimit,
+    setEditBioCardLimit,
     memberStats,
     refreshData,
     toggleMemberStatus,
     openEditLimitDialog,
     updateLinkLimit,
+    openBioCardLimitDialog,
+    updateBioCardLimit,
     filteredMembers
   } = useMembersData();
 
@@ -45,6 +52,7 @@ const MembersList = () => {
           memberStats={memberStats}
           toggleMemberStatus={toggleMemberStatus}
           openEditLimitDialog={openEditLimitDialog}
+          openBioCardLimitDialog={openBioCardLimitDialog}
         />
       )}
 
@@ -55,6 +63,15 @@ const MembersList = () => {
         editLimit={editLimit}
         setEditLimit={setEditLimit}
         updateLinkLimit={updateLinkLimit}
+      />
+
+      <BioCardLimitDialog
+        isOpen={isBioCardDialogOpen}
+        setIsOpen={setIsBioCardDialogOpen}
+        editMember={editMember}
+        editLimit={editBioCardLimit}
+        setEditLimit={setEditBioCardLimit}
+        updateBioCardLimit={updateBioCardLimit}
       />
     </div>
   );

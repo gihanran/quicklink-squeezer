@@ -1,59 +1,62 @@
 
 import React from 'react';
-import { Member, MemberStats } from './types';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table';
+import { formatDistanceToNow } from 'date-fns';
 import MemberRow from './MemberRow';
-import { 
-  Table, TableHeader, TableBody, TableHead, TableRow, TableCell 
-} from "@/components/ui/table";
 
 interface MembersTableProps {
-  filteredMembers: Member[];
-  memberStats: Record<string, MemberStats>;
-  toggleMemberStatus: (member: Member) => void;
-  openEditLimitDialog: (member: Member) => void;
+  filteredMembers: any[];
+  memberStats: Record<string, { links: number, clicks: number, bioCards: number }>;
+  toggleMemberStatus: (id: string, isActive: boolean) => void;
+  openEditLimitDialog: (member: any) => void;
+  openBioCardLimitDialog: (member: any) => void;
 }
 
-const MembersTable = ({
+const MembersTable: React.FC<MembersTableProps> = ({
   filteredMembers,
   memberStats,
   toggleMemberStatus,
-  openEditLimitDialog
-}: MembersTableProps) => {
+  openEditLimitDialog,
+  openBioCardLimitDialog
+}) => {
+  if (filteredMembers.length === 0) {
+    return (
+      <div className="text-center p-8 border rounded-md bg-gray-50 mt-4">
+        <p className="text-gray-500">No members found</p>
+      </div>
+    );
+  }
+
   return (
-    <div className="rounded-lg border overflow-hidden">
+    <div className="rounded-md border mt-4 overflow-hidden">
       <Table>
         <TableHeader>
           <TableRow>
-            <TableHead>User ID</TableHead>
-            <TableHead>Name</TableHead>
-            <TableHead>Email</TableHead>
-            <TableHead>Country</TableHead>
-            <TableHead>Total Links</TableHead>
-            <TableHead>Total Clicks</TableHead>
-            <TableHead>Links This Month</TableHead>
-            <TableHead>Monthly Limit</TableHead>
-            <TableHead>Status</TableHead>
-            <TableHead>Actions</TableHead>
+            <TableHead className="w-[250px]">User</TableHead>
+            <TableHead>Stats</TableHead>
+            <TableHead>Registered</TableHead>
+            <TableHead>Limits</TableHead>
+            <TableHead className="text-right">Actions</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
-          {filteredMembers.length > 0 ? (
-            filteredMembers.map((member) => (
-              <MemberRow
-                key={member.id}
-                member={member}
-                memberStats={memberStats[member.id]}
-                toggleMemberStatus={toggleMemberStatus}
-                openEditLimitDialog={openEditLimitDialog}
-              />
-            ))
-          ) : (
-            <TableRow>
-              <TableCell colSpan={10} className="text-center py-8 text-gray-500">
-                No members found
-              </TableCell>
-            </TableRow>
-          )}
+          {filteredMembers.map((member) => (
+            <MemberRow
+              key={member.id}
+              member={member}
+              stats={memberStats[member.id]}
+              toggleMemberStatus={toggleMemberStatus}
+              openEditLimitDialog={openEditLimitDialog}
+              openBioCardLimitDialog={openBioCardLimitDialog}
+            />
+          ))}
         </TableBody>
       </Table>
     </div>

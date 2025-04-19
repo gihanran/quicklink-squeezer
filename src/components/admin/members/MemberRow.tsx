@@ -1,75 +1,143 @@
 
 import React from 'react';
-import { Member, MemberStats } from './types';
+import { TableCell, TableRow } from '@/components/ui/table';
+import { Button } from '@/components/ui/button';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { formatDistanceToNow } from 'date-fns';
 import { 
-  TableRow, TableCell 
-} from "@/components/ui/table";
-import { ToggleLeft, ToggleRight, Pencil } from "lucide-react";
-import { Button } from "@/components/ui/button";
+  Link2, 
+  MousePointer, 
+  ToggleLeft, 
+  ToggleRight, 
+  Settings,
+  Layout
+} from 'lucide-react';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 
 interface MemberRowProps {
-  member: Member;
-  memberStats: MemberStats | undefined;
-  toggleMemberStatus: (member: Member) => void;
-  openEditLimitDialog: (member: Member) => void;
+  member: any;
+  stats: {
+    links: number;
+    clicks: number;
+    bioCards: number;
+  };
+  toggleMemberStatus: (id: string, isActive: boolean) => void;
+  openEditLimitDialog: (member: any) => void;
+  openBioCardLimitDialog: (member: any) => void;
 }
 
-const MemberRow = ({ 
-  member, 
-  memberStats, 
-  toggleMemberStatus, 
-  openEditLimitDialog 
-}: MemberRowProps) => {
+const MemberRow: React.FC<MemberRowProps> = ({
+  member,
+  stats,
+  toggleMemberStatus,
+  openEditLimitDialog,
+  openBioCardLimitDialog
+}) => {
+  const getInitials = (name: string) => {
+    if (!name) return '?';
+    return name
+      .split(' ')
+      .map((n) => n[0])
+      .join('')
+      .toUpperCase()
+      .substring(0, 2);
+  };
+
   return (
-    <TableRow key={member.id}>
-      <TableCell className="font-mono text-xs">
-        {member.id.split('-')[0]}...
-      </TableCell>
-      <TableCell>{member.full_name || 'N/A'}</TableCell>
-      <TableCell>{member.email || 'N/A'}</TableCell>
-      <TableCell>{member.country || 'N/A'}</TableCell>
-      <TableCell>{memberStats?.linkCount || 0}</TableCell>
-      <TableCell>{memberStats?.clickCount || 0}</TableCell>
+    <TableRow>
       <TableCell>
-        <span className={memberStats?.linksThisMonth >= member.link_limit ? 'text-red-600 font-bold' : ''}>
-          {memberStats?.linksThisMonth || 0} / {member.link_limit}
-        </span>
-      </TableCell>
-      <TableCell>
-        <span className="font-medium">{member.link_limit}</span>
-      </TableCell>
-      <TableCell>
-        <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-          member.is_active 
-            ? 'bg-green-100 text-green-800' 
-            : 'bg-red-100 text-red-800'
-        }`}>
-          {member.is_active ? 'Active' : 'Inactive'}
-        </span>
-      </TableCell>
-      <TableCell>
-        <div className="flex space-x-1">
-          <Button 
-            variant="ghost" 
-            size="icon"
-            onClick={() => toggleMemberStatus(member)}
-            title={member.is_active ? 'Deactivate' : 'Activate'}
-          >
-            {member.is_active ? (
-              <ToggleRight className="h-4 w-4 text-green-600" />
-            ) : (
-              <ToggleLeft className="h-4 w-4 text-gray-500" />
-            )}
-          </Button>
-          <Button 
-            variant="ghost" 
-            size="icon"
-            onClick={() => openEditLimitDialog(member)}
-            title="Edit Link Limit"
-          >
-            <Pencil className="h-4 w-4" />
-          </Button>
+        <div className="flex items-center gap-3">
+          <Avatar>
+            <AvatarImage src={member.avatar_url} alt={member.full_name} />
+            <AvatarFallback>
+              {getInitials(member.full_name || member.email)}
+            </AvatarFallback>
+          </Avatar>
+          <div>
+            <div className="font-medium">{member.email}</div>
+            <div className="text-sm text-gray-500">
+              {member.full_name || 'No name provided'}
+            </div>
+          </div>
         </div>
+      </TableCell>
+      <TableCell>
+        <div className="flex space-x-4 text-sm">
+          <div className="flex items-center gap-1">
+            <Link2 className="h-4 w-4 text-gray-500" />
+            <span>{stats?.links || 0}</span>
+          </div>
+          <div className="flex items-center gap-1">
+            <MousePointer className="h-4 w-4 text-gray-500" />
+            <span>{stats?.clicks || 0}</span>
+          </div>
+          <div className="flex items-center gap-1">
+            <Layout className="h-4 w-4 text-gray-500" />
+            <span>{stats?.bioCards || 0}</span>
+          </div>
+        </div>
+      </TableCell>
+      <TableCell>
+        <div className="text-sm">
+          {member.created_at
+            ? formatDistanceToNow(new Date(member.created_at), { addSuffix: true })
+            : 'Unknown'}
+        </div>
+      </TableCell>
+      <TableCell>
+        <div className="space-y-1">
+          <div className="text-sm flex gap-1">
+            <span className="font-medium">Links:</span> {member.link_limit || 10}
+          </div>
+          <div className="text-sm flex gap-1">
+            <span className="font-medium">Bio Cards:</span> {member.bio_card_limit || 25}
+          </div>
+        </div>
+      </TableCell>
+      <TableCell className="text-right">
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="ghost" size="sm">
+              <Settings className="h-4 w-4" />
+              <span className="sr-only">Actions</span>
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end">
+            <DropdownMenuLabel>Actions</DropdownMenuLabel>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem onClick={() => openEditLimitDialog(member)}>
+              <Link2 className="h-4 w-4 mr-2" />
+              Edit Link Limit
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={() => openBioCardLimitDialog(member)}>
+              <Layout className="h-4 w-4 mr-2" />
+              Edit Bio Card Limit
+            </DropdownMenuItem>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem
+              onClick={() => toggleMemberStatus(member.id, !member.is_active)}
+            >
+              {member.is_active ? (
+                <>
+                  <ToggleRight className="h-4 w-4 mr-2" />
+                  Deactivate User
+                </>
+              ) : (
+                <>
+                  <ToggleLeft className="h-4 w-4 mr-2" />
+                  Activate User
+                </>
+              )}
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
       </TableCell>
     </TableRow>
   );
