@@ -1,4 +1,3 @@
-
 export interface BioCard {
   id: string;
   user_id: string;
@@ -13,6 +12,8 @@ export interface BioCard {
   clicks?: number;
   created_at?: string;
   updated_at?: string;
+  links?: BioCardLink[];
+  social_links?: BioCardSocialLink[];
 }
 
 export interface BioCardLink {
