@@ -1,15 +1,15 @@
-
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { Link as LinkIcon, ExternalLink } from 'lucide-react';
 import NotFound from './NotFound';
+import type { BioCard, BioCardLink, BioCardSocialLink } from '@/types/bioCardTypes';
 
 const BioCardView: React.FC = () => {
   const { slug } = useParams<{ slug: string }>();
-  const [bioCard, setBioCard] = useState<any | null>(null);
-  const [links, setLinks] = useState<any[]>([]);
-  const [socialLinks, setSocialLinks] = useState<any[]>([]);
+  const [bioCard, setBioCard] = useState<BioCard | null>(null);
+  const [links, setLinks] = useState<BioCardLink[]>([]);
+  const [socialLinks, setSocialLinks] = useState<BioCardSocialLink[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -19,7 +19,7 @@ const BioCardView: React.FC = () => {
 
       try {
         // Fetch the bio card
-        const { data: bioCardData, error: bioCardError } = await supabase
+        const { data: bioCardData, error: bioCardError } = await (supabase as any)
           .from('bio_cards')
           .select('*')
           .eq('slug', slug)
@@ -31,10 +31,10 @@ const BioCardView: React.FC = () => {
         setBioCard(bioCardData);
 
         // Increment view count
-        await supabase.rpc('increment_bio_card_views', { card_slug: slug });
+        await (supabase as any).rpc('increment_bio_card_views', { card_slug: slug });
 
         // Fetch links
-        const { data: linksData, error: linksError } = await supabase
+        const { data: linksData, error: linksError } = await (supabase as any)
           .from('bio_card_links')
           .select('*')
           .eq('bio_card_id', bioCardData.id)
@@ -44,7 +44,7 @@ const BioCardView: React.FC = () => {
         setLinks(linksData || []);
 
         // Fetch social links
-        const { data: socialLinksData, error: socialLinksError } = await supabase
+        const { data: socialLinksData, error: socialLinksError } = await (supabase as any)
           .from('bio_card_social_links')
           .select('*')
           .eq('bio_card_id', bioCardData.id)
@@ -65,7 +65,7 @@ const BioCardView: React.FC = () => {
 
   const handleLinkClick = async (linkId: string) => {
     try {
-      await supabase.rpc('increment_bio_card_link_clicks', { link_id: linkId });
+      await (supabase as any).rpc('increment_bio_card_link_clicks', { link_id: linkId });
     } catch (err) {
       console.error('Error tracking click:', err);
     }

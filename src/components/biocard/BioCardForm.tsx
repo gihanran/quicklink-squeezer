@@ -12,11 +12,12 @@ import { supabase } from '@/integrations/supabase/client';
 import { HexColorPicker } from 'react-colorful';
 import LinksList from './LinksList';
 import SocialLinksList from './SocialLinksList';
+import type { BioCard } from '@/types/bioCardTypes';
 
 interface BioCardFormProps {
   onClose: () => void;
   onSave: () => void;
-  initialData?: any;
+  initialData?: BioCard;
 }
 
 const BioCardForm: React.FC<BioCardFormProps> = ({ 
@@ -114,7 +115,7 @@ const BioCardForm: React.FC<BioCardFormProps> = ({
 
       // Check if slug is already taken
       if (!initialData) {
-        const { data: existingCard } = await supabase
+        const { data: existingCard } = await (supabase as any)
           .from('bio_cards')
           .select('id')
           .eq('slug', slug)
@@ -146,7 +147,7 @@ const BioCardForm: React.FC<BioCardFormProps> = ({
       let cardId;
 
       if (initialData) {
-        const { error } = await supabase
+        const { error } = await (supabase as any)
           .from('bio_cards')
           .update(bioCardData)
           .eq('id', initialData.id);
@@ -154,7 +155,7 @@ const BioCardForm: React.FC<BioCardFormProps> = ({
         if (error) throw error;
         cardId = initialData.id;
       } else {
-        const { data, error } = await supabase
+        const { data, error } = await (supabase as any)
           .from('bio_cards')
           .insert([bioCardData])
           .select();
@@ -166,7 +167,7 @@ const BioCardForm: React.FC<BioCardFormProps> = ({
       // Save links
       if (initialData) {
         // Delete existing links
-        await supabase
+        await (supabase as any)
           .from('bio_card_links')
           .delete()
           .eq('bio_card_id', initialData.id);
@@ -174,7 +175,7 @@ const BioCardForm: React.FC<BioCardFormProps> = ({
 
       // Add new links
       if (links.length > 0) {
-        const linksToInsert = links.map(link => ({
+        const linksToInsert = links.map((link: any) => ({
           bio_card_id: cardId,
           title: link.title,
           url: link.url,
@@ -182,7 +183,7 @@ const BioCardForm: React.FC<BioCardFormProps> = ({
           icon: link.icon
         }));
 
-        const { error: linksError } = await supabase
+        const { error: linksError } = await (supabase as any)
           .from('bio_card_links')
           .insert(linksToInsert);
 
@@ -191,14 +192,14 @@ const BioCardForm: React.FC<BioCardFormProps> = ({
 
       // Add social links
       if (socialLinks.length > 0) {
-        const socialLinksToInsert = socialLinks.map(link => ({
+        const socialLinksToInsert = socialLinks.map((link: any) => ({
           bio_card_id: cardId,
           platform: link.platform,
           url: link.url,
           icon: link.icon
         }));
 
-        const { error: socialLinksError } = await supabase
+        const { error: socialLinksError } = await (supabase as any)
           .from('bio_card_social_links')
           .insert(socialLinksToInsert);
 

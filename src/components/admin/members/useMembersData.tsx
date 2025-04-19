@@ -2,6 +2,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import { ProfileWithBioCardLimit } from '@/types/bioCardTypes';
 
 export const useMembersData = () => {
   const [members, setMembers] = useState<any[]>([]);
@@ -44,7 +45,7 @@ export const useMembersData = () => {
         const totalClicks = linksData?.reduce((sum, link) => sum + (link.visits || 0), 0) || 0;
         
         // Fetch bio cards count
-        const { data: bioCardsData } = await supabase
+        const { data: bioCardsData } = await (supabase as any)
           .from('bio_cards')
           .select('id')
           .eq('user_id', member.id);
@@ -156,7 +157,7 @@ export const useMembersData = () => {
     if (!editMember) return;
 
     try {
-      const { error } = await supabase
+      const { error } = await (supabase as any)
         .from('profiles')
         .update({ bio_card_limit: editBioCardLimit })
         .eq('id', editMember.id);

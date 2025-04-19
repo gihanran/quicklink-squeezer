@@ -9,6 +9,130 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      bio_card_links: {
+        Row: {
+          bio_card_id: string | null
+          clicks: number | null
+          created_at: string | null
+          description: string | null
+          icon: string | null
+          id: string
+          title: string
+          url: string
+        }
+        Insert: {
+          bio_card_id?: string | null
+          clicks?: number | null
+          created_at?: string | null
+          description?: string | null
+          icon?: string | null
+          id?: string
+          title: string
+          url: string
+        }
+        Update: {
+          bio_card_id?: string | null
+          clicks?: number | null
+          created_at?: string | null
+          description?: string | null
+          icon?: string | null
+          id?: string
+          title?: string
+          url?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "bio_card_links_bio_card_id_fkey"
+            columns: ["bio_card_id"]
+            isOneToOne: false
+            referencedRelation: "bio_cards"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      bio_card_social_links: {
+        Row: {
+          bio_card_id: string | null
+          created_at: string | null
+          icon: string | null
+          id: string
+          platform: string
+          url: string
+        }
+        Insert: {
+          bio_card_id?: string | null
+          created_at?: string | null
+          icon?: string | null
+          id?: string
+          platform: string
+          url: string
+        }
+        Update: {
+          bio_card_id?: string | null
+          created_at?: string | null
+          icon?: string | null
+          id?: string
+          platform?: string
+          url?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "bio_card_social_links_bio_card_id_fkey"
+            columns: ["bio_card_id"]
+            isOneToOne: false
+            referencedRelation: "bio_cards"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      bio_cards: {
+        Row: {
+          bg_color: string | null
+          button_color: string | null
+          button_style: string | null
+          clicks: number | null
+          created_at: string | null
+          description: string | null
+          id: string
+          profile_image_url: string | null
+          slug: string
+          title: string
+          updated_at: string | null
+          user_id: string
+          views: number | null
+        }
+        Insert: {
+          bg_color?: string | null
+          button_color?: string | null
+          button_style?: string | null
+          clicks?: number | null
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          profile_image_url?: string | null
+          slug: string
+          title: string
+          updated_at?: string | null
+          user_id: string
+          views?: number | null
+        }
+        Update: {
+          bg_color?: string | null
+          button_color?: string | null
+          button_style?: string | null
+          clicks?: number | null
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          profile_image_url?: string | null
+          slug?: string
+          title?: string
+          updated_at?: string | null
+          user_id?: string
+          views?: number | null
+        }
+        Relationships: []
+      }
       notifications: {
         Row: {
           created_at: string | null
@@ -39,6 +163,7 @@ export type Database = {
       profiles: {
         Row: {
           avatar_url: string | null
+          bio_card_limit: number | null
           country: string | null
           created_at: string
           email: string | null
@@ -55,6 +180,7 @@ export type Database = {
         }
         Insert: {
           avatar_url?: string | null
+          bio_card_limit?: number | null
           country?: string | null
           created_at?: string
           email?: string | null
@@ -71,6 +197,7 @@ export type Database = {
         }
         Update: {
           avatar_url?: string | null
+          bio_card_limit?: number | null
           country?: string | null
           created_at?: string
           email?: string | null
@@ -203,6 +330,14 @@ export type Database = {
         Returns: {
           count: number
         }[]
+      }
+      increment_bio_card_link_clicks: {
+        Args: { link_id: string }
+        Returns: undefined
+      }
+      increment_bio_card_views: {
+        Args: { card_slug: string }
+        Returns: undefined
       }
       increment_landing_page_link_clicks: {
         Args: { link_id: string }
