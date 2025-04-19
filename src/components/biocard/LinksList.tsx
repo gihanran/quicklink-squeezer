@@ -3,14 +3,13 @@ import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
-import { Plus, Trash, Link } from 'lucide-react';
+import { Plus, Link } from 'lucide-react';
 import { Label } from '@/components/ui/label';
+import { BaseLink } from './base/BaseLink';
+import { useLinkManager } from '@/hooks/biocard/useLinkManager';
+import type { CustomLink, BaseLinkListProps } from '@/types/linkTypes';
 
-interface LinksListProps {
-  links: any[];
-  setLinks: (links: any[]) => void;
-  maxLinks: number;
-}
+interface LinksListProps extends BaseLinkListProps<CustomLink> {}
 
 const LinksList: React.FC<LinksListProps> = ({ links, setLinks, maxLinks }) => {
   const [newLink, setNewLink] = useState({
@@ -19,37 +18,28 @@ const LinksList: React.FC<LinksListProps> = ({ links, setLinks, maxLinks }) => {
     description: ''
   });
 
-  const addLink = () => {
-    if (links.length >= maxLinks) {
-      return;
-    }
+  const { addLink, removeLink, updateLink } = useLinkManager(links, setLinks, maxLinks);
+
+  const handleAddLink = () => {
+    if (!newLink.title || !newLink.url) return;
     
-    if (!newLink.title || !newLink.url) {
-      return;
-    }
-    
-    setLinks([...links, { ...newLink, id: Date.now() }]);
+    addLink({
+      ...newLink,
+      id: Date.now().toString()
+    });
+
     setNewLink({ title: '', url: '', description: '' });
   };
 
-  const removeLink = (id: number) => {
-    setLinks(links.filter(link => link.id !== id));
-  };
-
-  const handleDescriptionChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-    const text = e.target.value;
+  const handleDescriptionChange = (text: string) => {
     if (text.length <= 140) {
       setNewLink({ ...newLink, description: text });
     }
   };
 
-  const updateLinkDescription = (id: number, description: string) => {
+  const handleLinkDescriptionChange = (id: string, description: string) => {
     if (description.length <= 140) {
-      setLinks(
-        links.map(link => 
-          link.id === id ? { ...link, description } : link
-        )
-      );
+      updateLink(id, { description });
     }
   };
 
@@ -86,7 +76,7 @@ const LinksList: React.FC<LinksListProps> = ({ links, setLinks, maxLinks }) => {
             id="linkDescription"
             placeholder="Brief description (optional)"
             value={newLink.description}
-            onChange={handleDescriptionChange}
+            onChange={(e) => handleDescriptionChange(e.target.value)}
             className="mt-1"
             rows={2}
           />
@@ -94,7 +84,7 @@ const LinksList: React.FC<LinksListProps> = ({ links, setLinks, maxLinks }) => {
         
         <Button
           type="button"
-          onClick={addLink}
+          onClick={handleAddLink}
           disabled={!newLink.title || !newLink.url || links.length >= maxLinks}
           className="w-full"
         >
@@ -104,7 +94,7 @@ const LinksList: React.FC<LinksListProps> = ({ links, setLinks, maxLinks }) => {
       
       {links.length > 0 ? (
         <div className="space-y-3">
-          {links.map((link, index) => (
+          {links.map((link) => (
             <div key={link.id} className="flex items-start gap-2 border rounded-md p-3 bg-gray-50">
               <div className="mt-1">
                 <Link className="h-4 w-4 text-gray-500" />
@@ -118,7 +108,7 @@ const LinksList: React.FC<LinksListProps> = ({ links, setLinks, maxLinks }) => {
                 <Textarea
                   placeholder="Edit description (optional)"
                   value={link.description || ''}
-                  onChange={(e) => updateLinkDescription(link.id, e.target.value)}
+                  onChange={(e) => handleLinkDescriptionChange(link.id, e.target.value)}
                   className="mt-2 text-xs"
                   rows={2}
                 />
@@ -132,7 +122,7 @@ const LinksList: React.FC<LinksListProps> = ({ links, setLinks, maxLinks }) => {
                 onClick={() => removeLink(link.id)}
                 className="text-destructive hover:text-destructive"
               >
-                <Trash className="h-4 w-4" />
+                <Link className="h-4 w-4" />
               </Button>
             </div>
           ))}

@@ -2,13 +2,13 @@
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { PlusCircle, Trash2, Facebook, Instagram, Twitter, Linkedin } from 'lucide-react';
+import { PlusCircle, Facebook, Instagram, Twitter, Linkedin } from 'lucide-react';
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/ui/select';
+import { BaseLink } from './base/BaseLink';
+import { useLinkManager } from '@/hooks/biocard/useLinkManager';
+import type { SocialLink, BaseLinkListProps } from '@/types/linkTypes';
 
-interface SocialLinksListProps {
-  links: any[];
-  setLinks: React.Dispatch<React.SetStateAction<any[]>>;
-  maxLinks: number;
+interface SocialLinksListProps extends BaseLinkListProps<SocialLink> {
   getSocialIcon?: (platform: string) => React.ReactNode;
 }
 
@@ -16,13 +16,14 @@ const SocialLinksList: React.FC<SocialLinksListProps> = ({
   links, 
   setLinks, 
   maxLinks,
-  getSocialIcon
+  getSocialIcon 
 }) => {
   const [newPlatform, setNewPlatform] = useState('');
   const [newUrl, setNewUrl] = useState('');
-  
+  const { addLink, removeLink, updateLink } = useLinkManager(links, setLinks, maxLinks);
+
   const handleAddLink = () => {
-    if (!newPlatform || !newUrl || links.length >= maxLinks) return;
+    if (!newPlatform || !newUrl) return;
     
     const iconMap: Record<string, string> = {
       'facebook': 'facebook',
@@ -31,27 +32,15 @@ const SocialLinksList: React.FC<SocialLinksListProps> = ({
       'linkedin': 'linkedin',
     };
     
-    setLinks([
-      ...links, 
-      { 
-        platform: newPlatform, 
-        url: newUrl, 
-        icon: iconMap[newPlatform.toLowerCase()] || '' 
-      }
-    ]);
+    addLink({ 
+      platform: newPlatform, 
+      url: newUrl, 
+      icon: iconMap[newPlatform.toLowerCase()] || '',
+      id: Date.now().toString()
+    });
     
     setNewPlatform('');
     setNewUrl('');
-  };
-  
-  const handleRemoveLink = (index: number) => {
-    setLinks(links.filter((_, i) => i !== index));
-  };
-  
-  const handleUrlChange = (index: number, value: string) => {
-    const updatedLinks = [...links];
-    updatedLinks[index].url = value;
-    setLinks(updatedLinks);
   };
 
   const renderSocialIcon = (platform: string) => {
@@ -76,8 +65,8 @@ const SocialLinksList: React.FC<SocialLinksListProps> = ({
   return (
     <div className="space-y-4">
       <div className="border rounded-md p-4 space-y-3">
-        {links.map((link, index) => (
-          <div key={index} className="flex items-center gap-2">
+        {links.map((link) => (
+          <BaseLink key={link.id} onDelete={() => removeLink(link.id)}>
             <div className="flex-shrink-0 w-24">
               <div className="flex items-center">
                 {renderSocialIcon(link.platform)}
@@ -86,20 +75,11 @@ const SocialLinksList: React.FC<SocialLinksListProps> = ({
             </div>
             <Input
               value={link.url}
-              onChange={(e) => handleUrlChange(index, e.target.value)}
+              onChange={(e) => updateLink(link.id, { url: e.target.value })}
               placeholder="https://example.com"
               className="flex-1"
             />
-            <Button
-              type="button"
-              variant="ghost"
-              size="sm"
-              onClick={() => handleRemoveLink(index)}
-              className="flex-shrink-0 text-destructive hover:text-destructive hover:bg-destructive/10"
-            >
-              <Trash2 className="h-4 w-4" />
-            </Button>
-          </div>
+          </BaseLink>
         ))}
         
         {links.length === 0 && (
