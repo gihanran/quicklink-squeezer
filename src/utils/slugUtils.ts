@@ -10,3 +10,6 @@ export const generateSlugFromTitle = (title: string): string => {
     .replace(/-+/g, '-')
     .trim();
 };
+
+// Add slugify as an alias for consistency with imports
+export const slugify = generateSlugFromTitle;
