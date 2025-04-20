@@ -99,10 +99,19 @@ const BioCardView: React.FC = () => {
     }
   };
 
+  // Prepare container style with background image or color
+  const containerStyle = {
+    backgroundColor: bioCard.bg_color || '#ffffff',
+    backgroundImage: bioCard.background_image_url ? `url(${bioCard.background_image_url})` : 'none',
+    backgroundSize: 'cover',
+    backgroundPosition: 'center',
+    backgroundRepeat: 'no-repeat'
+  };
+
   return (
     <div 
       className="min-h-screen flex flex-col items-center py-10 px-4"
-      style={{ backgroundColor: bioCard.bg_color || '#ffffff' }}
+      style={containerStyle}
     >
       <div className="max-w-md w-full mx-auto">
         {/* Profile Section */}
