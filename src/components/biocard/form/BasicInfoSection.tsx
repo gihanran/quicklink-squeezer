@@ -1,23 +1,28 @@
 
 import React from 'react';
 import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
-import { Camera } from 'lucide-react';
+import { Textarea } from '@/components/ui/textarea';
 import { useBioCardImageUpload } from '@/hooks/useBioCardImageUpload';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Loader2, Upload } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { slugify } from '@/utils/slugUtils';
 
 interface BasicInfoSectionProps {
   title: string;
-  setTitle: (value: string) => void;
+  setTitle: (title: string) => void;
   slug: string;
-  setSlug: (value: string) => void;
+  setSlug: (slug: string) => void;
   description: string;
-  setDescription: (value: string) => void;
+  setDescription: (description: string) => void;
   profileImageUrl: string;
-  setProfileImageUrl: (value: string) => void;
+  setProfileImageUrl: (url: string) => void;
+  backgroundImageUrl?: string;
+  setBackgroundImageUrl?: (url: string) => void;
 }
 
-export const BasicInfoSection = ({
+export const BasicInfoSection: React.FC<BasicInfoSectionProps> = ({
   title,
   setTitle,
   slug,
@@ -25,107 +30,152 @@ export const BasicInfoSection = ({
   description,
   setDescription,
   profileImageUrl,
-  setProfileImageUrl
-}: BasicInfoSectionProps) => {
+  setProfileImageUrl,
+  backgroundImageUrl = '',
+  setBackgroundImageUrl = () => {}
+}) => {
   const { uploadImage, uploading } = useBioCardImageUpload();
 
-  const handleSlugChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value
-      .toLowerCase()
-      .replace(/[^a-z0-9-]/g, '-')
-      .replace(/-+/g, '-')
-      .replace(/^-|-$/g, '');
-    setSlug(value);
-  };
-
-  const handleDescriptionChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-    const text = e.target.value;
-    if (text.length <= 250) {
-      setDescription(text);
+  const handleTitleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const newTitle = e.target.value;
+    setTitle(newTitle);
+    
+    // Only auto-generate slug if it's empty or was auto-generated before
+    if (!slug || slugify(title) === slug) {
+      setSlug(slugify(newTitle));
     }
   };
 
   const handleProfileImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = e.target.files;
-    if (!files || files.length === 0) return;
+    if (!e.target.files || e.target.files.length === 0) return;
     
-    const file = files[0];
+    const file = e.target.files[0];
     const imageUrl = await uploadImage(file, 'profile');
     if (imageUrl) {
       setProfileImageUrl(imageUrl);
     }
   };
 
+  const handleBackgroundImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (!e.target.files || e.target.files.length === 0) return;
+    
+    const file = e.target.files[0];
+    const imageUrl = await uploadImage(file, 'background');
+    if (imageUrl) {
+      setBackgroundImageUrl(imageUrl);
+    }
+  };
+
   return (
-    <div className="space-y-4">
-      <div>
-        <Label htmlFor="title">Title</Label>
-        <Input
-          id="title"
-          placeholder="My Bio Card"
-          value={title}
-          onChange={(e) => setTitle(e.target.value)}
-          className="mt-1"
-        />
-      </div>
+    <div>
+      <h3 className="text-lg font-medium mb-3">Basic Information</h3>
       
-      <div>
-        <Label htmlFor="slug">
-          Slug <span className="text-xs text-gray-500">(appears in URL)</span>
-        </Label>
-        <Input
-          id="slug"
-          placeholder="my-bio-card"
-          value={slug}
-          onChange={handleSlugChange}
-          className="mt-1"
-        />
-        {slug && (
-          <p className="text-xs text-gray-500 mt-1">
-            Your bio card will be available at: /b/{slug}
-          </p>
-        )}
-      </div>
-      
-      <div>
-        <Label htmlFor="description">
-          Description <span className="text-xs text-gray-500">({description.length}/250)</span>
-        </Label>
-        <Textarea
-          id="description"
-          placeholder="Short description about yourself"
-          value={description}
-          onChange={handleDescriptionChange}
-          className="mt-1"
-          rows={4}
-        />
-      </div>
-      
-      <div>
-        <Label htmlFor="profileImage">Profile Image</Label>
-        <div className="flex items-center gap-4 mt-1">
-          <div className="h-16 w-16 rounded-full overflow-hidden border border-gray-200 flex items-center justify-center bg-gray-100">
-            {profileImageUrl ? (
-              <img 
-                src={profileImageUrl} 
-                alt="Profile" 
-                className="h-full w-full object-cover"
+      <div className="space-y-4">
+        <div className="flex flex-col items-center">
+          <Avatar className="w-24 h-24 border-2 border-gray-200">
+            <AvatarImage src={profileImageUrl} alt={title} />
+            <AvatarFallback>{title.charAt(0)}</AvatarFallback>
+          </Avatar>
+          
+          <div className="mt-3">
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              disabled={uploading}
+              className="relative overflow-hidden"
+            >
+              {uploading ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : (
+                <>
+                  <Upload className="h-4 w-4 mr-2" /> Upload Profile Image
+                </>
+              )}
+              <input
+                type="file"
+                accept="image/*"
+                className="absolute inset-0 opacity-0 cursor-pointer"
+                onChange={handleProfileImageUpload}
+                disabled={uploading}
               />
-            ) : (
-              <Camera className="h-6 w-6 text-gray-400" />
+            </Button>
+          </div>
+        </div>
+
+        <div className="mt-4">
+          <Label>Background Image (Optional)</Label>
+          <div className="mt-1 flex items-center">
+            {backgroundImageUrl && (
+              <div className="relative w-full h-20 mb-2 rounded overflow-hidden">
+                <img 
+                  src={backgroundImageUrl} 
+                  alt="Background" 
+                  className="w-full h-full object-cover"
+                />
+              </div>
             )}
           </div>
-          <div className="flex-1">
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            disabled={uploading}
+            className="relative overflow-hidden w-full mt-2"
+          >
+            {uploading ? (
+              <Loader2 className="h-4 w-4 animate-spin" />
+            ) : (
+              <>
+                <Upload className="h-4 w-4 mr-2" /> Upload Background Image
+              </>
+            )}
             <input
               type="file"
-              id="profileImage"
               accept="image/*"
-              onChange={handleProfileImageUpload}
-              className="text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-primary file:text-white hover:file:bg-primary/90"
+              className="absolute inset-0 opacity-0 cursor-pointer"
+              onChange={handleBackgroundImageUpload}
               disabled={uploading}
             />
-            {uploading && <p className="text-xs text-gray-500 mt-1">Uploading...</p>}
-          </div>
+          </Button>
+        </div>
+        
+        <div>
+          <Label htmlFor="title">Title</Label>
+          <Input
+            id="title"
+            value={title}
+            onChange={handleTitleChange}
+            placeholder="My Bio Card"
+            className="mt-1"
+          />
+        </div>
+        
+        <div>
+          <Label htmlFor="slug">Slug</Label>
+          <Input
+            id="slug"
+            value={slug}
+            onChange={(e) => setSlug(slugify(e.target.value))}
+            placeholder="my-bio-card"
+            className="mt-1"
+          />
+          {slug && (
+            <p className="text-xs text-gray-500 mt-1">
+              Your bio card will be available at: /b/{slug}
+            </p>
+          )}
+        </div>
+        
+        <div>
+          <Label htmlFor="description">Description (optional)</Label>
+          <Textarea
+            id="description"
+            value={description}
+            onChange={(e) => setDescription(e.target.value)}
+            placeholder="A brief description of your bio card"
+            className="mt-1"
+          />
         </div>
       </div>
     </div>

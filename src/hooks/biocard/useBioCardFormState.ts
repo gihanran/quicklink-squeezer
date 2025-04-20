@@ -11,6 +11,7 @@ export const useBioCardFormState = (initialData?: BioCard) => {
   const [buttonStyle, setButtonStyle] = useState(initialData?.button_style || 'rounded');
   const [saving, setSaving] = useState(false);
   const [profileImageUrl, setProfileImageUrl] = useState(initialData?.profile_image_url || '');
+  const [backgroundImageUrl, setBackgroundImageUrl] = useState(initialData?.background_image_url || '');
   const [links, setLinks] = useState<any[]>(initialData?.links || []);
   const [socialLinks, setSocialLinks] = useState<any[]>(initialData?.social_links || []);
   const [colorPickerOpen, setColorPickerOpen] = useState<string | null>(null);
@@ -25,6 +26,7 @@ export const useBioCardFormState = (initialData?: BioCard) => {
       buttonStyle,
       saving,
       profileImageUrl,
+      backgroundImageUrl,
       links,
       socialLinks,
       colorPickerOpen,
@@ -38,6 +40,7 @@ export const useBioCardFormState = (initialData?: BioCard) => {
       setButtonStyle,
       setSaving,
       setProfileImageUrl,
+      setBackgroundImageUrl,
       setLinks,
       setSocialLinks,
       setColorPickerOpen,

@@ -79,6 +79,7 @@ const BioCardForm: React.FC<BioCardFormProps> = ({
         button_color: formState.buttonColor,
         button_style: formState.buttonStyle,
         profile_image_url: formState.profileImageUrl,
+        background_image_url: formState.backgroundImageUrl,
         user_id: user!.id
       };
 
@@ -196,6 +197,8 @@ const BioCardForm: React.FC<BioCardFormProps> = ({
               setDescription={setters.setDescription}
               profileImageUrl={formState.profileImageUrl}
               setProfileImageUrl={setters.setProfileImageUrl}
+              backgroundImageUrl={formState.backgroundImageUrl}
+              setBackgroundImageUrl={setters.setBackgroundImageUrl}
             />
             
             <div className="mt-6">

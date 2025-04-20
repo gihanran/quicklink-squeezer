@@ -1,3 +1,4 @@
+
 export interface BioCard {
   id: string;
   user_id: string;
@@ -5,6 +6,7 @@ export interface BioCard {
   slug: string;
   description?: string;
   profile_image_url?: string;
+  background_image_url?: string;
   bg_color?: string;
   button_color?: string;
   button_style?: string;
