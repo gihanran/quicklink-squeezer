@@ -12,6 +12,7 @@ export interface CustomLink extends BaseLink {
 export interface SocialLink extends BaseLink {
   platform: string;
   icon?: string;
+  clicks?: number;
 }
 
 export interface BaseLinkListProps<T> {
