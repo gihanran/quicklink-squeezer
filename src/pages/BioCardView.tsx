@@ -1,10 +1,10 @@
-
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { ExternalLink, Facebook, Instagram, Twitter, Linkedin } from 'lucide-react';
 import NotFound from './NotFound';
 import type { BioCard, BioCardLink, BioCardSocialLink } from '@/types/bioCardTypes';
+import BioCardAd from '@/components/biocard/BioCardAd';
 
 const BioCardView: React.FC = () => {
   const { slug } = useParams<{ slug: string }>();
@@ -198,6 +198,9 @@ const BioCardView: React.FC = () => {
             Powered by <a href="/" className="underline">Shortit</a>
           </p>
         </div>
+
+        {/* Ad Section */}
+        <BioCardAd />
       </div>
     </div>
   );
