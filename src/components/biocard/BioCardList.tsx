@@ -1,10 +1,10 @@
-
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Link } from 'react-router-dom';
-import { Edit, Eye, Trash, Link as LinkIcon, ExternalLink, MousePointerClick } from 'lucide-react';
+import { Edit, Eye, Trash, Link as LinkIcon, ExternalLink, MousePointerClick, Share2 } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
+import { useToast } from '@/hooks/use-toast';
 
 interface BioCardListProps {
   bioCards: any[];
@@ -17,6 +17,14 @@ const BioCardList: React.FC<BioCardListProps> = ({
   loading,
   onDelete
 }) => {
+  const { toast } = useToast();
+
+  const handleCopyLink = (slug: string) => {
+    const url = `${window.location.origin}/b/${slug}`;
+    navigator.clipboard.writeText(url);
+    toast({ description: "Link copied to clipboard!" });
+  };
+
   if (loading) {
     return (
       <div className="flex justify-center my-12">
@@ -115,6 +123,14 @@ const BioCardList: React.FC<BioCardListProps> = ({
                   <a href={`/b/${card.slug}`} target="_blank" rel="noopener noreferrer">
                     <ExternalLink className="h-4 w-4 mr-1" /> View
                   </a>
+                </Button>
+
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => handleCopyLink(card.slug)}
+                >
+                  <Share2 className="h-4 w-4 mr-1" /> Share
                 </Button>
               </div>
             </CardContent>

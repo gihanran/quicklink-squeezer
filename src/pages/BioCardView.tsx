@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
-import { ExternalLink, Facebook, Instagram, Twitter, Linkedin } from 'lucide-react';
+import { ExternalLink, Facebook, Instagram, Twitter, Linkedin, Share2 } from 'lucide-react';
+import { useToast } from '@/hooks/use-toast';
 import NotFound from './NotFound';
 import type { BioCard, BioCardLink, BioCardSocialLink } from '@/types/bioCardTypes';
 import BioCardAd from '@/components/biocard/BioCardAd';
@@ -13,13 +14,13 @@ const BioCardView: React.FC = () => {
   const [socialLinks, setSocialLinks] = useState<BioCardSocialLink[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const { toast } = useToast();
 
   useEffect(() => {
     const fetchBioCard = async () => {
       if (!slug) return;
 
       try {
-        // Fetch the bio card
         const { data: bioCardData, error: bioCardError } = await (supabase as any)
           .from('bio_cards')
           .select('*')
@@ -31,10 +32,8 @@ const BioCardView: React.FC = () => {
 
         setBioCard(bioCardData);
 
-        // Increment view count
         await (supabase as any).rpc('increment_bio_card_views', { card_slug: slug });
 
-        // Fetch links
         const { data: linksData, error: linksError } = await (supabase as any)
           .from('bio_card_links')
           .select('*')
@@ -44,7 +43,6 @@ const BioCardView: React.FC = () => {
         if (linksError) throw linksError;
         setLinks(linksData || []);
 
-        // Fetch social links
         const { data: socialLinksData, error: socialLinksError } = await (supabase as any)
           .from('bio_card_social_links')
           .select('*')
@@ -69,6 +67,25 @@ const BioCardView: React.FC = () => {
       await (supabase as any).rpc('increment_bio_card_link_clicks', { link_id: linkId });
     } catch (err) {
       console.error('Error tracking click:', err);
+    }
+  };
+
+  const handleShare = async () => {
+    const currentUrl = window.location.href;
+    
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title: bioCard?.title || 'My Bio Card',
+          text: bioCard?.description || 'Check out my bio card!',
+          url: currentUrl,
+        });
+      } catch (err) {
+        console.error('Error sharing:', err);
+      }
+    } else {
+      navigator.clipboard.writeText(currentUrl);
+      toast({ description: "Link copied to clipboard!" });
     }
   };
 
@@ -99,7 +116,6 @@ const BioCardView: React.FC = () => {
     }
   };
 
-  // Prepare container style with background image or color
   const containerStyle = {
     backgroundColor: bioCard.bg_color || '#ffffff',
     backgroundImage: bioCard.background_image_url ? `url(${bioCard.background_image_url})` : 'none',
@@ -114,7 +130,6 @@ const BioCardView: React.FC = () => {
       style={containerStyle}
     >
       <div className="max-w-md w-full mx-auto">
-        {/* Profile Section */}
         <div className="flex flex-col items-center mb-8">
           {bioCard.profile_image_url ? (
             <div className="w-24 h-24 rounded-full overflow-hidden mb-4 border-2 border-white shadow-lg">
@@ -140,26 +155,29 @@ const BioCardView: React.FC = () => {
             </p>
           )}
           
-          {/* Social Links */}
-          {socialLinks.length > 0 && (
-            <div className="flex gap-3 mt-4">
-              {socialLinks.map((socialLink) => (
-                <a 
-                  key={socialLink.id}
-                  href={socialLink.url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="w-10 h-10 rounded-full bg-white shadow flex items-center justify-center hover:shadow-md transition-shadow"
-                  onClick={() => handleLinkClick(socialLink.id)}
-                >
-                  {getSocialIcon(socialLink.platform)}
-                </a>
-              ))}
-            </div>
-          )}
+          <div className="flex gap-3 mt-4">
+            {socialLinks.map((socialLink) => (
+              <a 
+                key={socialLink.id}
+                href={socialLink.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="w-10 h-10 rounded-full bg-white shadow flex items-center justify-center hover:shadow-md transition-shadow"
+                onClick={() => handleLinkClick(socialLink.id)}
+              >
+                {getSocialIcon(socialLink.platform)}
+              </a>
+            ))}
+            
+            <button
+              onClick={handleShare}
+              className="w-10 h-10 rounded-full bg-white shadow flex items-center justify-center hover:shadow-md transition-shadow"
+            >
+              <Share2 className="h-5 w-5" />
+            </button>
+          </div>
         </div>
         
-        {/* Links */}
         <div className="space-y-3 w-full">
           {links.map((link) => {
             const buttonStyles = {
@@ -192,14 +210,12 @@ const BioCardView: React.FC = () => {
           })}
         </div>
         
-        {/* Attribution */}
         <div className="mt-10 text-center text-sm opacity-70">
           <p>
             Powered by <a href="/" className="underline">Shortit</a>
           </p>
         </div>
 
-        {/* Ad Section */}
         <BioCardAd />
       </div>
     </div>
