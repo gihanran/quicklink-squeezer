@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { PlusCircle, Facebook, Instagram, Twitter, Linkedin } from 'lucide-react';
+import { PlusCircle, Facebook, Instagram, Twitter, Linkedin, Youtube } from 'lucide-react';
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/ui/select';
 import { BaseLink } from './base/BaseLink';
 import { useLinkManager } from '@/hooks/biocard/useLinkManager';
@@ -30,6 +30,7 @@ const SocialLinksList: React.FC<SocialLinksListProps> = ({
       'instagram': 'instagram',
       'twitter': 'twitter',
       'linkedin': 'linkedin',
+      'youtube': 'youtube',
     };
     
     addLink({ 
@@ -57,6 +58,8 @@ const SocialLinksList: React.FC<SocialLinksListProps> = ({
         return <Twitter className="h-4 w-4 mr-2" />;
       case 'linkedin':
         return <Linkedin className="h-4 w-4 mr-2" />;
+      case 'youtube':
+        return <Youtube className="h-4 w-4 mr-2" />;
       default:
         return null;
     }
@@ -79,6 +82,11 @@ const SocialLinksList: React.FC<SocialLinksListProps> = ({
               placeholder="https://example.com"
               className="flex-1"
             />
+            {link.clicks !== undefined && (
+              <div className="text-sm text-gray-500 ml-2">
+                {link.clicks} clicks
+              </div>
+            )}
           </BaseLink>
         ))}
         
@@ -96,10 +104,31 @@ const SocialLinksList: React.FC<SocialLinksListProps> = ({
               <SelectValue placeholder="Platform" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="Facebook">Facebook</SelectItem>
-              <SelectItem value="Instagram">Instagram</SelectItem>
-              <SelectItem value="Twitter">Twitter</SelectItem>
-              <SelectItem value="LinkedIn">LinkedIn</SelectItem>
+              <SelectItem value="Facebook">
+                <div className="flex items-center">
+                  <Facebook className="h-4 w-4 mr-2" /> Facebook
+                </div>
+              </SelectItem>
+              <SelectItem value="Instagram">
+                <div className="flex items-center">
+                  <Instagram className="h-4 w-4 mr-2" /> Instagram
+                </div>
+              </SelectItem>
+              <SelectItem value="Twitter">
+                <div className="flex items-center">
+                  <Twitter className="h-4 w-4 mr-2" /> Twitter
+                </div>
+              </SelectItem>
+              <SelectItem value="LinkedIn">
+                <div className="flex items-center">
+                  <Linkedin className="h-4 w-4 mr-2" /> LinkedIn
+                </div>
+              </SelectItem>
+              <SelectItem value="YouTube">
+                <div className="flex items-center">
+                  <Youtube className="h-4 w-4 mr-2" /> YouTube
+                </div>
+              </SelectItem>
             </SelectContent>
           </Select>
           <Input

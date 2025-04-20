@@ -3,7 +3,7 @@ import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Link } from 'react-router-dom';
-import { Edit, Eye, Trash, Link as LinkIcon, ExternalLink } from 'lucide-react';
+import { Edit, Eye, Trash, Link as LinkIcon, ExternalLink, MousePointerClick } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 
 interface BioCardListProps {
@@ -66,10 +66,26 @@ const BioCardList: React.FC<BioCardListProps> = ({
                   {card.views || 0} views
                 </div>
                 <div className="flex items-center text-gray-600">
-                  <LinkIcon className="h-4 w-4 mr-1" />
+                  <MousePointerClick className="h-4 w-4 mr-1" />
                   {card.clicks || 0} clicks
                 </div>
               </div>
+
+              {/* Links Summary */}
+              {card.links && card.links.length > 0 && (
+                <div className="mt-2 space-y-1 border-t pt-2">
+                  <div className="text-sm font-medium mb-1">Link Performance:</div>
+                  {card.links.map((link) => (
+                    <div key={link.id} className="text-sm text-gray-600 flex items-center justify-between">
+                      <span className="truncate flex-1">{link.title}</span>
+                      <span className="ml-2 flex items-center">
+                        <MousePointerClick className="h-3 w-3 mr-1" />
+                        {link.clicks || 0}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              )}
               
               <div className="flex flex-wrap gap-2 mt-4">
                 <Button
