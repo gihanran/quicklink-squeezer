@@ -87,6 +87,7 @@ export type Database = {
       }
       bio_cards: {
         Row: {
+          background_image_url: string | null
           bg_color: string | null
           button_color: string | null
           button_style: string | null
@@ -102,6 +103,7 @@ export type Database = {
           views: number | null
         }
         Insert: {
+          background_image_url?: string | null
           bg_color?: string | null
           button_color?: string | null
           button_style?: string | null
@@ -117,6 +119,7 @@ export type Database = {
           views?: number | null
         }
         Update: {
+          background_image_url?: string | null
           bg_color?: string | null
           button_color?: string | null
           button_style?: string | null
