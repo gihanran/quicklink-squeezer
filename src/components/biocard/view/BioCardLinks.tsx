@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { ExternalLink } from 'lucide-react';
+import { ExternalLink, UserPlus } from 'lucide-react';
 import type { BioCard, BioCardLink } from '@/types/bioCardTypes';
 
 interface BioCardLinksProps {
@@ -41,6 +41,21 @@ export const BioCardLinks: React.FC<BioCardLinksProps> = ({ bioCard, links, onLi
           </a>
         );
       })}
+
+      {bioCard.published && (
+        <a
+          href="/"
+          className="block w-full text-center py-2 px-3 text-gray-600 border-2 border-dashed border-gray-300 rounded-lg hover:bg-gray-50 transition-colors mt-6"
+        >
+          <div className="flex items-center justify-center space-x-2">
+            <UserPlus className="h-4 w-4" />
+            <span>Create Your Own Bio Card</span>
+          </div>
+          <div className="text-xs mt-1 text-gray-500">
+            Join thousands of creators sharing their links
+          </div>
+        </a>
+      )}
     </div>
   );
 };
