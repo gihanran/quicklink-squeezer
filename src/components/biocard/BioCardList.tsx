@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -22,9 +23,10 @@ import {
   Tooltip,
   Legend
 } from 'recharts';
+import { BioCard } from '@/types/bioCardTypes';
 
 interface BioCardListProps {
-  bioCards: any[];
+  bioCards: BioCard[];
   loading: boolean;
   onDelete: (id: string) => void;
 }
@@ -43,7 +45,7 @@ const BioCardList: React.FC<BioCardListProps> = ({
     toast({ description: "Link copied to clipboard!" });
   };
 
-  const togglePublishStatus = async (card: any) => {
+  const togglePublishStatus = async (card: BioCard) => {
     try {
       const { error } = await supabase
         .from('bio_cards')
@@ -122,7 +124,7 @@ const BioCardList: React.FC<BioCardListProps> = ({
                 </div>
               </div>
               <div className="text-sm text-gray-500">
-                Created {formatDistanceToNow(new Date(card.created_at), { addSuffix: true })}
+                Created {formatDistanceToNow(new Date(card.created_at || ''), { addSuffix: true })}
               </div>
             </CardHeader>
             
