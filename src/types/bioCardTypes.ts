@@ -1,4 +1,3 @@
-
 export interface BioCard {
   id: string;
   user_id: string;
