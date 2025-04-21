@@ -6,6 +6,7 @@ export const usePublishState = (initialPublished: boolean = false) => {
 
   return {
     published,
-    setPublished
+    setPublished,
+    togglePublished: () => setPublished(prev => !prev)
   };
 };

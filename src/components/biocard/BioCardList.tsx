@@ -1,10 +1,27 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Link } from 'react-router-dom';
 import { Edit, Eye, Trash, Link as LinkIcon, ExternalLink, MousePointerClick, Share2 } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import { useToast } from '@/hooks/use-toast';
+import { Switch } from '@/components/ui/switch';
+import { supabase } from '@/integrations/supabase/client';
+import { 
+  ChartContainer, 
+  ChartTooltip,
+  ChartTooltipContent
+} from '@/components/ui/chart';
+import { 
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  ResponsiveContainer,
+  Tooltip,
+  Legend
+} from 'recharts';
 
 interface BioCardListProps {
   bioCards: any[];
@@ -18,11 +35,42 @@ const BioCardList: React.FC<BioCardListProps> = ({
   onDelete
 }) => {
   const { toast } = useToast();
+  const [expandedCardId, setExpandedCardId] = useState<string | null>(null);
 
   const handleCopyLink = (slug: string) => {
     const url = `${window.location.origin}/b/${slug}`;
     navigator.clipboard.writeText(url);
     toast({ description: "Link copied to clipboard!" });
+  };
+
+  const togglePublishStatus = async (card: any) => {
+    try {
+      const { error } = await supabase
+        .from('bio_cards')
+        .update({ published: !card.published })
+        .eq('id', card.id);
+      
+      if (error) throw error;
+      
+      toast({ 
+        description: card.published ? 
+          "Bio card unpublished successfully" : 
+          "Bio card published successfully" 
+      });
+      
+      // This would usually trigger a refetch, but we're letting the parent handle that
+      // through its state management
+    } catch (error) {
+      console.error('Error toggling publish status:', error);
+      toast({ 
+        variant: 'destructive',
+        description: "Failed to update publish status" 
+      });
+    }
+  };
+
+  const toggleExpandCard = (cardId: string) => {
+    setExpandedCardId(expandedCardId === cardId ? null : cardId);
   };
 
   if (loading) {
@@ -61,7 +109,18 @@ const BioCardList: React.FC<BioCardListProps> = ({
                 className="absolute inset-0 opacity-10 -z-10" 
                 style={{ backgroundColor: card.bg_color || '#f1f5f9' }}
               />
-              <CardTitle className="text-lg">{card.title}</CardTitle>
+              <div className="flex items-center justify-between">
+                <CardTitle className="text-lg">{card.title}</CardTitle>
+                <div className="flex items-center">
+                  <span className="text-sm text-gray-500 mr-2">
+                    {card.published ? 'Published' : 'Draft'}
+                  </span>
+                  <Switch 
+                    checked={card.published || false}
+                    onCheckedChange={() => togglePublishStatus(card)}
+                  />
+                </div>
+              </div>
               <div className="text-sm text-gray-500">
                 Created {formatDistanceToNow(new Date(card.created_at), { addSuffix: true })}
               </div>
@@ -92,6 +151,47 @@ const BioCardList: React.FC<BioCardListProps> = ({
                       </span>
                     </div>
                   ))}
+                  
+                  <div className="mt-3">
+                    <Button 
+                      variant="ghost" 
+                      size="sm" 
+                      className="w-full text-xs"
+                      onClick={() => toggleExpandCard(card.id)}
+                    >
+                      {expandedCardId === card.id ? "Hide Analytics" : "Show Analytics"}
+                    </Button>
+                    
+                    {expandedCardId === card.id && card.links && card.links.length > 0 && (
+                      <div className="mt-3 border rounded-md p-3 bg-white">
+                        <h4 className="text-sm font-medium mb-2">Click Analytics</h4>
+                        <div className="h-64">
+                          <ChartContainer
+                            config={{
+                              views: { color: "#8B5CF6" },
+                              clicks: { color: "#F97316" }
+                            }}
+                          >
+                            <BarChart
+                              data={card.links.map(link => ({
+                                name: link.title,
+                                clicks: link.clicks || 0
+                              }))}
+                              margin={{ top: 5, right: 5, left: 0, bottom: 5 }}
+                            >
+                              <CartesianGrid strokeDasharray="3 3" />
+                              <XAxis dataKey="name" tick={{ fontSize: 10 }} />
+                              <YAxis tick={{ fontSize: 10 }} />
+                              <ChartTooltip 
+                                content={<ChartTooltipContent />} 
+                              />
+                              <Bar dataKey="clicks" fill="var(--color-clicks, #F97316)" name="Clicks" />
+                            </BarChart>
+                          </ChartContainer>
+                        </div>
+                      </div>
+                    )}
+                  </div>
                 </div>
               )}
               

@@ -26,7 +26,7 @@ export const useBioCardData = () => {
       setLoading(true);
       
       // Use any type to bypass type checking for tables not in types.ts
-      const { data, error } = await (supabase as any)
+      const { data: cardsData, error } = await (supabase as any)
         .from('bio_cards')
         .select('*')
         .eq('user_id', user.id)
@@ -34,14 +34,32 @@ export const useBioCardData = () => {
         
       if (error) throw error;
       
-      setBioCards(data || []);
+      // Fetch links for each card
+      const cardsWithLinks = await Promise.all(
+        (cardsData || []).map(async (card: BioCard) => {
+          const { data: links, error: linksError } = await (supabase as any)
+            .from('bio_card_links')
+            .select('*')
+            .eq('bio_card_id', card.id)
+            .order('id', { ascending: true });
+            
+          if (linksError) {
+            console.error('Error fetching links for card:', linksError);
+            return { ...card, links: [] };
+          }
+          
+          return { ...card, links: links || [] };
+        })
+      );
+      
+      setBioCards(cardsWithLinks);
       
       // Calculate stats
-      const totalCards = data?.length || 0;
+      const totalCards = cardsWithLinks?.length || 0;
       let totalViews = 0;
       let totalClicks = 0;
       
-      data?.forEach((card: BioCard) => {
+      cardsWithLinks?.forEach((card: BioCard) => {
         totalViews += card.views || 0;
         totalClicks += card.clicks || 0;
       });
@@ -84,6 +102,40 @@ export const useBioCardData = () => {
       fetchBioCards();
     }
   }, [user, fetchBioCards]);
+
+  // Toggle publish status
+  const togglePublishStatus = async (cardId: string, currentStatus: boolean) => {
+    try {
+      const { error } = await (supabase as any)
+        .from('bio_cards')
+        .update({ published: !currentStatus })
+        .eq('id', cardId);
+        
+      if (error) throw error;
+      
+      // Update local state
+      setBioCards(prev => 
+        prev.map(card => 
+          card.id === cardId ? { ...card, published: !currentStatus } : card
+        )
+      );
+      
+      toast({
+        title: currentStatus ? 'Bio Card Unpublished' : 'Bio Card Published',
+        description: currentStatus 
+          ? 'Your bio card is now hidden from public view' 
+          : 'Your bio card is now visible to the public',
+      });
+      
+    } catch (error: any) {
+      console.error('Error toggling publish status:', error);
+      toast({
+        title: 'Error',
+        description: 'Failed to update publish status',
+        variant: 'destructive'
+      });
+    }
+  };
 
   // Delete card function
   const handleDeleteCard = async (cardId: string) => {
@@ -129,6 +181,7 @@ export const useBioCardData = () => {
     stats,
     loading,
     fetchBioCards,
-    handleDeleteCard
+    handleDeleteCard,
+    togglePublishStatus
   };
 };

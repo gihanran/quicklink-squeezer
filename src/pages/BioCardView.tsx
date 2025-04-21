@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
@@ -32,6 +33,13 @@ const BioCardView: React.FC = () => {
 
         if (bioCardError) throw bioCardError;
         if (!bioCardData) throw new Error('Bio card not found');
+        
+        // Only show published cards or show a specific error for unpublished ones
+        if (bioCardData.published === false) {
+          setError('This bio card is currently unpublished');
+          setLoading(false);
+          return;
+        }
 
         setBioCard(bioCardData);
 
@@ -97,7 +105,7 @@ const BioCardView: React.FC = () => {
   }
 
   if (error || !bioCard) {
-    return <NotFound />;
+    return <NotFound errorMessage={error || "Bio card not found"} />;
   }
 
   const containerStyle = {
