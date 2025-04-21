@@ -20,59 +20,62 @@ const FAQ: React.FC = () => {
             </h2>
           </div>
           <p className="mt-2 text-lg text-gray-600">
-            Everything you need to know about our URL shortening service
+            Get quick answers to common questions about our URL shortening service
           </p>
         </div>
 
         <Accordion type="single" collapsible className="w-full">
           <AccordionItem value="item-1">
-            <AccordionTrigger className="text-left">What is a URL shortener?</AccordionTrigger>
+            <AccordionTrigger className="text-left">Is Shortit completely free to use?</AccordionTrigger>
             <AccordionContent>
-              A URL shortener is a tool that creates a short, unique URL that will redirect to the specific website of your choosing. 
-              Our service makes long links shorter, more manageable, and provides analytics on link performance.
+              Yes, Shortit is completely free to use for basic URL shortening. Create unlimited short links with basic 
+              analytics and tracking. For advanced features like custom domains and enhanced analytics, check out our 
+              premium plans.
             </AccordionContent>
           </AccordionItem>
           
           <AccordionItem value="item-2">
-            <AccordionTrigger className="text-left">Are the shortened links permanent?</AccordionTrigger>
+            <AccordionTrigger className="text-left">How long do shortened links remain active?</AccordionTrigger>
             <AccordionContent>
-              By default, links expire after 3 months. However, registered users can create links that last longer.
-              You'll always be able to see the expiration status on your dashboard.
+              All shortened links remain active indefinitely for registered users. For unregistered users, links expire 
+              after 30 days of inactivity. To ensure your links never expire, we recommend creating a free account.
             </AccordionContent>
           </AccordionItem>
           
           <AccordionItem value="item-3">
-            <AccordionTrigger className="text-left">What analytics do you track?</AccordionTrigger>
+            <AccordionTrigger className="text-left">Can I customize my shortened URLs?</AccordionTrigger>
             <AccordionContent>
-              Our service tracks the number of clicks, geographic locations, devices, browsers, and other 
-              important metrics to help you understand your audience better. All this data is available in your dashboard.
+              Yes! Registered users can create custom branded links with their own keywords instead of random characters. 
+              This helps make your links more memorable and professional-looking. Premium users can also use their own 
+              custom domains.
             </AccordionContent>
           </AccordionItem>
           
           <AccordionItem value="item-4">
-            <AccordionTrigger className="text-left">What are landing pages?</AccordionTrigger>
+            <AccordionTrigger className="text-left">What analytics do you provide?</AccordionTrigger>
             <AccordionContent>
-              Landing pages allow you to create a customized page with multiple links organized in one place. 
-              They're perfect for social media profiles, sharing multiple resources, or creating a simple online presence.
+              Our free analytics include click tracking, geographic location, referrer sources, and device types. 
+              Premium users get access to advanced analytics including real-time tracking, detailed visitor insights, 
+              and custom reporting options.
             </AccordionContent>
           </AccordionItem>
           
           <AccordionItem value="item-5">
-            <AccordionTrigger className="text-left">Do I need to create an account?</AccordionTrigger>
+            <AccordionTrigger className="text-left">Are shortened links secure?</AccordionTrigger>
             <AccordionContent>
-              No, you can shorten URLs without creating an account. However, creating a free account gives you 
-              benefits like link management, detailed analytics, customized short URLs, and the ability to create landing pages.
+              Yes, we take security seriously. All links are scanned for malware and phishing. We use HTTPS encryption 
+              for all shortened URLs. Additionally, you can set password protection for sensitive links with a premium account.
             </AccordionContent>
           </AccordionItem>
           
           <AccordionItem value="item-6">
-            <AccordionTrigger className="text-left">Are there any usage limits?</AccordionTrigger>
+            <AccordionTrigger className="text-left">Can I manage multiple links at once?</AccordionTrigger>
             <AccordionContent>
-              Free users can create unlimited links. All links include our robust analytics to help you track 
-              performance and understand your audience better.
+              Yes, registered users get access to a dashboard where they can manage all their links in one place. 
+              You can organize links into groups, track performance, enable/disable links, and update destinations 
+              as needed.
             </AccordionContent>
           </AccordionItem>
-          
         </Accordion>
       </div>
     </div>
