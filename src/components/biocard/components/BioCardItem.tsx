@@ -2,7 +2,6 @@
 import React, { useState } from 'react';
 import { formatDistanceToNow } from 'date-fns';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Switch } from '@/components/ui/switch';
 import { Button } from '@/components/ui/button';
 import { Eye, MousePointerClick } from 'lucide-react';
 import type { BioCard } from '@/types/bioCardTypes';
@@ -14,14 +13,12 @@ interface BioCardItemProps {
   card: BioCard;
   onDelete: (id: string) => void;
   onShare: (slug: string) => void;
-  onTogglePublish: (card: BioCard) => void;
 }
 
 const BioCardItem: React.FC<BioCardItemProps> = ({ 
   card, 
   onDelete,
-  onShare,
-  onTogglePublish
+  onShare
 }) => {
   const [isExpanded, setIsExpanded] = useState(false);
 
@@ -34,15 +31,6 @@ const BioCardItem: React.FC<BioCardItemProps> = ({
         />
         <div className="flex items-center justify-between">
           <CardTitle className="text-lg">{card.title}</CardTitle>
-          <div className="flex items-center">
-            <span className="text-sm text-gray-500 mr-2">
-              {card.published ? 'Published' : 'Draft'}
-            </span>
-            <Switch 
-              checked={card.published || false}
-              onCheckedChange={() => onTogglePublish(card)}
-            />
-          </div>
         </div>
         <div className="text-sm text-gray-500">
           Created {formatDistanceToNow(new Date(card.created_at || ''), { addSuffix: true })}

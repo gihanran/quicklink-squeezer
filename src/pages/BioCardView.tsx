@@ -34,13 +34,6 @@ const BioCardView: React.FC = () => {
         if (bioCardError) throw bioCardError;
         if (!bioCardData) throw new Error('Bio card not found');
         
-        // Only show published cards or show a specific error for unpublished ones
-        if (bioCardData.published === false) {
-          setError('This bio card is currently unpublished');
-          setLoading(false);
-          return;
-        }
-
         setBioCard(bioCardData);
 
         await (supabase as any).rpc('increment_bio_card_views', { card_slug: slug });

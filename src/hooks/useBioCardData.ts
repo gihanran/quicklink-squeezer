@@ -103,40 +103,6 @@ export const useBioCardData = () => {
     }
   }, [user, fetchBioCards]);
 
-  // Toggle publish status
-  const togglePublishStatus = async (cardId: string, currentStatus: boolean) => {
-    try {
-      const { error } = await (supabase as any)
-        .from('bio_cards')
-        .update({ published: !currentStatus })
-        .eq('id', cardId);
-        
-      if (error) throw error;
-      
-      // Update local state
-      setBioCards(prev => 
-        prev.map(card => 
-          card.id === cardId ? { ...card, published: !currentStatus } : card
-        )
-      );
-      
-      toast({
-        title: currentStatus ? 'Bio Card Unpublished' : 'Bio Card Published',
-        description: currentStatus 
-          ? 'Your bio card is now hidden from public view' 
-          : 'Your bio card is now visible to the public',
-      });
-      
-    } catch (error: any) {
-      console.error('Error toggling publish status:', error);
-      toast({
-        title: 'Error',
-        description: 'Failed to update publish status',
-        variant: 'destructive'
-      });
-    }
-  };
-
   // Delete card function
   const handleDeleteCard = async (cardId: string) => {
     try {
@@ -181,7 +147,6 @@ export const useBioCardData = () => {
     stats,
     loading,
     fetchBioCards,
-    handleDeleteCard,
-    togglePublishStatus
+    handleDeleteCard
   };
 };
