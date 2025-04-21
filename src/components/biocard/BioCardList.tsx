@@ -26,29 +26,6 @@ const BioCardList: React.FC<BioCardListProps> = ({
     toast({ description: "Link copied to clipboard!" });
   };
 
-  const togglePublishStatus = async (card: BioCard) => {
-    try {
-      const { error } = await supabase
-        .from('bio_cards')
-        .update({ published: !card.published })
-        .eq('id', card.id);
-      
-      if (error) throw error;
-      
-      toast({ 
-        description: card.published ? 
-          "Bio card unpublished successfully" : 
-          "Bio card published successfully" 
-      });
-    } catch (error) {
-      console.error('Error toggling publish status:', error);
-      toast({ 
-        variant: 'destructive',
-        description: "Failed to update publish status" 
-      });
-    }
-  };
-
   if (loading) {
     return (
       <div className="flex justify-center my-12">
@@ -84,7 +61,6 @@ const BioCardList: React.FC<BioCardListProps> = ({
             card={card}
             onDelete={onDelete}
             onShare={handleCopyLink}
-            onTogglePublish={togglePublishStatus}
           />
         ))}
       </div>

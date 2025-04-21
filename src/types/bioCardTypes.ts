@@ -15,7 +15,6 @@ export interface BioCard {
   updated_at?: string;
   links?: BioCardLink[];
   social_links?: BioCardSocialLink[];
-  published?: boolean;
 }
 
 export interface BioCardLink {
