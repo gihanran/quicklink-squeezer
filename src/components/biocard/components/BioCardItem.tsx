@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import { formatDistanceToNow } from 'date-fns';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Eye, MousePointerClick } from 'lucide-react';
+import { Eye, MousePointerClick, ChartBar } from 'lucide-react';
 import type { BioCard } from '@/types/bioCardTypes';
 import BioCardAnalytics from './BioCardAnalytics';
 import BioCardActions from './BioCardActions';
@@ -53,11 +53,21 @@ const BioCardItem: React.FC<BioCardItemProps> = ({
         
         <div className="mt-3">
           <Button 
-            variant="ghost" 
+            variant="outline" 
             size="sm" 
-            className="w-full text-xs"
+            className={`
+              w-full 
+              text-xs 
+              ${isExpanded 
+                ? 'bg-brand-purple text-white hover:bg-brand-purple/90' 
+                : 'hover:bg-brand-purple/10 hover:text-brand-purple'}
+              flex items-center justify-center gap-2 
+              transition-all duration-300 ease-in-out
+              animate-pulse-slow
+            `}
             onClick={() => setIsExpanded(!isExpanded)}
           >
+            <ChartBar className="h-4 w-4" />
             {isExpanded ? "Hide Analytics" : "Show Analytics"}
           </Button>
           
