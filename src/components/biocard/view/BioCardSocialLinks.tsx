@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { ExternalLink, Facebook, Instagram, Twitter, Linkedin, Youtube, Share2 } from 'lucide-react';
+import { ExternalLink, Facebook, Instagram, Twitter, Linkedin, Youtube, Share2, MessageSquare } from 'lucide-react';
 import type { BioCardSocialLink } from '@/types/bioCardTypes';
 
 interface BioCardSocialLinksProps {
@@ -26,6 +26,8 @@ export const BioCardSocialLinks: React.FC<BioCardSocialLinksProps> = ({
         return <Linkedin className="h-5 w-5" />;
       case 'youtube':
         return <Youtube className="h-5 w-5" />;
+      case 'discord':
+        return <MessageSquare className="h-5 w-5" />;
       default:
         return <ExternalLink className="h-5 w-5" />;
     }

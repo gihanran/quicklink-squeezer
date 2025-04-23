@@ -58,6 +58,7 @@ const SocialLinksList: React.FC<SocialLinksListProps> = ({
       'twitter': 'twitter',
       'linkedin': 'linkedin',
       'youtube': 'youtube',
+      'discord': 'message-square',
     };
     
     addLink({ 
@@ -87,6 +88,8 @@ const SocialLinksList: React.FC<SocialLinksListProps> = ({
         return <Linkedin className="h-4 w-4 mr-2" />;
       case 'youtube':
         return <Youtube className="h-4 w-4 mr-2" />;
+      case 'discord':
+        return <MessageSquare className="h-4 w-4 mr-2" />;
       default:
         return null;
     }
@@ -164,4 +167,3 @@ const SocialLinksList: React.FC<SocialLinksListProps> = ({
 };
 
 export default SocialLinksList;
-
