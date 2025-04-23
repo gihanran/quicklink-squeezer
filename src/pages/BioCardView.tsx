@@ -10,6 +10,7 @@ import { BioCardProfileHeader } from '@/components/biocard/view/BioCardProfileHe
 import { BioCardSocialLinks } from '@/components/biocard/view/BioCardSocialLinks';
 import { BioCardLinks } from '@/components/biocard/view/BioCardLinks';
 import BioCardAd from '@/components/biocard/BioCardAd';
+import MetaTags from '@/components/MetaTags';
 
 const BioCardView: React.FC = () => {
   const { slug } = useParams<{ slug: string }>();
@@ -114,6 +115,14 @@ const BioCardView: React.FC = () => {
       className="min-h-screen flex flex-col items-center py-10 px-4"
       style={containerStyle}
     >
+      <MetaTags
+        title={bioCard.title || 'Bio Card'}
+        description={bioCard.description || 'Check out my links!'}
+        imageUrl={bioCard.profile_image_url || ''}
+        url={window.location.href}
+        type="profile"
+      />
+      
       <div className="max-w-md w-full mx-auto">
         <BioCardProfileHeader bioCard={bioCard} />
         <BioCardSocialLinks 

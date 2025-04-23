@@ -2,12 +2,15 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { getUrlByShortCode, trackVisit } from '@/utils/url';
+import MetaTags from '@/components/MetaTags';
 
 const Redirect: React.FC = () => {
   const { shortCode } = useParams<{ shortCode: string }>();
   const [error, setError] = useState<string>('');
   const [loading, setLoading] = useState<boolean>(true);
   const [originalUrl, setOriginalUrl] = useState<string | null>(null);
+  const [pageTitle, setPageTitle] = useState<string>('Redirecting...');
+  const [pageDescription, setPageDescription] = useState<string>('');
 
   useEffect(() => {
     if (!shortCode) {
@@ -25,6 +28,15 @@ const Redirect: React.FC = () => {
           setError('Sorry, this link does not exist or has expired.');
           setLoading(false);
           return;
+        }
+
+        // Set meta information if available
+        if (urlData.title) {
+          setPageTitle(urlData.title);
+        }
+        
+        if (urlData.description) {
+          setPageDescription(urlData.description);
         }
 
         // Track the visit before redirecting
@@ -48,6 +60,7 @@ const Redirect: React.FC = () => {
   if (loading) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center p-4">
+        <MetaTags title="Redirecting..." />
         <div className="text-center">
           <div className="mb-4 animate-pulse">
             <div className="h-12 w-12 mx-auto border-4 border-brand-purple border-t-transparent rounded-full animate-spin"></div>
@@ -61,6 +74,10 @@ const Redirect: React.FC = () => {
   if (error) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center p-4">
+        <MetaTags 
+          title="Link Not Found" 
+          description={error}
+        />
         <div className="text-center">
           <h1 className="text-2xl font-bold text-red-500 mb-4">Link Not Found</h1>
           <p className="mb-6">{error}</p>
@@ -77,6 +94,11 @@ const Redirect: React.FC = () => {
 
   return (
     <div className="flex flex-col min-h-screen">
+      <MetaTags
+        title={pageTitle}
+        description={pageDescription}
+        url={originalUrl || window.location.href}
+      />
       {/* Embedded content */}
       {originalUrl && (
         <iframe 
