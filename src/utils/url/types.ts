@@ -11,6 +11,7 @@ export interface UrlData {
   visits: number;
   userId?: string | null;
   title?: string;
+  description?: string;
 }
 
 export interface UrlStats {
