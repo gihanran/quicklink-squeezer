@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -40,7 +39,6 @@ export const BasicInfoSection: React.FC<BasicInfoSectionProps> = ({
     const newTitle = e.target.value;
     setTitle(newTitle);
     
-    // Only auto-generate slug if it's empty or was auto-generated before
     if (!slug || slugify(title) === slug) {
       setSlug(slugify(newTitle));
     }
@@ -78,6 +76,9 @@ export const BasicInfoSection: React.FC<BasicInfoSectionProps> = ({
           </Avatar>
           
           <div className="mt-3">
+            <p className="text-sm text-gray-500 mb-2 text-center">
+              Recommended size: 400x400px (1:1 ratio)
+            </p>
             <Button
               type="button"
               variant="outline"
@@ -105,6 +106,9 @@ export const BasicInfoSection: React.FC<BasicInfoSectionProps> = ({
 
         <div className="mt-4">
           <Label>Background Image (Optional)</Label>
+          <p className="text-sm text-gray-500 mb-2">
+            Recommended size: 1920x1080px (16:9 ratio)
+          </p>
           <div className="mt-1 flex items-center">
             {backgroundImageUrl && (
               <div className="relative w-full h-20 mb-2 rounded overflow-hidden">

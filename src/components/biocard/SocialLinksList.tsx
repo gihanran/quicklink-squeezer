@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -7,6 +6,33 @@ import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@
 import { BaseLink } from './base/BaseLink';
 import { useLinkManager } from '@/hooks/biocard/useLinkManager';
 import type { SocialLink, BaseLinkListProps } from '@/types/linkTypes';
+
+const SOCIAL_PLATFORMS = [
+  { value: 'Facebook', icon: <Facebook className="h-4 w-4 mr-2" /> },
+  { value: 'YouTube', icon: <Youtube className="h-4 w-4 mr-2" /> },
+  { value: 'Instagram', icon: <Instagram className="h-4 w-4 mr-2" /> },
+  { value: 'Twitter', icon: <Twitter className="h-4 w-4 mr-2" /> },
+  { value: 'LinkedIn', icon: <Linkedin className="h-4 w-4 mr-2" /> },
+  { value: 'Discord', icon: <Discord className="h-4 w-4 mr-2" /> },
+  { value: 'WhatsApp', label: 'WhatsApp' },
+  { value: 'TikTok', label: 'TikTok' },
+  { value: 'WeChat', label: 'WeChat' },
+  { value: 'Telegram', label: 'Telegram' },
+  { value: 'Snapchat', label: 'Snapchat' },
+  { value: 'Douyin', label: 'Douyin (Chinese TikTok)' },
+  { value: 'Pinterest', label: 'Pinterest' },
+  { value: 'Reddit', label: 'Reddit' },
+  { value: 'Quora', label: 'Quora' },
+  { value: 'Weibo', label: 'Sina Weibo' },
+  { value: 'Threads', label: 'Threads' },
+  { value: 'LINE', label: 'LINE' },
+  { value: 'Tumblr', label: 'Tumblr' },
+  { value: 'Twitch', label: 'Twitch' },
+  { value: 'Viber', label: 'Viber' },
+  { value: 'Clubhouse', label: 'Clubhouse' },
+  { value: 'BeReal', label: 'BeReal' },
+  { value: 'QQ', label: 'QQ' },
+];
 
 interface SocialLinksListProps extends BaseLinkListProps<SocialLink> {
   getSocialIcon?: (platform: string) => React.ReactNode;
@@ -104,31 +130,14 @@ const SocialLinksList: React.FC<SocialLinksListProps> = ({
               <SelectValue placeholder="Platform" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="Facebook">
-                <div className="flex items-center">
-                  <Facebook className="h-4 w-4 mr-2" /> Facebook
-                </div>
-              </SelectItem>
-              <SelectItem value="Instagram">
-                <div className="flex items-center">
-                  <Instagram className="h-4 w-4 mr-2" /> Instagram
-                </div>
-              </SelectItem>
-              <SelectItem value="Twitter">
-                <div className="flex items-center">
-                  <Twitter className="h-4 w-4 mr-2" /> Twitter
-                </div>
-              </SelectItem>
-              <SelectItem value="LinkedIn">
-                <div className="flex items-center">
-                  <Linkedin className="h-4 w-4 mr-2" /> LinkedIn
-                </div>
-              </SelectItem>
-              <SelectItem value="YouTube">
-                <div className="flex items-center">
-                  <Youtube className="h-4 w-4 mr-2" /> YouTube
-                </div>
-              </SelectItem>
+              {SOCIAL_PLATFORMS.map((platform) => (
+                <SelectItem key={platform.value} value={platform.value}>
+                  <div className="flex items-center">
+                    {platform.icon || null}
+                    {platform.label || platform.value}
+                  </div>
+                </SelectItem>
+              ))}
             </SelectContent>
           </Select>
           <Input
