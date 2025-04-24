@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
-import { Plus, Link } from 'lucide-react';
+import { Plus, Trash2 } from 'lucide-react';
 import { Label } from '@/components/ui/label';
 import { BaseLink } from './base/BaseLink';
 import { useLinkManager } from '@/hooks/biocard/useLinkManager';
@@ -97,7 +97,8 @@ const LinksList: React.FC<LinksListProps> = ({ links, setLinks, maxLinks }) => {
           {links.map((link) => (
             <div key={link.id} className="flex items-start gap-2 border rounded-md p-3 bg-gray-50">
               <div className="mt-1">
-                <Link className="h-4 w-4 text-gray-500" />
+                {/* We'll replace the Link icon with a Trash2 icon for deletion */}
+                <Trash2 className="h-4 w-4 text-destructive" />
               </div>
               <div className="flex-grow">
                 <div className="font-medium">{link.title}</div>
@@ -122,7 +123,7 @@ const LinksList: React.FC<LinksListProps> = ({ links, setLinks, maxLinks }) => {
                 onClick={() => removeLink(link.id)}
                 className="text-destructive hover:text-destructive"
               >
-                <Link className="h-4 w-4" />
+                <Trash2 className="h-4 w-4" />
               </Button>
             </div>
           ))}
