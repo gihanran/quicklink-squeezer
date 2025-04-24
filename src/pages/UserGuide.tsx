@@ -2,6 +2,7 @@
 import React from 'react';
 import Footer from '@/components/Footer';
 import GuideSection from '@/components/guide/GuideSection';
+import { Link2 } from 'lucide-react';
 
 const urlShortenerSteps = [
   {
@@ -57,6 +58,19 @@ const bioCardSteps = [
 const UserGuide = () => {
   return (
     <div className="min-h-screen flex flex-col bg-gradient-to-b from-white to-gray-100">
+      <header className="w-full py-6 px-4 bg-white shadow-sm">
+        <div className="container max-w-6xl mx-auto">
+          <div className="flex items-center">
+            <div className="bg-gradient-to-r from-brand-purple to-brand-blue p-2 rounded-md mr-3">
+              <Link2 className="h-6 w-6 text-white" />
+            </div>
+            <h1 className="text-2xl font-bold bg-gradient-to-r from-brand-purple to-brand-blue bg-clip-text text-transparent">
+              <a href="/">Shortit</a>
+            </h1>
+          </div>
+        </div>
+      </header>
+
       <main className="flex-grow container max-w-4xl mx-auto px-4 py-12">
         <h1 className="text-4xl font-bold mb-8 text-center">User Guide</h1>
         
