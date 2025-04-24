@@ -34,7 +34,7 @@ export const BioCardSocialLinks: React.FC<BioCardSocialLinksProps> = ({
   };
 
   return (
-    <div className="flex flex-wrap justify-center gap-3 mt-4">
+    <div className="flex flex-wrap justify-center gap-3 mt-6">
       {socialLinks.map((socialLink) => (
         <a 
           key={socialLink.id}
