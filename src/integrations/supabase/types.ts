@@ -136,6 +136,51 @@ export type Database = {
         }
         Relationships: []
       }
+      link_unlockers: {
+        Row: {
+          click_count: number
+          countdown_seconds: number
+          created_at: string
+          description: string
+          destination_button_text: string
+          destination_link: string
+          id: string
+          unlocker_button_text: string
+          unlocker_link: string
+          unlocks: number
+          user_id: string
+          visits: number
+        }
+        Insert: {
+          click_count?: number
+          countdown_seconds?: number
+          created_at?: string
+          description?: string
+          destination_button_text?: string
+          destination_link: string
+          id?: string
+          unlocker_button_text?: string
+          unlocker_link: string
+          unlocks?: number
+          user_id: string
+          visits?: number
+        }
+        Update: {
+          click_count?: number
+          countdown_seconds?: number
+          created_at?: string
+          description?: string
+          destination_button_text?: string
+          destination_link?: string
+          id?: string
+          unlocker_button_text?: string
+          unlocker_link?: string
+          unlocks?: number
+          user_id?: string
+          visits?: number
+        }
+        Relationships: []
+      }
       notifications: {
         Row: {
           created_at: string | null
