@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { UrlData } from "@/utils/url/types";
 import { calculateExpiration } from "./utils/expirationUtils";
@@ -5,7 +6,6 @@ import DashboardHeader from "./content/DashboardHeader";
 import CreateLinkSection from "./content/CreateLinkSection";
 import StatsSection from "./content/StatsSection";
 import LinksListSection from "./content/LinksListSection";
-import UnlockerDashboard from "./link-unlocker/UnlockerDashboard";
 
 interface DashboardContentProps {
   links: UrlData[];
@@ -48,10 +48,6 @@ const DashboardContent: React.FC<DashboardContentProps> = ({
       />
 
       <StatsSection stats={stats} user={user} />
-
-      <div className="mt-12">
-        <UnlockerDashboard />
-      </div>
 
       <LinksListSection 
         links={links} 
