@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
-import { Plus } from "lucide-react";
+import { Plus, RefreshCcw } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import CreateUnlockerForm from "./CreateUnlockerForm";
@@ -9,6 +9,7 @@ import UnlockerList from "./UnlockerList";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
 import { AlertCircle } from "lucide-react";
+import { useAuthState } from "@/hooks/auth";
 
 const UnlockerDashboard = () => {
   const [unlockers, setUnlockers] = useState<any[]>([]);
@@ -16,15 +17,24 @@ const UnlockerDashboard = () => {
   const [error, setError] = useState<string | null>(null);
   const [showCreateForm, setShowCreateForm] = useState(false);
   const { toast } = useToast();
+  const { user } = useAuthState();
 
   const fetchUnlockers = async () => {
     try {
       setLoading(true);
       setError(null);
       
+      if (!user) {
+        setError('You need to be logged in to view your Link Unlockers.');
+        setLoading(false);
+        return;
+      }
+      
+      // Use a simpler query that's less likely to trigger recursion issues
       const { data, error: supabaseError } = await supabase
         .from('link_unlockers')
         .select('*')
+        .eq('user_id', user.id)
         .order('created_at', { ascending: false });
 
       if (supabaseError) {
@@ -44,7 +54,7 @@ const UnlockerDashboard = () => {
 
   useEffect(() => {
     fetchUnlockers();
-  }, []);
+  }, [user]);
 
   const handleDelete = (id: string) => {
     setUnlockers(unlockers.filter(u => u.id !== id));
@@ -58,7 +68,7 @@ const UnlockerDashboard = () => {
     <div>
       <div className="flex justify-between items-center mb-6">
         <h2 className="text-2xl font-bold">Link Unlockers</h2>
-        <Button onClick={() => setShowCreateForm(true)}>
+        <Button onClick={() => setShowCreateForm(true)} disabled={!user}>
           <Plus className="mr-2 h-4 w-4" />
           Create New
         </Button>
@@ -71,6 +81,7 @@ const UnlockerDashboard = () => {
           <AlertDescription className="flex flex-col gap-2">
             <span>{error}</span>
             <Button onClick={handleRetry} variant="outline" size="sm" className="w-fit">
+              <RefreshCcw className="mr-2 h-4 w-4" />
               Retry
             </Button>
           </AlertDescription>
