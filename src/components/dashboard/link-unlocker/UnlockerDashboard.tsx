@@ -22,7 +22,10 @@ const UnlockerDashboard = () => {
         .select('*')
         .order('created_at', { ascending: false });
 
-      if (error) throw error;
+      if (error) {
+        console.error('Error fetching unlockers:', error);
+        throw error;
+      }
 
       setUnlockers(data || []);
     } catch (error) {
