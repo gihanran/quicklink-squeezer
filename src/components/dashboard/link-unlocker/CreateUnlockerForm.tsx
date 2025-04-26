@@ -32,8 +32,8 @@ const CreateUnlockerForm: React.FC<CreateUnlockerFormProps> = ({ onSuccess }) =>
       setIsLoading(true);
       const { error } = await supabase.from('link_unlockers').insert({
         user_id: user.id,
-        unlocker_link,
-        destination_link: destinationLink,
+        unlocker_link: unlockerLink,  // Changed from unlocker_link to match camelCase
+        destination_link: destinationLink,  // Changed from destination_link to match camelCase
         unlocker_button_text: unlockerButtonText,
         destination_button_text: destinationButtonText,
         click_count: Math.min(Math.max(clickCount, 1), 5),
