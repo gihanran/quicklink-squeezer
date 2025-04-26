@@ -1,55 +1,51 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Link2, ChartBar, UserCircle } from "lucide-react";
-import ProfileSection from "@/components/ProfileSection";
+import { LayoutDashboard, Link as LinkIcon, Unlink } from "lucide-react";
+import DashboardContent from "./DashboardContent";
+import UnlockerDashboard from "./link-unlocker/UnlockerDashboard";
 
 interface DashboardTabNavProps {
-  children: React.ReactNode;
   links: any[];
+  children: React.ReactNode;
 }
 
-const DashboardTabNav: React.FC<DashboardTabNavProps> = ({ children, links }) => {
+const DashboardTabNav: React.FC<DashboardTabNavProps> = ({ links, children }) => {
+  const [activeTab, setActiveTab] = useState("links");
+
   return (
-    <Tabs defaultValue="links" className="w-full">
-      <TabsList className="grid w-full md:w-auto grid-cols-3 mb-8">
+    <Tabs 
+      value={activeTab} 
+      onValueChange={setActiveTab} 
+      className="w-full space-y-4"
+    >
+      <TabsList className="grid w-full grid-cols-3">
         <TabsTrigger value="links" className="flex items-center gap-2">
-          <Link2 className="h-4 w-4" />
-          <span className="hidden md:inline">My Links</span>
+          <LinkIcon className="h-4 w-4" /> My Links
         </TabsTrigger>
-        
-        <TabsTrigger value="biocards" className="flex items-center gap-2">
-          <ChartBar className="h-4 w-4" />
-          <span className="hidden md:inline">Bio Cards</span>
+        <TabsTrigger value="dashboard" className="flex items-center gap-2">
+          <LayoutDashboard className="h-4 w-4" /> Dashboard
         </TabsTrigger>
-        
-        <TabsTrigger id="profile-trigger" value="profile" className="flex items-center gap-2">
-          <UserCircle className="h-4 w-4" />
-          <span className="hidden md:inline">Profile</span>
+        <TabsTrigger value="unlockers" className="flex items-center gap-2">
+          <Unlink className="h-4 w-4" /> Link Unlockers
         </TabsTrigger>
       </TabsList>
-
-      <TabsContent value="links" className="space-y-6">
-        {children}
+      
+      <TabsContent value="links">
+        {React.Children.toArray(children).find((child: any) => 
+          child.type === DashboardContent
+        )}
       </TabsContent>
-
-      <TabsContent value="biocards">
-        <div className="text-center py-8">
-          <h2 className="text-2xl font-bold mb-4">Bio Cards</h2>
-          <p className="text-gray-600 mb-4">
-            Create and manage your bio cards to showcase all your important links in one place
-          </p>
-          <a 
-            href="/biocard" 
-            className="inline-flex items-center justify-center px-4 py-2 rounded-md bg-brand-purple text-white font-medium hover:bg-brand-purple/90 transition-colors"
-          >
-            Go to Bio Cards Dashboard
-          </a>
+      
+      <TabsContent value="dashboard">
+        {/* Placeholder for future dashboard content */}
+        <div className="p-4 text-center text-muted-foreground">
+          Dashboard insights coming soon
         </div>
       </TabsContent>
-
-      <TabsContent value="profile">
-        <ProfileSection />
+      
+      <TabsContent value="unlockers">
+        <UnlockerDashboard />
       </TabsContent>
     </Tabs>
   );
