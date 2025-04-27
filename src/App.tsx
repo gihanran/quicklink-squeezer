@@ -20,7 +20,6 @@ import BioCardView from "./pages/BioCardView";
 import BioCardEdit from "./pages/BioCardEdit";
 import * as TooltipPrimitive from "@radix-ui/react-tooltip";
 import UserGuide from "./pages/UserGuide";
-import Unlocker from "./pages/Unlocker";
 
 const queryClient = new QueryClient();
 
@@ -47,7 +46,6 @@ const App = () => {
                 <Route path="/cookies" element={<CookiePolicy />} />
                 <Route path="/guide" element={<UserGuide />} />
                 <Route path="/biocard/edit/:slug" element={<BioCardEdit />} />
-                <Route path="/u/:id" element={<Unlocker />} />
                 <Route path="*" element={<NotFound />} />
               </Routes>
             </BrowserRouter>
