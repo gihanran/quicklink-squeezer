@@ -30,16 +30,21 @@ const UnlockerDashboard = () => {
         return;
       }
       
-      // Use a simpler query that's less likely to trigger recursion issues
+      // Query directly by ID to avoid profile recursion issues
       const { data, error: supabaseError } = await supabase
         .from('link_unlockers')
         .select('*')
-        .eq('user_id', user.id)
-        .order('created_at', { ascending: false });
+        .eq('user_id', user.id);
 
       if (supabaseError) {
         console.error('Error fetching unlockers:', supabaseError);
-        setError('Unable to load Link Unlockers. Please try again later.');
+        
+        // Provide more specific error message based on the error
+        if (supabaseError.message.includes('infinite recursion')) {
+          setError('Database policy error detected. Please contact support with error code: RLS-RECURSION.');
+        } else {
+          setError('Unable to load Link Unlockers. Please try again later.');
+        }
         return;
       }
 
@@ -53,7 +58,9 @@ const UnlockerDashboard = () => {
   };
 
   useEffect(() => {
-    fetchUnlockers();
+    if (user) {
+      fetchUnlockers();
+    }
   }, [user]);
 
   const handleDelete = (id: string) => {
