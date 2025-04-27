@@ -121,9 +121,7 @@ const UnlockerDashboard = () => {
               Create a link that requires users to complete actions before accessing your destination link.
             </DialogDescription>
           </DialogHeader>
-          <CreateUnlockerForm
-            onSuccess={handleCreateSuccess}
-          />
+          <CreateUnlockerForm onSuccess={handleCreateSuccess} />
         </DialogContent>
       </Dialog>
     </div>
