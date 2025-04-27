@@ -30,7 +30,7 @@ const UnlockerDashboard = () => {
         return;
       }
       
-      // Query directly by ID to avoid profile recursion issues
+      // Simple direct query without joins to avoid recursion issues
       const { data, error: supabaseError } = await supabase
         .from('link_unlockers')
         .select('*')
@@ -39,9 +39,8 @@ const UnlockerDashboard = () => {
       if (supabaseError) {
         console.error('Error fetching unlockers:', supabaseError);
         
-        // Provide more specific error message based on the error
         if (supabaseError.message.includes('infinite recursion')) {
-          setError('Database policy error detected. Please contact support with error code: RLS-RECURSION.');
+          setError('Database policy issue detected. Please try again in a few moments.');
         } else {
           setError('Unable to load Link Unlockers. Please try again later.');
         }
@@ -60,6 +59,8 @@ const UnlockerDashboard = () => {
   useEffect(() => {
     if (user) {
       fetchUnlockers();
+    } else {
+      setLoading(false);
     }
   }, [user]);
 
@@ -68,6 +69,15 @@ const UnlockerDashboard = () => {
   };
 
   const handleRetry = () => {
+    fetchUnlockers();
+  };
+
+  const handleCreateSuccess = () => {
+    setShowCreateForm(false);
+    toast({
+      title: "Success",
+      description: "Link Unlocker created successfully"
+    });
     fetchUnlockers();
   };
 
@@ -112,10 +122,7 @@ const UnlockerDashboard = () => {
             </DialogDescription>
           </DialogHeader>
           <CreateUnlockerForm
-            onSuccess={() => {
-              setShowCreateForm(false);
-              fetchUnlockers();
-            }}
+            onSuccess={handleCreateSuccess}
           />
         </DialogContent>
       </Dialog>
