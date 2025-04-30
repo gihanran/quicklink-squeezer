@@ -7,19 +7,58 @@ import { Plus, Trash2, MoveVertical } from 'lucide-react';
 import { Label } from '@/components/ui/label';
 import { BaseLink } from './base/BaseLink';
 import { useLinkManager } from '@/hooks/biocard/useLinkManager';
+import { supabase } from '@/integrations/supabase/client';
 import type { CustomLink, BaseLinkListProps } from '@/types/linkTypes';
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 
-interface LinksListProps extends BaseLinkListProps<CustomLink> {}
+interface LinksListProps extends BaseLinkListProps<CustomLink> {
+  bioCardId?: string;
+}
 
-const LinksList: React.FC<LinksListProps> = ({ links, setLinks, maxLinks }) => {
+const LinksList: React.FC<LinksListProps> = ({ links, setLinks, maxLinks, bioCardId }) => {
   const [newLink, setNewLink] = useState({
     title: '',
     url: '',
     description: ''
   });
+  
+  // Function to persist ordered links to the database
+  const persistLinkOrder = async (reorderedLinks: CustomLink[]) => {
+    if (!bioCardId) return; // Don't try to persist if we don't have a bio card ID
 
-  const { addLink, removeLink, updateLink, reorderLinks } = useLinkManager(links, setLinks, maxLinks);
+    try {
+      // First delete all existing links for this bio card
+      await (supabase as any)
+        .from('bio_card_links')
+        .delete()
+        .eq('bio_card_id', bioCardId);
+      
+      // Then insert all links in their new order
+      const linksToInsert = reorderedLinks.map((link, index) => ({
+        bio_card_id: bioCardId,
+        title: link.title,
+        url: link.url,
+        description: link.description,
+        icon: link.icon,
+        id: link.id, // Preserve the original ID
+        sort_order: index // Add explicit sort order
+      }));
+      
+      await (supabase as any)
+        .from('bio_card_links')
+        .insert(linksToInsert);
+    } catch (error) {
+      console.error('Error persisting link order:', error);
+      throw error; // Re-throw to trigger error handling in useLinkManager
+    }
+  };
+
+  const { addLink, removeLink, updateLink, reorderLinks } = useLinkManager(
+    links, 
+    setLinks, 
+    maxLinks,
+    bioCardId ? persistLinkOrder : undefined
+  );
 
   const handleAddLink = () => {
     if (!newLink.title || !newLink.url) return;
@@ -50,7 +89,12 @@ const LinksList: React.FC<LinksListProps> = ({ links, setLinks, maxLinks }) => {
       return;
     }
     
-    // Reorder the links array
+    // Ensure source and destination are different
+    if (result.source.index === result.destination.index) {
+      return;
+    }
+    
+    // Call the reorderLinks function from useLinkManager
     reorderLinks(result.source.index, result.destination.index);
   };
 

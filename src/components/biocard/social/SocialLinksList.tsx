@@ -4,21 +4,63 @@ import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 import { useLinkManager } from '@/hooks/biocard/useLinkManager';
 import AddSocialLinkForm from './AddSocialLinkForm';
 import SocialLinkItem from './SocialLinkItem';
+import { supabase } from '@/integrations/supabase/client';
+import { useToast } from '@/hooks/use-toast';
 import type { SocialLink, BaseLinkListProps } from '@/types/linkTypes';
 
 interface SocialLinksListProps extends BaseLinkListProps<SocialLink> {
   getSocialIcon?: (platform: string) => React.ReactNode;
+  bioCardId?: string; // Add this to know which bio card to update
 }
 
 const SocialLinksList: React.FC<SocialLinksListProps> = ({ 
   links, 
   setLinks, 
   maxLinks,
-  getSocialIcon 
+  getSocialIcon,
+  bioCardId 
 }) => {
   const [newPlatform, setNewPlatform] = useState('');
   const [newUrl, setNewUrl] = useState('');
-  const { addLink, removeLink, updateLink, reorderLinks } = useLinkManager(links, setLinks, maxLinks);
+  const { toast } = useToast();
+  
+  // Function to persist ordered links to the database
+  const persistLinkOrder = async (reorderedLinks: SocialLink[]) => {
+    if (!bioCardId) return; // Don't try to persist if we don't have a bio card ID
+
+    try {
+      // First delete all existing social links for this bio card
+      await (supabase as any)
+        .from('bio_card_social_links')
+        .delete()
+        .eq('bio_card_id', bioCardId);
+      
+      // Then insert all links in their new order
+      const linksToInsert = reorderedLinks.map((link, index) => ({
+        bio_card_id: bioCardId,
+        platform: link.platform,
+        url: link.url,
+        icon: link.icon,
+        id: link.id, // Preserve the original ID
+        // Add sort order explicitly if your schema supports it
+        sort_order: index
+      }));
+      
+      await (supabase as any)
+        .from('bio_card_social_links')
+        .insert(linksToInsert);
+    } catch (error) {
+      console.error('Error persisting link order:', error);
+      throw error; // Re-throw to trigger error handling in useLinkManager
+    }
+  };
+
+  const { addLink, removeLink, updateLink, reorderLinks } = useLinkManager(
+    links, 
+    setLinks, 
+    maxLinks, 
+    bioCardId ? persistLinkOrder : undefined
+  );
 
   const handleAddLink = () => {
     if (!newPlatform || !newUrl) return;

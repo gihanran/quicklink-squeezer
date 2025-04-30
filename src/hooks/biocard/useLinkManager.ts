@@ -6,7 +6,8 @@ import type { BaseLink } from '@/types/linkTypes';
 export const useLinkManager = <T extends BaseLink>(
   links: T[],
   setLinks: (links: T[]) => void,
-  maxLinks: number
+  maxLinks: number,
+  onReorder?: (reorderedLinks: T[]) => Promise<void>
 ) => {
   const { toast } = useToast();
 
@@ -32,7 +33,7 @@ export const useLinkManager = <T extends BaseLink>(
     ));
   };
   
-  const reorderLinks = (startIndex: number, endIndex: number) => {
+  const reorderLinks = async (startIndex: number, endIndex: number) => {
     // Create a new array from the current links
     const result = Array.from(links);
     
@@ -45,11 +46,29 @@ export const useLinkManager = <T extends BaseLink>(
     // Update the state with the new order
     setLinks(result);
     
-    // Optional: show a toast to confirm reordering
-    toast({
-      title: "Link reordered",
-      description: "The link order has been updated",
-    });
+    // If there's a callback for persisting the reorder, call it
+    if (onReorder) {
+      try {
+        await onReorder(result);
+        toast({
+          title: "Link reordered",
+          description: "The link order has been updated and saved",
+        });
+      } catch (error) {
+        toast({
+          title: "Error saving order",
+          description: "There was a problem saving the new order",
+          variant: "destructive"
+        });
+        // Revert the order if save fails
+        setLinks(links);
+      }
+    } else {
+      toast({
+        title: "Link reordered",
+        description: "The link order has been updated",
+      });
+    }
   };
 
   return {

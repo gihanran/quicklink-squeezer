@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -221,6 +220,7 @@ const BioCardForm: React.FC<BioCardFormProps> = ({
               links={formState.links} 
               setLinks={setters.setLinks} 
               maxLinks={7} 
+              bioCardId={initialData?.id}
             />
             
             <h3 className="text-lg font-medium mb-3 mt-6">Social Media (Maximum 5)</h3>
@@ -228,6 +228,7 @@ const BioCardForm: React.FC<BioCardFormProps> = ({
               links={formState.socialLinks} 
               setLinks={setters.setSocialLinks}
               maxLinks={5}
+              bioCardId={initialData?.id}
             />
           </div>
         </div>
