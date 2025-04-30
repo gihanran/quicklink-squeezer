@@ -49,7 +49,12 @@ const SocialLinksList: React.FC<SocialLinksListProps> = ({
       return;
     }
     
-    // Reorder the links array
+    // Ensure source and destination are different
+    if (result.source.index === result.destination.index) {
+      return;
+    }
+    
+    // Call the reorderLinks function from useLinkManager
     reorderLinks(result.source.index, result.destination.index);
   };
   

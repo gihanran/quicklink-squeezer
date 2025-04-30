@@ -33,11 +33,23 @@ export const useLinkManager = <T extends BaseLink>(
   };
   
   const reorderLinks = (startIndex: number, endIndex: number) => {
+    // Create a new array from the current links
     const result = Array.from(links);
+    
+    // Remove the item from the start position
     const [removed] = result.splice(startIndex, 1);
+    
+    // Insert the item at the end position
     result.splice(endIndex, 0, removed);
     
+    // Update the state with the new order
     setLinks(result);
+    
+    // Optional: show a toast to confirm reordering
+    toast({
+      title: "Link reordered",
+      description: "The link order has been updated",
+    });
   };
 
   return {

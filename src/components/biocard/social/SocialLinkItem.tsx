@@ -31,7 +31,7 @@ const SocialLinkItem: React.FC<SocialLinkItemProps> = ({
     <div 
       ref={innerRef}
       {...draggableProps}
-      className="flex items-center gap-2"
+      className="flex items-center gap-2 bg-white p-2 rounded border border-gray-100 shadow-sm"
     >
       <div 
         className="cursor-move flex items-center justify-center p-1 hover:bg-gray-200 rounded"
