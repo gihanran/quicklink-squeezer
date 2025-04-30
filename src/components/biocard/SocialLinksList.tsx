@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { PlusCircle, Facebook, Instagram, Twitter, Linkedin, Youtube, MessageSquare, MoveVertical } from 'lucide-react';
+import { PlusCircle, Facebook, Instagram, Twitter, Linkedin, Youtube, MessageSquare, MoveVertical, Trash2 } from 'lucide-react';
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/ui/select';
 import { BaseLink } from './base/BaseLink';
 import { useLinkManager } from '@/hooks/biocard/useLinkManager';
