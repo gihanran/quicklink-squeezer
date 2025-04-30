@@ -5,6 +5,7 @@ import { Input } from '@/components/ui/input';
 import { PlusCircle } from 'lucide-react';
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/ui/select';
 import { SOCIAL_PLATFORMS } from '../constants/socialPlatforms';
+import { renderSocialIcon } from '../utils/socialIconRenderer';
 import type { SocialLink } from '@/types/linkTypes';
 
 interface AddSocialLinkFormProps {
@@ -34,7 +35,7 @@ const AddSocialLinkForm: React.FC<AddSocialLinkFormProps> = ({
           {SOCIAL_PLATFORMS.map((platform) => (
             <SelectItem key={platform.value} value={platform.value}>
               <div className="flex items-center">
-                {platform.icon || null}
+                {renderSocialIcon(platform.value)}
                 {platform.label || platform.value}
               </div>
             </SelectItem>
