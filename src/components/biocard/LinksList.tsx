@@ -3,11 +3,12 @@ import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
-import { Plus, Trash2 } from 'lucide-react';
+import { Plus, Trash2, MoveVertical } from 'lucide-react';
 import { Label } from '@/components/ui/label';
 import { BaseLink } from './base/BaseLink';
 import { useLinkManager } from '@/hooks/biocard/useLinkManager';
 import type { CustomLink, BaseLinkListProps } from '@/types/linkTypes';
+import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 
 interface LinksListProps extends BaseLinkListProps<CustomLink> {}
 
@@ -18,7 +19,7 @@ const LinksList: React.FC<LinksListProps> = ({ links, setLinks, maxLinks }) => {
     description: ''
   });
 
-  const { addLink, removeLink, updateLink } = useLinkManager(links, setLinks, maxLinks);
+  const { addLink, removeLink, updateLink, reorderLinks } = useLinkManager(links, setLinks, maxLinks);
 
   const handleAddLink = () => {
     if (!newLink.title || !newLink.url) return;
@@ -41,6 +42,16 @@ const LinksList: React.FC<LinksListProps> = ({ links, setLinks, maxLinks }) => {
     if (description.length <= 140) {
       updateLink(id, { description });
     }
+  };
+  
+  const handleDragEnd = (result: any) => {
+    // Dropped outside the list
+    if (!result.destination) {
+      return;
+    }
+    
+    // Reorder the links array
+    reorderLinks(result.source.index, result.destination.index);
   };
 
   return (
@@ -93,41 +104,62 @@ const LinksList: React.FC<LinksListProps> = ({ links, setLinks, maxLinks }) => {
       </div>
       
       {links.length > 0 ? (
-        <div className="space-y-3">
-          {links.map((link) => (
-            <div key={link.id} className="flex items-start gap-2 border rounded-md p-3 bg-gray-50">
-              <div className="mt-1">
-                {/* We'll replace the Link icon with a Trash2 icon for deletion */}
-                <Trash2 className="h-4 w-4 text-destructive" />
-              </div>
-              <div className="flex-grow">
-                <div className="font-medium">{link.title}</div>
-                <div className="text-xs text-gray-500 truncate">{link.url}</div>
-                {link.description && (
-                  <div className="text-sm mt-1 text-gray-600">{link.description}</div>
-                )}
-                <Textarea
-                  placeholder="Edit description (optional)"
-                  value={link.description || ''}
-                  onChange={(e) => handleLinkDescriptionChange(link.id, e.target.value)}
-                  className="mt-2 text-xs"
-                  rows={2}
-                />
-                <div className="text-xs text-gray-400 mt-1">
-                  {link.description ? link.description.length : 0}/140
-                </div>
-              </div>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => removeLink(link.id)}
-                className="text-destructive hover:text-destructive"
+        <DragDropContext onDragEnd={handleDragEnd}>
+          <Droppable droppableId="links">
+            {(provided) => (
+              <div 
+                className="space-y-3"
+                {...provided.droppableProps}
+                ref={provided.innerRef}
               >
-                <Trash2 className="h-4 w-4" />
-              </Button>
-            </div>
-          ))}
-        </div>
+                {links.map((link, index) => (
+                  <Draggable key={link.id} draggableId={link.id} index={index}>
+                    {(provided) => (
+                      <div 
+                        ref={provided.innerRef}
+                        {...provided.draggableProps}
+                        className="flex items-start gap-2 border rounded-md p-3 bg-gray-50"
+                      >
+                        <div 
+                          className="mt-1 cursor-move flex items-center justify-center p-1 hover:bg-gray-200 rounded"
+                          {...provided.dragHandleProps}
+                        >
+                          <MoveVertical className="h-4 w-4 text-gray-500" />
+                        </div>
+                        <div className="flex-grow">
+                          <div className="font-medium">{link.title}</div>
+                          <div className="text-xs text-gray-500 truncate">{link.url}</div>
+                          {link.description && (
+                            <div className="text-sm mt-1 text-gray-600">{link.description}</div>
+                          )}
+                          <Textarea
+                            placeholder="Edit description (optional)"
+                            value={link.description || ''}
+                            onChange={(e) => handleLinkDescriptionChange(link.id, e.target.value)}
+                            className="mt-2 text-xs"
+                            rows={2}
+                          />
+                          <div className="text-xs text-gray-400 mt-1">
+                            {link.description ? link.description.length : 0}/140
+                          </div>
+                        </div>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => removeLink(link.id)}
+                          className="text-destructive hover:text-destructive"
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    )}
+                  </Draggable>
+                ))}
+                {provided.placeholder}
+              </div>
+            )}
+          </Droppable>
+        </DragDropContext>
       ) : (
         <div className="text-center p-4 border border-dashed rounded-md">
           <p className="text-gray-500">No links added yet</p>

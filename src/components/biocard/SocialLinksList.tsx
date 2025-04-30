@@ -2,11 +2,12 @@
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { PlusCircle, Facebook, Instagram, Twitter, Linkedin, Youtube, MessageSquare } from 'lucide-react';
+import { PlusCircle, Facebook, Instagram, Twitter, Linkedin, Youtube, MessageSquare, MoveVertical } from 'lucide-react';
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/ui/select';
 import { BaseLink } from './base/BaseLink';
 import { useLinkManager } from '@/hooks/biocard/useLinkManager';
 import type { SocialLink, BaseLinkListProps } from '@/types/linkTypes';
+import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 
 const SOCIAL_PLATFORMS = [
   { value: 'Facebook', icon: <Facebook className="h-4 w-4 mr-2" /> },
@@ -47,7 +48,7 @@ const SocialLinksList: React.FC<SocialLinksListProps> = ({
 }) => {
   const [newPlatform, setNewPlatform] = useState('');
   const [newUrl, setNewUrl] = useState('');
-  const { addLink, removeLink, updateLink } = useLinkManager(links, setLinks, maxLinks);
+  const { addLink, removeLink, updateLink, reorderLinks } = useLinkManager(links, setLinks, maxLinks);
 
   const handleAddLink = () => {
     if (!newPlatform || !newUrl) return;
@@ -95,37 +96,80 @@ const SocialLinksList: React.FC<SocialLinksListProps> = ({
     }
   };
   
+  const handleDragEnd = (result: any) => {
+    // Dropped outside the list
+    if (!result.destination) {
+      return;
+    }
+    
+    // Reorder the links array
+    reorderLinks(result.source.index, result.destination.index);
+  };
+  
   return (
     <div className="space-y-4">
-      <div className="border rounded-md p-4 space-y-3">
-        {links.map((link) => (
-          <BaseLink key={link.id} onDelete={() => removeLink(link.id)}>
-            <div className="flex-shrink-0 w-24">
-              <div className="flex items-center">
-                {renderSocialIcon(link.platform)}
-                <span className="text-sm capitalize">{link.platform}</span>
-              </div>
+      <DragDropContext onDragEnd={handleDragEnd}>
+        <Droppable droppableId="socialLinks">
+          {(provided) => (
+            <div 
+              className="border rounded-md p-4 space-y-3"
+              {...provided.droppableProps}
+              ref={provided.innerRef}
+            >
+              {links.map((link, index) => (
+                <Draggable key={link.id} draggableId={link.id} index={index}>
+                  {(provided) => (
+                    <div 
+                      ref={provided.innerRef}
+                      {...provided.draggableProps}
+                      className="flex items-center gap-2"
+                    >
+                      <div 
+                        className="cursor-move flex items-center justify-center p-1 hover:bg-gray-200 rounded"
+                        {...provided.dragHandleProps}
+                      >
+                        <MoveVertical className="h-4 w-4 text-gray-500" />
+                      </div>
+                      <div className="flex-shrink-0 w-24">
+                        <div className="flex items-center">
+                          {renderSocialIcon(link.platform)}
+                          <span className="text-sm capitalize">{link.platform}</span>
+                        </div>
+                      </div>
+                      <Input
+                        value={link.url}
+                        onChange={(e) => updateLink(link.id, { url: e.target.value })}
+                        placeholder="https://example.com"
+                        className="flex-1"
+                      />
+                      {link.clicks !== undefined && (
+                        <div className="text-sm text-gray-500 ml-2">
+                          {link.clicks} clicks
+                        </div>
+                      )}
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => removeLink(link.id)}
+                        className="text-destructive hover:text-destructive"
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  )}
+                </Draggable>
+              ))}
+              {provided.placeholder}
+              {links.length === 0 && (
+                <div className="text-center py-2 text-sm text-gray-500">
+                  No social links added yet
+                </div>
+              )}
             </div>
-            <Input
-              value={link.url}
-              onChange={(e) => updateLink(link.id, { url: e.target.value })}
-              placeholder="https://example.com"
-              className="flex-1"
-            />
-            {link.clicks !== undefined && (
-              <div className="text-sm text-gray-500 ml-2">
-                {link.clicks} clicks
-              </div>
-            )}
-          </BaseLink>
-        ))}
-        
-        {links.length === 0 && (
-          <div className="text-center py-2 text-sm text-gray-500">
-            No social links added yet
-          </div>
-        )}
-      </div>
+          )}
+        </Droppable>
+      </DragDropContext>
       
       {links.length < maxLinks && (
         <div className="flex gap-2">

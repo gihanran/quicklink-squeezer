@@ -7,11 +7,12 @@ import ProfileSection from "@/components/ProfileSection";
 interface DashboardTabNavProps {
   children: React.ReactNode;
   links: any[];
+  defaultValue?: string;
 }
 
-const DashboardTabNav: React.FC<DashboardTabNavProps> = ({ children, links }) => {
+const DashboardTabNav: React.FC<DashboardTabNavProps> = ({ children, links, defaultValue = "links" }) => {
   return (
-    <Tabs defaultValue="links" className="w-full">
+    <Tabs defaultValue={defaultValue} className="w-full">
       <TabsList className="grid w-full md:w-auto grid-cols-3 mb-8">
         <TabsTrigger value="links" className="flex items-center gap-2">
           <Link2 className="h-4 w-4" />

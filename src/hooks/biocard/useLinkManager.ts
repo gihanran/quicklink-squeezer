@@ -31,10 +31,19 @@ export const useLinkManager = <T extends BaseLink>(
       link.id === id ? { ...link, ...updatedLink } : link
     ));
   };
+  
+  const reorderLinks = (startIndex: number, endIndex: number) => {
+    const result = Array.from(links);
+    const [removed] = result.splice(startIndex, 1);
+    result.splice(endIndex, 0, removed);
+    
+    setLinks(result);
+  };
 
   return {
     addLink,
     removeLink,
-    updateLink
+    updateLink,
+    reorderLinks
   };
 };

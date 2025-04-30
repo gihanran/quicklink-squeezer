@@ -10,6 +10,7 @@ interface BioCardLinksProps {
 }
 
 export const BioCardLinks: React.FC<BioCardLinksProps> = ({ bioCard, links, onLinkClick }) => {
+  // Links are already in the order they were added, maintained by the drag and drop functionality
   return (
     <div className="space-y-3 w-full">
       {links.map((link) => {
