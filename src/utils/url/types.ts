@@ -11,7 +11,7 @@ export interface UrlData {
   visits: number;
   userId?: string | null;
   title?: string;
-  description?: string;
+  description?: string; // Mark as optional since it doesn't exist in the database
 }
 
 export interface UrlStats {

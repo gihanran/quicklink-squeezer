@@ -40,8 +40,8 @@ export const getUrlByShortCode = async (shortCode: string): Promise<UrlData | nu
       expiresAt: data.expires_at ? new Date(data.expires_at).getTime() : undefined,
       visits: data.visits,
       userId: data.user_id,
-      title: data.title,
-      description: data.description
+      title: data.title
+      // Remove reference to description since it doesn't exist in the database
     };
   } catch (error) {
     console.error('Error retrieving URL:', error);
@@ -73,8 +73,8 @@ export const getUserUrls = async (): Promise<UrlData[]> => {
       expiresAt: url.expires_at ? new Date(url.expires_at).getTime() : undefined,
       visits: url.visits,
       userId: url.user_id,
-      title: url.title,
-      description: url.description
+      title: url.title
+      // Remove reference to description since it doesn't exist in the database
     }));
   } catch (error) {
     console.error('Error fetching user URLs:', error);
