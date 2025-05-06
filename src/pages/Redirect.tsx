@@ -43,9 +43,11 @@ const Redirect: React.FC = () => {
         const trackingResult = await trackVisit(shortCode);
         console.log(`Tracking result: ${trackingResult ? 'Success' : 'Failed'}`);
         
-        // Set the original URL for the iframe
+        // Instead of loading the URL in an iframe, redirect the browser
+        window.location.href = urlData.originalUrl;
+        
+        // The following line will only be reached momentarily before redirect
         setOriginalUrl(urlData.originalUrl);
-        setLoading(false);
       } catch (err) {
         console.error('Redirect error:', err);
         setError('An error occurred while redirecting. Please try again.');
@@ -65,7 +67,7 @@ const Redirect: React.FC = () => {
           <div className="mb-4 animate-pulse">
             <div className="h-12 w-12 mx-auto border-4 border-brand-purple border-t-transparent rounded-full animate-spin"></div>
           </div>
-          <p className="text-xl">Loading content...</p>
+          <p className="text-xl">Redirecting to destination...</p>
         </div>
       </div>
     );
@@ -92,22 +94,20 @@ const Redirect: React.FC = () => {
     );
   }
 
+  // This will only be shown briefly before the redirect happens
   return (
-    <div className="flex flex-col min-h-screen">
+    <div className="flex flex-col min-h-screen items-center justify-center p-4">
       <MetaTags
         title={pageTitle}
         description={pageDescription}
         url={originalUrl || window.location.href}
       />
-      {/* Embedded content */}
-      {originalUrl && (
-        <iframe 
-          src={originalUrl} 
-          className="w-full h-full min-h-screen" 
-          title="Original content"
-          sandbox="allow-same-origin allow-scripts allow-popups allow-forms"
-        />
-      )}
+      <div className="text-center">
+        <div className="mb-4 animate-pulse">
+          <div className="h-12 w-12 mx-auto border-4 border-brand-purple border-t-transparent rounded-full animate-spin"></div>
+        </div>
+        <p className="text-xl">Redirecting to destination...</p>
+      </div>
     </div>
   );
 };
