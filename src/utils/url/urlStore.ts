@@ -10,9 +10,6 @@ export const storeUrl = async (originalUrl: string, title?: string): Promise<Url
     const { data: { session } } = await supabase.auth.getSession();
     const userId = session?.user?.id;
     
-    // If user is authenticated, they have unlimited links (no limit check needed)
-    // Only anonymous users have restrictions
-    
     // Generate a unique short code
     const shortCode = generateShortCode();
     
@@ -48,6 +45,12 @@ export const createShortenedUrl = async (
   title?: string
 ): Promise<UrlData | null> => {
   try {
+    // Ensure URL has protocol
+    let finalUrl = originalUrl;
+    if (!finalUrl.startsWith('http://') && !finalUrl.startsWith('https://')) {
+      finalUrl = `https://${finalUrl}`;
+    }
+    
     // Calculate expiration date if requested
     const expiresAt = expirationDays 
       ? new Date(Date.now() + expirationDays * 24 * 60 * 60 * 1000).toISOString()
@@ -56,7 +59,7 @@ export const createShortenedUrl = async (
     const { data, error } = await supabase
       .from('short_urls')
       .insert({
-        original_url: originalUrl,
+        original_url: finalUrl,
         short_code: shortCode,
         expires_at: expiresAt,
         user_id: userId,
@@ -107,8 +110,6 @@ export const getUrlStats = async (): Promise<UrlStats> => {
     if (!session?.user) {
       return { totalLinks: 0, totalClicks: 0 };
     }
-    
-    const now = new Date().toISOString();
     
     // Get all links for the user (for counting total links created)
     const { data: allLinks, error: allLinksError } = await supabase

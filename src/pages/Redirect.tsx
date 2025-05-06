@@ -51,7 +51,7 @@ const Redirect: React.FC = () => {
 
         setOriginalUrl(redirectUrl);
         
-        // Track the visit before redirecting
+        // Track the visit before attempting to redirect
         try {
           await trackVisit(shortCode);
           console.log('Successfully tracked visit');
@@ -62,18 +62,14 @@ const Redirect: React.FC = () => {
         // Set redirect attempted flag
         setRedirectAttempted(true);
         
-        // Method 1: Direct browser redirection - the most reliable way for same-origin redirects
-        console.log(`Redirecting to: ${redirectUrl}`);
-        window.location.href = redirectUrl;
+        // For cross-origin redirect, open in new tab which is more reliable
+        // This approach avoids many browser security restrictions
+        const newWindow = window.open(redirectUrl, '_blank');
         
-        // Method 2: As a fallback, try with replace after a short delay
-        // This can help with some cross-origin situations
-        setTimeout(() => {
-          if (document.visibilityState !== 'hidden') {
-            console.log('Trying redirect with window.location.replace as fallback');
-            window.location.replace(redirectUrl);
-          }
-        }, 300);
+        // If popup was blocked or failed, we'll show the manual click interface
+        if (!newWindow) {
+          console.log('Popup may have been blocked, showing manual redirect UI');
+        }
       } catch (err) {
         console.error('Redirect error:', err);
         setError('An error occurred while redirecting. Please try again.');
@@ -85,6 +81,7 @@ const Redirect: React.FC = () => {
     handleRedirect();
   }, [shortCode]);
 
+  // Show loading state only if we haven't attempted redirect yet
   if (loading && !redirectAttempted) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center p-4">
@@ -110,24 +107,25 @@ const Redirect: React.FC = () => {
     );
   }
 
-  // Show manual redirect option after automatic redirect has been attempted
-  if (redirectAttempted && originalUrl) {
+  // Always show the manual redirect interface after we've attempted redirect
+  // This ensures users can still reach the destination even if auto-redirect fails
+  if (originalUrl) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center p-4">
         <MetaTags 
-          title={pageTitle || "Click to Continue"} 
+          title={pageTitle || "Go to Destination"} 
           description={pageDescription || "Your redirect is ready"}
         />
         <div className="text-center">
-          <h1 className="text-2xl font-bold mb-4">Click to Continue</h1>
-          <p className="mb-6">If you're not automatically redirected, please click the button below:</p>
+          <h1 className="text-2xl font-bold mb-4">Your Link is Ready</h1>
+          <p className="mb-6">Click the button below to continue to your destination:</p>
           <a 
             href={originalUrl} 
             className="px-6 py-3 bg-gradient-to-r from-brand-purple to-brand-blue text-white rounded-md hover:opacity-90 inline-block"
             rel="noopener noreferrer"
             target="_blank"
           >
-            Continue to Destination
+            Go to Destination
           </a>
           <p className="text-sm text-gray-500 mt-4">
             Destination: {originalUrl}

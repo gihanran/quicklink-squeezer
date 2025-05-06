@@ -1,7 +1,7 @@
 
 import { supabase } from "@/integrations/supabase/client";
 
-// Track visit to a shortened URL - now tracks visits from all browsers
+// Track visit to a shortened URL - now track visits more reliably
 export const trackVisit = async (shortCode: string): Promise<boolean> => {
   try {
     // First, get the current URL data
@@ -9,7 +9,7 @@ export const trackVisit = async (shortCode: string): Promise<boolean> => {
       .from('short_urls')
       .select('id, visits')
       .eq('short_code', shortCode)
-      .single();
+      .maybeSingle();
     
     if (error) {
       console.error('Error fetching URL for tracking:', error);
@@ -21,7 +21,7 @@ export const trackVisit = async (shortCode: string): Promise<boolean> => {
       return false;
     }
     
-    // Increment the visit counter for all browsers
+    // Increment the visit counter
     const visits = (data?.visits || 0) + 1;
     
     // Update the URL with the new visit count
@@ -35,17 +35,19 @@ export const trackVisit = async (shortCode: string): Promise<boolean> => {
       throw updateError;
     }
     
-    // Log the visit for analytics (optional)
-    const { error: logError } = await supabase
-      .from('url_visits')
-      .insert({ 
-        short_url_id: data.id,
-        user_agent: navigator.userAgent
-      });
-    
-    if (logError) {
+    // Log the visit for analytics
+    try {
+      await supabase
+        .from('url_visits')
+        .insert({ 
+          short_url_id: data.id,
+          user_agent: navigator.userAgent
+        });
+      
+      console.log(`Successfully logged visit for ${shortCode}`);
+    } catch (logError) {
       console.error('Error logging URL visit:', logError);
-      // Don't throw here, we still want to return success even if logging fails
+      // Don't fail the whole tracking if just the log fails
     }
     
     console.log(`Successfully tracked visit for ${shortCode}. New total: ${visits}`);

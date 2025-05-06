@@ -5,12 +5,11 @@ import { Input } from "@/components/ui/input";
 import { storeUrl, getFullShortenedUrl, UrlData } from '@/utils/url';
 import { useToast } from "@/hooks/use-toast";
 import { ArrowRight } from "lucide-react";
-import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 
 interface UrlShortenerFormProps {
   onUrlShortened: (urlData: UrlData, fullUrl: string) => void;
-  onSuccess?: () => void; // This is now optional since we handle it differently
+  onSuccess?: () => void;
   showTitleField?: boolean;
 }
 
@@ -27,16 +26,16 @@ const UrlShortenerForm: React.FC<UrlShortenerFormProps> = ({
   // URL validation helper function
   const isValidUrl = (url: string): boolean => {
     try {
-      new URL(url);
+      // Add protocol if not present for URL validation
+      const urlToValidate = url.startsWith('http://') || url.startsWith('https://') 
+        ? url 
+        : `https://${url}`;
+      
+      new URL(urlToValidate);
       return true;
     } catch (err) {
       return false;
     }
-  };
-
-  // Function to open ad in new window
-  const openAdWindow = () => {
-    window.open('https://www.profitableratecpm.com/ux9fm65hmy?key=fd2351bc9ac57a148dab2b212d7b6cd2', '_blank');
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -67,21 +66,27 @@ const UrlShortenerForm: React.FC<UrlShortenerFormProps> = ({
     
     try {
       setIsLoading(true);
-      // Include the title in the URL data only if showTitleField is true
-      const urlData = await storeUrl(urlToShorten, showTitleField ? title : undefined);
+      // Include the title in the URL data only if showTitleField is true and title is provided
+      const urlData = await storeUrl(urlToShorten, showTitleField && title ? title : undefined);
       const fullShortenedUrl = getFullShortenedUrl(urlData.shortCode);
       
       // Callback to parent component with the shortened URL
       onUrlShortened(urlData, fullShortenedUrl);
       
-      // Reset form - we'll keep this for any forms not using the ad popup
+      // Reset form
       setUrl('');
       setTitle('');
       
-      // Open ad in new window after successful URL shortening
-      openAdWindow();
+      // Show success message
+      toast({
+        title: "URL shortened successfully!",
+        description: "You can now share your short link."
+      });
       
-      // If there's a direct success handler, call it (for backward compatibility)
+      // Open ad in new window after successful URL shortening
+      window.open('https://www.profitableratecpm.com/ux9fm65hmy?key=fd2351bc9ac57a148dab2b212d7b6cd2', '_blank');
+      
+      // If there's a direct success handler, call it
       if (onSuccess) {
         onSuccess();
       }

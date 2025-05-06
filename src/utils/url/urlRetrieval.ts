@@ -6,20 +6,31 @@ import { UrlData } from "./types";
 // Get a URL by its short code
 export const getUrlByShortCode = async (shortCode: string): Promise<UrlData | null> => {
   try {
+    console.log(`Retrieving URL for short code: ${shortCode}`);
+    
     const { data, error } = await supabase
       .from('short_urls')
       .select('*')
       .eq('short_code', shortCode)
       .maybeSingle();
     
-    if (error) throw error;
-    if (!data) return null;
+    if (error) {
+      console.error('Error retrieving URL:', error);
+      throw error;
+    }
+    
+    if (!data) {
+      console.log(`No URL found for short code: ${shortCode}`);
+      return null;
+    }
     
     // Check if the URL has expired
     if (data.expires_at && new Date(data.expires_at) < new Date()) {
-      // URL has expired
+      console.log(`URL with short code ${shortCode} has expired`);
       return null;
     }
+    
+    console.log(`Successfully retrieved URL for short code ${shortCode}:`, data.original_url);
     
     return {
       id: data.id,
@@ -29,7 +40,8 @@ export const getUrlByShortCode = async (shortCode: string): Promise<UrlData | nu
       expiresAt: data.expires_at ? new Date(data.expires_at).getTime() : undefined,
       visits: data.visits,
       userId: data.user_id,
-      title: data.title
+      title: data.title,
+      description: data.description
     };
   } catch (error) {
     console.error('Error retrieving URL:', error);
@@ -61,7 +73,8 @@ export const getUserUrls = async (): Promise<UrlData[]> => {
       expiresAt: url.expires_at ? new Date(url.expires_at).getTime() : undefined,
       visits: url.visits,
       userId: url.user_id,
-      title: url.title
+      title: url.title,
+      description: url.description
     }));
   } catch (error) {
     console.error('Error fetching user URLs:', error);

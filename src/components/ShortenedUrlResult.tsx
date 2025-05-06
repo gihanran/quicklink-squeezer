@@ -5,7 +5,6 @@ import { Card, CardContent } from "@/components/ui/card";
 import { UrlData } from '@/utils/url';
 import { useToast } from "@/components/ui/use-toast";
 import { Copy, Facebook, Twitter, Linkedin, Link } from "lucide-react";
-import { toast as sonnerToast } from "sonner";
 
 interface ShortenedUrlResultProps {
   urlData: UrlData;
@@ -15,8 +14,6 @@ interface ShortenedUrlResultProps {
 const ShortenedUrlResult: React.FC<ShortenedUrlResultProps> = ({ urlData, shortenedUrl }) => {
   const { toast } = useToast();
   
-  const adLink = "https://www.effectiveratecpm.com/p4ppmfeh0n?key=48d749cbbabcd8e2d6de78a73d605d05";
-  
   const handleCopy = () => {
     navigator.clipboard.writeText(shortenedUrl)
       .then(() => {
@@ -24,9 +21,6 @@ const ShortenedUrlResult: React.FC<ShortenedUrlResultProps> = ({ urlData, shorte
         toast({
           title: "URL copied to clipboard!",
         });
-        
-        // Open ad in new tab
-        window.open(adLink, '_blank');
       })
       .catch((err) => {
         console.error('Failed to copy:', err);
@@ -120,6 +114,17 @@ const ShortenedUrlResult: React.FC<ShortenedUrlResultProps> = ({ urlData, shorte
               <p className="text-xs text-muted-foreground">Visits: {urlData.visits}</p>
             </div>
             <p className="font-medium text-sm text-gray-600 truncate">{urlData.originalUrl}</p>
+            
+            <div className="mt-4 pt-2 border-t">
+              <p className="text-sm text-muted-foreground mb-2">Test your link:</p>
+              <Button
+                variant="outline"
+                className="w-full"
+                onClick={() => window.open(shortenedUrl, '_blank')}
+              >
+                Open in New Tab
+              </Button>
+            </div>
           </div>
         </div>
       </CardContent>
