@@ -41,26 +41,22 @@ const Redirect: React.FC = () => {
           setPageDescription(urlData.description);
         }
 
-        setOriginalUrl(urlData.originalUrl);
-
-        // Track the visit before redirecting
-        const trackingResult = await trackVisit(shortCode);
-        console.log(`Tracking result: ${trackingResult ? 'Success' : 'Failed'}`);
-        
         // Make sure the URL has a protocol
         let redirectUrl = urlData.originalUrl;
         if (!redirectUrl.startsWith('http://') && !redirectUrl.startsWith('https://')) {
           redirectUrl = 'https://' + redirectUrl;
           console.log(`Added https protocol to URL: ${redirectUrl}`);
         }
+
+        setOriginalUrl(redirectUrl);
         
-        // Ensure we're redirecting to a valid URL
+        // Track the visit before redirecting
+        await trackVisit(shortCode);
+        
+        // Direct browser redirection - the most reliable way
+        // This works better than setTimeout for cross-site redirects
         console.log(`Redirecting to: ${redirectUrl}`);
-        
-        // Use a slight delay to ensure tracking completes
-        setTimeout(() => {
-          window.location.href = redirectUrl;
-        }, 500);
+        window.location.replace(redirectUrl);
       } catch (err) {
         console.error('Redirect error:', err);
         setError('An error occurred while redirecting. Please try again.');
@@ -83,7 +79,7 @@ const Redirect: React.FC = () => {
           <p className="text-xl">Redirecting to destination...</p>
           <p className="text-sm text-gray-500 mt-2">You will be redirected shortly. If not, please click the link below.</p>
           {originalUrl && (
-            <a href={originalUrl} className="text-blue-500 hover:underline block mt-4">
+            <a href={originalUrl} className="text-blue-500 hover:underline block mt-4" rel="noopener noreferrer">
               Click here to visit the link directly
             </a>
           )}
@@ -127,7 +123,7 @@ const Redirect: React.FC = () => {
         </div>
         <p className="text-xl">Redirecting to destination...</p>
         {originalUrl && (
-          <a href={originalUrl} className="text-blue-500 hover:underline block mt-4">
+          <a href={originalUrl} className="text-blue-500 hover:underline block mt-4" rel="noopener noreferrer">
             Click here if you're not automatically redirected
           </a>
         )}
