@@ -138,10 +138,12 @@ export const getUnlockerById = async (id: string): Promise<UrlUnlocker | null> =
 // Track a click on a URL unlocker
 export const trackUnlockerClick = async (id: string): Promise<boolean> => {
   try {
-    const { error } = await supabase
+    // Instead of using RPC, use direct update with increment
+    const { data, error } = await supabase
       .from('url_unlockers')
-      .update({ clicks: supabase.rpc('increment', { row_id: id, table_name: 'url_unlockers', column_name: 'clicks' }) })
-      .eq('id', id);
+      .update({ clicks: supabase.sql`clicks + 1` })
+      .eq('id', id)
+      .select('clicks');
     
     if (error) {
       console.error('Error tracking unlocker click:', error);
@@ -158,10 +160,12 @@ export const trackUnlockerClick = async (id: string): Promise<boolean> => {
 // Track a successful unlock
 export const trackUnlockerSuccess = async (id: string): Promise<boolean> => {
   try {
-    const { error } = await supabase
+    // Instead of using RPC, use direct update with increment
+    const { data, error } = await supabase
       .from('url_unlockers')
-      .update({ unlocks: supabase.rpc('increment', { row_id: id, table_name: 'url_unlockers', column_name: 'unlocks' }) })
-      .eq('id', id);
+      .update({ unlocks: supabase.sql`unlocks + 1` })
+      .eq('id', id)
+      .select('unlocks');
     
     if (error) {
       console.error('Error tracking unlocker success:', error);
