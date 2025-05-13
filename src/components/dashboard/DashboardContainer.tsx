@@ -9,6 +9,8 @@ import DashboardContent from "@/components/dashboard/DashboardContent";
 import { useDashboardData } from "./hooks/useDashboardData";
 import { useLinkActions } from "./hooks/useLinkActions";
 import { useNavigate } from "react-router-dom";
+import { AppSidebar } from "@/components/ui/sidebar";
+import { SidebarProvider } from "@/components/ui/sidebar/sidebar-context";
 
 export interface DashboardContainerProps {
   // Add any props if needed in the future
@@ -62,41 +64,47 @@ const DashboardContainer: React.FC<DashboardContainerProps> = () => {
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-gray-50">
-      <DashboardHeader handleLogout={handleLogout} user={user} />
+    <SidebarProvider>
+      <div className="min-h-screen flex flex-col bg-gray-50">
+        <DashboardHeader handleLogout={handleLogout} user={user} />
 
-      <main className="flex-grow container max-w-6xl mx-auto px-4 py-8">
-        <DashboardTabNav links={links}>
-          <DashboardContent 
-            links={links}
-            loading={loading}
-            stats={stats}
-            user={user}
-            showCreateForm={showCreateForm}
-            handleCreateNewLink={handleCreateNewLink}
-            handleLinkCreated={handleLinkCreated}
-            handleUrlShortened={handleUrlShortened}
-            handleDeleteLink={handleDeleteLink}
-            handleEditTitle={handleEditTitle}
-          />
-        </DashboardTabNav>
-      </main>
+        <div className="flex flex-1">
+          <AppSidebar />
+          
+          <main className="flex-grow container max-w-6xl mx-auto px-4 py-8">
+            <DashboardTabNav links={links}>
+              <DashboardContent 
+                links={links}
+                loading={loading}
+                stats={stats}
+                user={user}
+                showCreateForm={showCreateForm}
+                handleCreateNewLink={handleCreateNewLink}
+                handleLinkCreated={handleLinkCreated}
+                handleUrlShortened={handleUrlShortened}
+                handleDeleteLink={handleDeleteLink}
+                handleEditTitle={handleEditTitle}
+              />
+            </DashboardTabNav>
+          </main>
+        </div>
 
-      <Footer />
-      
-      {/* Link dialogs */}
-      <LinkDialogs 
-        deleteDialogOpen={deleteDialogOpen}
-        setDeleteDialogOpen={setDeleteDialogOpen}
-        selectedLink={selectedLink}
-        confirmDeleteLink={handleConfirmDeleteLink}
-        titleDialogOpen={titleDialogOpen}
-        setTitleDialogOpen={setTitleDialogOpen}
-        newTitle={newTitle}
-        setNewTitle={setNewTitle}
-        confirmUpdateTitle={handleConfirmUpdateTitle}
-      />
-    </div>
+        <Footer />
+        
+        {/* Link dialogs */}
+        <LinkDialogs 
+          deleteDialogOpen={deleteDialogOpen}
+          setDeleteDialogOpen={setDeleteDialogOpen}
+          selectedLink={selectedLink}
+          confirmDeleteLink={handleConfirmDeleteLink}
+          titleDialogOpen={titleDialogOpen}
+          setTitleDialogOpen={setTitleDialogOpen}
+          newTitle={newTitle}
+          setNewTitle={setNewTitle}
+          confirmUpdateTitle={handleConfirmUpdateTitle}
+        />
+      </div>
+    </SidebarProvider>
   );
 };
 

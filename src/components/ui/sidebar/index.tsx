@@ -1,91 +1,70 @@
 
-import { TooltipProvider } from "@/components/ui/tooltip"
+"use client";
 
-import { 
-  SidebarProvider, 
-  useSidebar,
-  SIDEBAR_COOKIE_NAME,
-  SIDEBAR_COOKIE_MAX_AGE,
-  SIDEBAR_WIDTH,
-  SIDEBAR_WIDTH_MOBILE,
-  SIDEBAR_WIDTH_ICON,
-  SIDEBAR_KEYBOARD_SHORTCUT
-} from "./sidebar-context"
-
-import { 
+import {
   Sidebar,
-  SidebarTrigger,
-  SidebarRail,
-  SidebarInset
-} from "./sidebar"
-
-import {
-  SidebarInput,
-  SidebarHeader,
-  SidebarFooter,
-  SidebarSeparator,
-  SidebarContent
-} from "./sidebar-content"
-
-import {
-  SidebarGroup,
-  SidebarGroupLabel,
-  SidebarGroupAction,
-  SidebarGroupContent
-} from "./sidebar-group"
-
-import {
-  SidebarMenu,
-  SidebarMenuItem,
-  SidebarMenuButton,
-  SidebarMenuAction,
-  SidebarMenuBadge,
-  SidebarMenuSkeleton,
-  SidebarMenuSub,
-  SidebarMenuSubItem,
-  SidebarMenuSubButton
-} from "./sidebar-menu"
-
-export {
-  // Context and hooks
-  SidebarProvider,
-  useSidebar,
-  
-  // Constants
-  SIDEBAR_COOKIE_NAME,
-  SIDEBAR_COOKIE_MAX_AGE,
-  SIDEBAR_WIDTH,
-  SIDEBAR_WIDTH_MOBILE,
-  SIDEBAR_WIDTH_ICON,
-  SIDEBAR_KEYBOARD_SHORTCUT,
-  
-  // Main components
-  Sidebar,
-  SidebarTrigger,
-  SidebarRail,
-  SidebarInset,
-  
-  // Content components
-  SidebarInput,
-  SidebarHeader,
-  SidebarFooter,
-  SidebarSeparator,
   SidebarContent,
-  
-  // Group components
+  SidebarFooter,
   SidebarGroup,
-  SidebarGroupLabel,
-  SidebarGroupAction,
   SidebarGroupContent,
-  
-  // Menu components
+  SidebarGroupLabel,
+  SidebarHeader,
   SidebarMenu,
-  SidebarMenuItem,
   SidebarMenuButton,
-  SidebarMenuAction,
-  SidebarMenuBadge,
-  SidebarMenuSkeleton,
-  SidebarMenuSub,
-  SidebarMenuSubItem,
-  SidebarMenuSubButton
+  SidebarMenuItem
+} from "./sidebar";
+
+import { Home, Link, Lock } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import { useAuthState } from "@/hooks/auth";
+
+export function AppSidebar() {
+  const navigate = useNavigate();
+  const { user } = useAuthState();
+
+  if (!user) return null;
+
+  return (
+    <Sidebar className="border-r border-border h-screen">
+      <SidebarHeader className="p-4">
+        <h2 className="text-xl font-bold">urlShort</h2>
+      </SidebarHeader>
+      
+      <SidebarContent>
+        <SidebarGroup>
+          <SidebarGroupLabel>Main</SidebarGroupLabel>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              <SidebarMenuItem>
+                <SidebarMenuButton onClick={() => navigate("/dashboard")}>
+                  <Home className="h-5 w-5" />
+                  <span>Dashboard</span>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+              
+              <SidebarMenuItem>
+                <SidebarMenuButton onClick={() => navigate("/unlockers")}>
+                  <Lock className="h-5 w-5" />
+                  <span>URL Unlockers</span>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+              
+              <SidebarMenuItem>
+                <SidebarMenuButton onClick={() => navigate("/biocard")}>
+                  <Link className="h-5 w-5" />
+                  <span>Bio Cards</span>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+      </SidebarContent>
+      
+      <SidebarFooter className="p-4 text-xs text-gray-500">
+        © {new Date().getFullYear()} urlShort
+      </SidebarFooter>
+    </Sidebar>
+  );
 }
+
+export * from "./sidebar";
