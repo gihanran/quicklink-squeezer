@@ -9,6 +9,7 @@ export interface UrlUnlocker {
   unlocks: number;
   createdAt: number;
   updatedAt: number;
+  expirationDate: number;
 }
 
 export type ButtonColor = 'red' | 'blue' | 'green' | 'yellow';

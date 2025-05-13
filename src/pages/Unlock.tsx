@@ -4,7 +4,7 @@ import { useParams, Link } from 'react-router-dom';
 import { getUnlockerById, trackUnlockerClick, trackUnlockerSuccess } from '@/utils/unlocker/unlockersUtil';
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { ExternalLink, Check, ArrowRight } from 'lucide-react';
+import { ExternalLink, Check, ArrowRight, Clock } from 'lucide-react';
 import { ButtonColor, UrlUnlocker } from '@/utils/unlocker/types';
 import MetaTags from '@/components/MetaTags';
 import Footer from '@/components/Footer';
@@ -16,6 +16,7 @@ const Unlock: React.FC = () => {
   const [error, setError] = useState<string>('');
   const [userSequence, setUserSequence] = useState<ButtonColor[]>([]);
   const [unlocked, setUnlocked] = useState<boolean>(false);
+  const [isExpired, setIsExpired] = useState<boolean>(false);
 
   useEffect(() => {
     if (!unlockerId) {
@@ -31,6 +32,17 @@ const Unlock: React.FC = () => {
         
         if (!data) {
           setError('This unlocker link does not exist');
+          return;
+        }
+        
+        // Check if the link is expired
+        const expirationDate = new Date(data.expirationDate);
+        const now = new Date();
+        
+        if (expirationDate < now) {
+          setIsExpired(true);
+          setError('This link has expired');
+          setUnlocker(data);
           return;
         }
         
@@ -50,7 +62,7 @@ const Unlock: React.FC = () => {
   }, [unlockerId]);
 
   const handleButtonClick = (color: ButtonColor) => {
-    if (unlocked || !unlocker) return;
+    if (unlocked || !unlocker || isExpired) return;
     
     const newSequence = [...userSequence, color];
     setUserSequence(newSequence);
@@ -80,6 +92,30 @@ const Unlock: React.FC = () => {
               <div className="h-12 w-12 mx-auto border-4 border-brand-purple border-t-transparent rounded-full animate-spin"></div>
             </div>
             <p className="text-xl">Loading...</p>
+          </div>
+        </main>
+        <Footer />
+      </div>
+    );
+  }
+
+  if (isExpired) {
+    return (
+      <div className="min-h-screen flex flex-col">
+        <main className="flex-grow flex items-center justify-center p-4">
+          <div className="text-center">
+            <MetaTags title="Link Expired" />
+            <div className="bg-amber-100 rounded-full p-3 inline-flex mb-4">
+              <Clock className="h-8 w-8 text-amber-600" />
+            </div>
+            <h1 className="text-2xl font-bold text-amber-600 mb-4">Link Expired</h1>
+            <p className="mb-6">This URL unlocker link has expired and is no longer available.</p>
+            <Link 
+              to="/" 
+              className="px-4 py-2 bg-gradient-to-r from-brand-purple to-brand-blue text-white rounded-md hover:opacity-90"
+            >
+              Go back to homepage
+            </Link>
           </div>
         </main>
         <Footer />

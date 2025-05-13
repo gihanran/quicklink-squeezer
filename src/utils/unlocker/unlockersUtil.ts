@@ -21,13 +21,18 @@ export const createUrlUnlocker = async (
       return null;
     }
     
+    // Create expiration date (30 days from now)
+    const expirationDate = new Date();
+    expirationDate.setDate(expirationDate.getDate() + 30);
+    
     const { data, error } = await supabase
       .from('url_unlockers')
       .insert({
         user_id: session.user.id,
         destination_url: destinationUrl,
         title,
-        sequence
+        sequence,
+        expiration_date: expirationDate.toISOString()
       })
       .select()
       .single();
@@ -47,6 +52,7 @@ export const createUrlUnlocker = async (
       unlocks: data.unlocks,
       createdAt: new Date(data.created_at).getTime(),
       updatedAt: new Date(data.updated_at).getTime(),
+      expirationDate: new Date(data.expiration_date).getTime(),
     };
   } catch (error: any) {
     console.error('Error creating URL unlocker:', error);
@@ -88,6 +94,7 @@ export const getUserUnlockers = async (): Promise<UrlUnlocker[]> => {
       unlocks: item.unlocks,
       createdAt: new Date(item.created_at).getTime(),
       updatedAt: new Date(item.updated_at).getTime(),
+      expirationDate: new Date(item.expiration_date).getTime(),
     }));
   } catch (error) {
     console.error('Error retrieving URL unlockers:', error);
@@ -128,6 +135,7 @@ export const getUnlockerById = async (id: string): Promise<UrlUnlocker | null> =
       unlocks: data.unlocks,
       createdAt: new Date(data.created_at).getTime(),
       updatedAt: new Date(data.updated_at).getTime(),
+      expirationDate: new Date(data.expiration_date).getTime(),
     };
   } catch (error) {
     console.error('Error retrieving URL unlocker:', error);
@@ -214,6 +222,82 @@ export const deleteUnlocker = async (id: string): Promise<boolean> => {
     return true;
   } catch (error) {
     console.error('Error deleting URL unlocker:', error);
+    return false;
+  }
+};
+
+// Get links that are about to expire (within the next 7 days)
+export const getExpiringUnlockers = async (): Promise<UrlUnlocker[]> => {
+  try {
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session?.user) {
+      return [];
+    }
+    
+    const sevenDaysFromNow = new Date();
+    sevenDaysFromNow.setDate(sevenDaysFromNow.getDate() + 7);
+    
+    const { data, error } = await supabase
+      .from('url_unlockers')
+      .select('*')
+      .eq('user_id', session.user.id)
+      .lt('expiration_date', sevenDaysFromNow.toISOString())
+      .gt('expiration_date', new Date().toISOString())
+      .order('expiration_date', { ascending: true });
+    
+    if (error) {
+      console.error('Error retrieving expiring URL unlockers:', error);
+      throw error;
+    }
+    
+    return (data || []).map(item => ({
+      id: item.id,
+      userId: item.user_id,
+      sequence: item.sequence,
+      destinationUrl: item.destination_url,
+      title: item.title,
+      clicks: item.clicks,
+      unlocks: item.unlocks,
+      createdAt: new Date(item.created_at).getTime(),
+      updatedAt: new Date(item.updated_at).getTime(),
+      expirationDate: new Date(item.expiration_date).getTime(),
+    }));
+  } catch (error) {
+    console.error('Error retrieving expiring URL unlockers:', error);
+    return [];
+  }
+};
+
+// Update unlocker expiration date
+export const updateUnlockerExpiration = async (id: string, additionalDays: number): Promise<boolean> => {
+  try {
+    const { data: unlocker, error: fetchError } = await supabase
+      .from('url_unlockers')
+      .select('expiration_date')
+      .eq('id', id)
+      .single();
+    
+    if (fetchError) {
+      console.error('Error getting unlocker expiration:', fetchError);
+      throw fetchError;
+    }
+    
+    const currentExpiration = new Date(unlocker.expiration_date);
+    currentExpiration.setDate(currentExpiration.getDate() + additionalDays);
+    
+    const { error } = await supabase
+      .from('url_unlockers')
+      .update({ expiration_date: currentExpiration.toISOString() })
+      .eq('id', id);
+    
+    if (error) {
+      console.error('Error updating unlocker expiration:', error);
+      throw error;
+    }
+    
+    return true;
+  } catch (error) {
+    console.error('Error updating unlocker expiration:', error);
     return false;
   }
 };
