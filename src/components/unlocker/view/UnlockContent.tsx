@@ -55,7 +55,7 @@ const UnlockContent: React.FC<UnlockContentProps> = ({ unlocker, onSequenceChang
           
           <SequenceIndicator 
             userSequence={userSequence} 
-            targetSequence={unlocker.sequence} 
+            targetSequence={unlocker.sequence as ButtonColor[]} 
           />
         </div>
       ) : (
