@@ -1,83 +1,31 @@
 
-import * as React from "react"
-import { cn } from "./utils"
-import { Slot } from "@radix-ui/react-slot"
+import React from "react"
+import { cn } from "@/lib/utils"
 
-const SidebarGroup = React.forwardRef<
-  HTMLDivElement,
-  React.ComponentProps<"div">
->(({ className, ...props }, ref) => {
+export interface SidebarGroupProps extends React.HTMLAttributes<HTMLDivElement> {
+  label?: string
+}
+
+export function SidebarGroup({ className, children, ...props }: SidebarGroupProps) {
   return (
-    <div
-      ref={ref}
-      data-sidebar="group"
-      className={cn("relative flex w-full min-w-0 flex-col p-2", className)}
-      {...props}
-    />
+    <div className={cn("mb-4", className)} {...props}>
+      {children}
+    </div>
   )
-})
-SidebarGroup.displayName = "SidebarGroup"
+}
 
-const SidebarGroupLabel = React.forwardRef<
-  HTMLDivElement,
-  React.ComponentProps<"div"> & { asChild?: boolean }
->(({ className, asChild = false, ...props }, ref) => {
-  const Comp = asChild ? Slot : "div"
-
+export function SidebarGroupLabel({ className, children, ...props }: React.HTMLAttributes<HTMLDivElement>) {
   return (
-    <Comp
-      ref={ref}
-      data-sidebar="group-label"
-      className={cn(
-        "duration-200 flex h-8 shrink-0 items-center rounded-md px-2 text-xs font-medium text-sidebar-foreground/70 outline-none ring-sidebar-ring transition-[margin,opa] ease-linear focus-visible:ring-2 [&>svg]:size-4 [&>svg]:shrink-0",
-        "group-data-[collapsible=icon]:-mt-8 group-data-[collapsible=icon]:opacity-0",
-        className
-      )}
-      {...props}
-    />
+    <div className={cn("px-2 mb-2 text-xs font-medium text-gray-500", className)} {...props}>
+      {children}
+    </div>
   )
-})
-SidebarGroupLabel.displayName = "SidebarGroupLabel"
+}
 
-const SidebarGroupAction = React.forwardRef<
-  HTMLButtonElement,
-  React.ComponentProps<"button"> & { asChild?: boolean }
->(({ className, asChild = false, ...props }, ref) => {
-  const Comp = asChild ? Slot : "button"
-
+export function SidebarGroupContent({ className, children, ...props }: React.HTMLAttributes<HTMLDivElement>) {
   return (
-    <Comp
-      ref={ref}
-      data-sidebar="group-action"
-      className={cn(
-        "absolute right-3 top-3.5 flex aspect-square w-5 items-center justify-center rounded-md p-0 text-sidebar-foreground outline-none ring-sidebar-ring transition-transform hover:bg-sidebar-accent hover:text-sidebar-accent-foreground focus-visible:ring-2 [&>svg]:size-4 [&>svg]:shrink-0",
-        // Increases the hit area of the button on mobile.
-        "after:absolute after:-inset-2 after:md:hidden",
-        "group-data-[collapsible=icon]:hidden",
-        className
-      )}
-      {...props}
-    />
+    <div className={cn("space-y-1", className)} {...props}>
+      {children}
+    </div>
   )
-})
-SidebarGroupAction.displayName = "SidebarGroupAction"
-
-const SidebarGroupContent = React.forwardRef<
-  HTMLDivElement,
-  React.ComponentProps<"div">
->(({ className, ...props }, ref) => (
-  <div
-    ref={ref}
-    data-sidebar="group-content"
-    className={cn("w-full text-sm", className)}
-    {...props}
-  />
-))
-SidebarGroupContent.displayName = "SidebarGroupContent"
-
-export {
-  SidebarGroup,
-  SidebarGroupLabel,
-  SidebarGroupAction,
-  SidebarGroupContent
 }

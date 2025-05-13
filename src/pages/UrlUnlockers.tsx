@@ -1,26 +1,22 @@
 
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { useAuthState } from '@/hooks/auth';
-import Footer from '@/components/Footer';
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Button } from '@/components/ui/button';
-import { Plus, ArrowLeft } from 'lucide-react';
-import CreateUnlockerForm from '@/components/unlocker/CreateUnlockerForm';
-import UnlockersList from '@/components/unlocker/UnlockersList';
-import { getUserUnlockers } from '@/utils/unlocker/unlockersUtil';
-import { UrlUnlocker } from '@/utils/unlocker/types';
-import DashboardHeader from '@/components/dashboard/DashboardHeader';
-import { AppSidebar } from '@/components/ui/sidebar';
-import { SidebarProvider } from '@/components/ui/sidebar/sidebar-context';
+import { Card, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Plus } from "lucide-react";
+import { useAuthState } from "@/hooks/auth";
+import { useNavigate } from "react-router-dom";
+import { getUserUnlockers } from "@/utils/unlocker/unlockersUtil";
+import { UrlUnlocker } from "@/utils/unlocker/types";
+import CreateUnlockerForm from "@/components/unlocker/CreateUnlockerForm";
+import UnlockersList from "@/components/unlocker/UnlockersList";
+import { SidebarProvider } from "@/components/ui/sidebar/sidebar-context";
+import { AppSidebar } from "@/components/ui/sidebar";
 
 const UrlUnlockers: React.FC = () => {
   const [unlockers, setUnlockers] = useState<UrlUnlocker[]>([]);
-  const [loading, setLoading] = useState<boolean>(true);
-  const [activeTab, setActiveTab] = useState<string>('myUnlockers');
-  const [showCreateForm, setShowCreateForm] = useState<boolean>(false);
-  const { user, signOut } = useAuthState();
+  const [loading, setLoading] = useState(true);
+  const [showCreateForm, setShowCreateForm] = useState(false);
+  const { user } = useAuthState();
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -35,29 +31,13 @@ const UrlUnlockers: React.FC = () => {
   const fetchUnlockers = async () => {
     try {
       setLoading(true);
-      const data = await getUserUnlockers();
-      setUnlockers(data);
+      const fetchedUnlockers = await getUserUnlockers();
+      setUnlockers(fetchedUnlockers);
     } catch (error) {
-      console.error('Error fetching unlockers:', error);
+      console.error("Error fetching unlockers:", error);
     } finally {
       setLoading(false);
     }
-  };
-
-  const handleLogout = async () => {
-    await signOut();
-    navigate('/');
-  };
-
-  const handleCreateUnlocker = () => {
-    setShowCreateForm(true);
-    setActiveTab('create');
-  };
-
-  const handleUnlockerCreated = () => {
-    fetchUnlockers();
-    setShowCreateForm(false);
-    setActiveTab('myUnlockers');
   };
 
   const handleDeleteUnlocker = (id: string) => {
@@ -66,67 +46,50 @@ const UrlUnlockers: React.FC = () => {
 
   return (
     <SidebarProvider>
-      <div className="min-h-screen flex flex-col bg-gray-50">
-        <DashboardHeader handleLogout={handleLogout} user={user} />
-
-        <div className="flex flex-1">
-          <AppSidebar />
-          
-          <main className="flex-grow container mx-auto px-4 py-8 max-w-5xl">
-            <div className="flex flex-col md:flex-row md:items-center justify-between mb-6">
+      <div className="min-h-screen flex bg-gray-50">
+        <AppSidebar />
+        <div className="flex-1 p-6">
+          <div className="max-w-6xl mx-auto">
+            <div className="flex justify-between items-center mb-6">
               <div>
-                <Button 
-                  variant="ghost" 
-                  className="mb-2" 
-                  onClick={() => navigate('/dashboard')}
-                >
-                  <ArrowLeft className="mr-2 h-4 w-4" /> Back to Dashboard
-                </Button>
-                <h1 className="text-2xl md:text-3xl font-bold">URL Unlockers</h1>
-                <p className="text-gray-500 mt-1">
-                  Create button sequences that visitors must complete before accessing your content
+                <h1 className="text-3xl font-bold">URL Unlockers</h1>
+                <p className="text-gray-600">
+                  Create interactive URL unlockers to boost engagement
                 </p>
               </div>
-              
-              <Button 
-                className="mt-4 md:mt-0 bg-gradient-to-r from-brand-purple to-brand-blue hover:opacity-90"
-                onClick={handleCreateUnlocker}
+              <Button
+                onClick={() => setShowCreateForm(!showCreateForm)}
+                className="bg-gradient-to-r from-brand-purple to-brand-blue text-white"
               >
-                <Plus className="mr-2 h-5 w-5" /> Create New Unlocker
+                {showCreateForm ? (
+                  "Cancel"
+                ) : (
+                  <>
+                    <Plus className="mr-2 h-4 w-4" /> Create Unlocker
+                  </>
+                )}
               </Button>
             </div>
 
-            <Tabs defaultValue="myUnlockers" value={activeTab} onValueChange={setActiveTab} className="w-full">
-              <TabsList className="grid grid-cols-2 mb-8">
-                <TabsTrigger value="myUnlockers">My URL Unlockers</TabsTrigger>
-                <TabsTrigger value="create">Create New</TabsTrigger>
-              </TabsList>
+            {showCreateForm && (
+              <Card className="mb-8">
+                <CardContent className="pt-6">
+                  <CreateUnlockerForm
+                    onSuccess={() => {
+                      setShowCreateForm(false);
+                      fetchUnlockers();
+                    }}
+                  />
+                </CardContent>
+              </Card>
+            )}
 
-              <TabsContent value="myUnlockers">
-                {loading ? (
-                  <div className="flex justify-center py-12">
-                    <div className="h-12 w-12 border-4 border-t-brand-purple border-r-brand-blue border-b-brand-purple border-l-brand-blue border-t-transparent rounded-full animate-spin"></div>
-                  </div>
-                ) : (
-                  <UnlockersList unlockers={unlockers} onDelete={handleDeleteUnlocker} />
-                )}
-              </TabsContent>
-
-              <TabsContent value="create">
-                <Card className="shadow-lg">
-                  <CardHeader>
-                    <CardTitle>Create URL Unlocker</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <CreateUnlockerForm onSuccess={handleUnlockerCreated} />
-                  </CardContent>
-                </Card>
-              </TabsContent>
-            </Tabs>
-          </main>
+            <UnlockersList 
+              unlockers={unlockers} 
+              onDelete={handleDeleteUnlocker} 
+            />
+          </div>
         </div>
-
-        <Footer />
       </div>
     </SidebarProvider>
   );

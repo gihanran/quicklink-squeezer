@@ -1,65 +1,89 @@
 
 import React from "react";
-import { useNavigate } from "react-router-dom";
-import { useAuthState } from "@/hooks/auth";
-import { Home, Link, Lock } from "lucide-react";
+import { useLocation } from "react-router-dom";
 import {
-  Sidebar,
-  SidebarContent,
-  SidebarFooter,
-  SidebarGroup,
-  SidebarGroupContent,
-  SidebarGroupLabel,
+  Link2,
+  LayoutDashboard,
+  Unlock,
+  User,
+  CreditCard
+} from "lucide-react";
+
+import { Sidebar } from "./sidebar";
+import { 
+  SidebarContent, 
   SidebarHeader,
-  SidebarMenu,
-  SidebarMenuButton,
-  SidebarMenuItem
-} from "./index";
+  SidebarFooter
+} from "./sidebar-content";
+import { 
+  SidebarMenu, 
+  SidebarMenuItem 
+} from "./sidebar-menu";
+import {
+  SidebarGroup,
+  SidebarGroupLabel,
+  SidebarGroupContent
+} from "./sidebar-group";
 
 export function AppSidebar() {
-  const navigate = useNavigate();
-  const { user } = useAuthState();
-
-  if (!user) return null;
+  const location = useLocation();
+  const path = location.pathname;
 
   return (
-    <Sidebar className="border-r border-border h-screen">
-      <SidebarHeader className="p-4">
-        <h2 className="text-xl font-bold">urlShort</h2>
+    <Sidebar>
+      <SidebarHeader className="border-b py-3 px-4">
+        <div className="font-bold text-lg">ShortR</div>
       </SidebarHeader>
-      
-      <SidebarContent>
+      <SidebarContent className="flex flex-col flex-grow">
         <SidebarGroup>
           <SidebarGroupLabel>Main</SidebarGroupLabel>
-          <SidebarGroupContent>
-            <SidebarMenu>
-              <SidebarMenuItem>
-                <SidebarMenuButton onClick={() => navigate("/dashboard")}>
-                  <Home className="h-5 w-5" />
-                  <span>Dashboard</span>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-              
-              <SidebarMenuItem>
-                <SidebarMenuButton onClick={() => navigate("/unlockers")}>
-                  <Lock className="h-5 w-5" />
-                  <span>URL Unlockers</span>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-              
-              <SidebarMenuItem>
-                <SidebarMenuButton onClick={() => navigate("/biocard")}>
-                  <Link className="h-5 w-5" />
-                  <span>Bio Cards</span>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-            </SidebarMenu>
-          </SidebarGroupContent>
+          <SidebarMenu>
+            <SidebarMenuItem 
+              to="/dashboard" 
+              active={path === "/dashboard"}
+              icon={<LayoutDashboard size={18} />}
+            >
+              Dashboard
+            </SidebarMenuItem>
+            <SidebarMenuItem 
+              to="/unlockers" 
+              active={path.includes("/unlocker")}
+              icon={<Unlock size={18} />}
+            >
+              URL Unlockers
+            </SidebarMenuItem>
+            <SidebarMenuItem 
+              to="/biocard" 
+              active={path.includes("/biocard")}
+              icon={<Link2 size={18} />}
+            >
+              Bio Cards
+            </SidebarMenuItem>
+          </SidebarMenu>
+        </SidebarGroup>
+        
+        <SidebarGroup>
+          <SidebarGroupLabel>Account</SidebarGroupLabel>
+          <SidebarMenu>
+            <SidebarMenuItem 
+              to="/profile" 
+              active={path === "/profile"}
+              icon={<User size={18} />}
+            >
+              Profile
+            </SidebarMenuItem>
+            <SidebarMenuItem 
+              to="/billing" 
+              active={path === "/billing"}
+              icon={<CreditCard size={18} />}
+            >
+              Billing
+            </SidebarMenuItem>
+          </SidebarMenu>
         </SidebarGroup>
       </SidebarContent>
-      
-      <SidebarFooter className="p-4 text-xs text-gray-500">
-        © {new Date().getFullYear()} urlShort
+      <SidebarFooter className="border-t py-2 px-4 text-xs text-gray-500">
+        © 2025 ShortR
       </SidebarFooter>
     </Sidebar>
   );
