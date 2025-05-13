@@ -3,6 +3,42 @@
 
 import {
   Sidebar,
+  SidebarTrigger,
+  SidebarRail,
+  SidebarInset
+} from "./sidebar";
+
+import {
+  SidebarContent,
+  SidebarHeader,
+  SidebarFooter,
+  SidebarSeparator,
+  SidebarInput
+} from "./sidebar-content";
+
+import {
+  SidebarGroup,
+  SidebarGroupLabel,
+  SidebarGroupAction,
+  SidebarGroupContent
+} from "./sidebar-group";
+
+import {
+  SidebarMenu,
+  SidebarMenuItem,
+  SidebarMenuButton,
+  SidebarMenuAction,
+  SidebarMenuBadge,
+  SidebarMenuSkeleton,
+  SidebarMenuSub,
+  SidebarMenuSubItem,
+  SidebarMenuSubButton
+} from "./sidebar-menu";
+
+import { useSidebar, SidebarProvider } from "./sidebar-context";
+
+export {
+  Sidebar,
   SidebarContent,
   SidebarFooter,
   SidebarGroup,
@@ -11,60 +47,21 @@ import {
   SidebarHeader,
   SidebarMenu,
   SidebarMenuButton,
-  SidebarMenuItem
-} from "./sidebar";
-
-import { Home, Link, Lock } from "lucide-react";
-import { useNavigate } from "react-router-dom";
-import { useAuthState } from "@/hooks/auth";
-
-export function AppSidebar() {
-  const navigate = useNavigate();
-  const { user } = useAuthState();
-
-  if (!user) return null;
-
-  return (
-    <Sidebar className="border-r border-border h-screen">
-      <SidebarHeader className="p-4">
-        <h2 className="text-xl font-bold">urlShort</h2>
-      </SidebarHeader>
-      
-      <SidebarContent>
-        <SidebarGroup>
-          <SidebarGroupLabel>Main</SidebarGroupLabel>
-          <SidebarGroupContent>
-            <SidebarMenu>
-              <SidebarMenuItem>
-                <SidebarMenuButton onClick={() => navigate("/dashboard")}>
-                  <Home className="h-5 w-5" />
-                  <span>Dashboard</span>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-              
-              <SidebarMenuItem>
-                <SidebarMenuButton onClick={() => navigate("/unlockers")}>
-                  <Lock className="h-5 w-5" />
-                  <span>URL Unlockers</span>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-              
-              <SidebarMenuItem>
-                <SidebarMenuButton onClick={() => navigate("/biocard")}>
-                  <Link className="h-5 w-5" />
-                  <span>Bio Cards</span>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
-      </SidebarContent>
-      
-      <SidebarFooter className="p-4 text-xs text-gray-500">
-        © {new Date().getFullYear()} urlShort
-      </SidebarFooter>
-    </Sidebar>
-  );
+  SidebarMenuItem,
+  SidebarTrigger,
+  SidebarRail,
+  SidebarInset,
+  SidebarSeparator,
+  SidebarInput,
+  SidebarGroupAction,
+  SidebarMenuAction,
+  SidebarMenuBadge,
+  SidebarMenuSkeleton,
+  SidebarMenuSub,
+  SidebarMenuSubItem,
+  SidebarMenuSubButton,
+  useSidebar,
+  SidebarProvider
 }
 
-export * from "./sidebar";
+export { AppSidebar } from "./AppSidebar";
