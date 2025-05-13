@@ -298,6 +298,42 @@ export type Database = {
         }
         Relationships: []
       }
+      url_unlockers: {
+        Row: {
+          clicks: number
+          created_at: string
+          destination_url: string
+          id: string
+          sequence: string[]
+          title: string | null
+          unlocks: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          clicks?: number
+          created_at?: string
+          destination_url: string
+          id?: string
+          sequence?: string[]
+          title?: string | null
+          unlocks?: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          clicks?: number
+          created_at?: string
+          destination_url?: string
+          id?: string
+          sequence?: string[]
+          title?: string | null
+          unlocks?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       url_visits: {
         Row: {
           id: string

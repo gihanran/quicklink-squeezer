@@ -26,3 +26,6 @@ enabled = true
 
 [functions.create-paypal-subscription]
 verify_jwt = true
+
+[functions.increment]
+verify_jwt = true

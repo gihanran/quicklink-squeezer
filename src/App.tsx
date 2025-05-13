@@ -1,3 +1,4 @@
+
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
@@ -18,6 +19,8 @@ import CookiePolicy from "./pages/CookiePolicy";
 import BioCardDashboard from "./pages/BioCardDashboard";
 import BioCardView from "./pages/BioCardView";
 import BioCardEdit from "./pages/BioCardEdit";
+import UrlUnlockers from "./pages/UrlUnlockers";
+import Unlock from "./pages/Unlock";
 import * as TooltipPrimitive from "@radix-ui/react-tooltip";
 import UserGuide from "./pages/UserGuide";
 
@@ -37,6 +40,8 @@ const App = () => {
                 <Route path="/auth" element={<Auth />} />
                 <Route path="/s/:shortCode" element={<Redirect />} />
                 <Route path="/dashboard" element={<Dashboard />} />
+                <Route path="/unlockers" element={<UrlUnlockers />} />
+                <Route path="/unlock/:unlockerId" element={<Unlock />} />
                 <Route path="/biocard" element={<BioCardDashboard />} />
                 <Route path="/b/:slug" element={<BioCardView />} />
                 <Route path="/admin" element={<Admin />} />
