@@ -303,6 +303,7 @@ export type Database = {
           clicks: number
           created_at: string
           destination_url: string
+          expiration_date: string
           id: string
           sequence: string[]
           title: string | null
@@ -314,6 +315,7 @@ export type Database = {
           clicks?: number
           created_at?: string
           destination_url: string
+          expiration_date?: string
           id?: string
           sequence?: string[]
           title?: string | null
@@ -325,6 +327,7 @@ export type Database = {
           clicks?: number
           created_at?: string
           destination_url?: string
+          expiration_date?: string
           id?: string
           sequence?: string[]
           title?: string | null
@@ -403,6 +406,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      cleanup_expired_unlockers: {
+        Args: Record<PropertyKey, never>
+        Returns: undefined
+      }
       get_total_clicks: {
         Args: Record<PropertyKey, never>
         Returns: {
